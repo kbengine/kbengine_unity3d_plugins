@@ -1132,7 +1132,7 @@ START_RUN:
 			bundle.newMessage(Message.messages["Baseapp_reqAccountBindEmail"]);
 			bundle.writeInt32(entity_id);
 			bundle.writeString(password);
-			bundle.writeString(emailaddress);//修改了此处的字符串常量
+			bundle.writeString(emailaddress);
 			bundle.send(_networkInterface);
 		}
 		
