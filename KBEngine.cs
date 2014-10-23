@@ -80,7 +80,7 @@ START_RUN:
 		private byte[] _clientdatas = new byte[0];
 		
 		public string serverVersion = "";
-		public string clientVersion = "0.1.13";
+		public string clientVersion = "0.2.0";
 		public string serverScriptVersion = "";
 		public string clientScriptVersion = "0.1.0";
 		public string serverProtocolMD5 = "";
