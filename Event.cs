@@ -90,11 +90,19 @@
 			return has;
 		}
 		
+		/*
+			注册监听由kbe插件抛出的事件。(out = kbe->render)
+			通常由渲染表现层来注册, 例如：监听角色血量属性的变化， 如果UI层注册这个事件，事件触发后就可以改变角色的血条值。
+		*/
 		public static bool registerOut(string eventname, object obj, string funcname)
 		{
 			return register(events_out, eventname, obj, funcname);
 		}
 
+		/*
+			注册监听由渲染表现层抛出的事件(in = render->kbe)
+			通常由kbe插件层来注册， 例如：UI层点击登录， 此时需要触发一个事件给kbe插件层进行与服务端交互的处理。
+		*/
 		public static bool registerIn(string eventname, object obj, string funcname)
 		{
 			return register(events_in, eventname, obj, funcname);
@@ -201,16 +209,27 @@ __RESTART_REMOVE:
 			return true;
 		}
 
+		/*
+			kbe插件触发事件。(out = kbe->render)
+			通常由渲染表现层来注册, 例如：监听角色血量属性的变化， 如果UI层注册这个事件，事件触发后就可以改变角色的血条值。
+		*/
 		public static void fireOut(string eventname, object[] args)
 		{
 			fire_(events_out, firedEvents_out, eventname, args);
 		}
 
+		/*
+			渲染表现层抛出事件(in = render->kbe)
+			通常由kbe插件层来注册， 例如：UI层点击登录， 此时需要触发一个事件给kbe插件层进行与服务端交互的处理。
+		*/
 		public static void fireIn(string eventname, object[] args)
 		{
 			fire_(events_in, firedEvents_in, eventname, args);
 		}
 
+		/*
+			触发kbe插件和渲染表现层都能够收到的事件
+		*/
 		public static void fireAll(string eventname, object[] args)
 		{
 			fire_(events_in, firedEvents_in, eventname, args);
