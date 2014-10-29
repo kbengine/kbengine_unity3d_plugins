@@ -92,7 +92,8 @@
 		
 		/*
 			注册监听由kbe插件抛出的事件。(out = kbe->render)
-			通常由渲染表现层来注册, 例如：监听角色血量属性的变化， 如果UI层注册这个事件，事件触发后就可以改变角色的血条值。
+			通常由渲染表现层来注册, 例如：监听角色血量属性的变化， 如果UI层注册这个事件，
+			事件触发后就可以根据事件所附带的当前血量值来改变角色头顶的血条值。
 		*/
 		public static bool registerOut(string eventname, object obj, string funcname)
 		{
@@ -210,8 +211,9 @@ __RESTART_REMOVE:
 		}
 
 		/*
-			kbe插件触发事件。(out = kbe->render)
-			通常由渲染表现层来注册, 例如：监听角色血量属性的变化， 如果UI层注册这个事件，事件触发后就可以改变角色的血条值。
+			kbe插件触发事件(out = kbe->render)
+			通常由渲染表现层来注册, 例如：监听角色血量属性的变化， 如果UI层注册这个事件，
+			事件触发后就可以根据事件所附带的当前血量值来改变角色头顶的血条值。
 		*/
 		public static void fireOut(string eventname, object[] args)
 		{
