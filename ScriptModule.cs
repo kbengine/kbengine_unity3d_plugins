@@ -4,7 +4,8 @@
 	using System; 
 	using System.Collections; 
 	using System.Collections.Generic;
-	
+	using System.Reflection;
+
     public class ScriptModule
     {
 		public string name;
@@ -27,9 +28,19 @@
 		public ScriptModule(string modulename)
 		{
 			name = modulename;
-			script = Type.GetType("KBEngine." + modulename);
+
+			foreach (System.Reflection.Assembly ass in AppDomain.CurrentDomain.GetAssemblies()) 
+			{
+				script = ass.GetType ("KBEngine." + modulename);
+				if(script != null)
+					break;
+			}
+
 			usePropertyDescrAlias = false;
 			useMethodDescrAlias = false;
+
+			if(script == null)
+				Dbg.ERROR_MSG("can't load(KBEngine." + modulename + ")!");
 		}
     }
     
