@@ -245,7 +245,11 @@ __RESTART_REMOVE:
 			
 			if(!events.TryGetValue(eventname, out lst))
 			{
-				Dbg.WARNING_MSG("Event::fire: event(" + eventname + ") not found!");
+				if(events == events_in)
+					Dbg.WARNING_MSG("Event::fireIn: event(" + eventname + ") not found!");
+				else
+					Dbg.WARNING_MSG("Event::fireOut: event(" + eventname + ") not found!");
+				
 				Monitor.Exit(events);
 				return;
 			}
