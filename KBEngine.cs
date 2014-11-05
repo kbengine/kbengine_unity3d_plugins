@@ -1414,7 +1414,14 @@ START_RUN:
 			}
             catch (Exception e)
             {
-                Dbg.ERROR_MSG("KBEngine::Client_onRemoteMethodCall: entity(" + eid + "), call( " + methoddata.name + ") is error!\nerror=" + e.ToString());
+            	if(methoddata.handler != null)
+            	{
+					Dbg.ERROR_MSG("KBEngine::Client_onRemoteMethodCall: " + entity.classtype + "(" + eid + "), callMethod(" + entity.classtype + "." + methoddata.name + ") is error!\nerror=" + e.ToString());
+				}
+				else
+				{
+					Dbg.ERROR_MSG("KBEngine::Client_onRemoteMethodCall: " + entity.classtype + "(" + eid + "), not found method(" + entity.classtype + "." + methoddata.name + ") is error!\nerror=" + e.ToString());
+				}
             }
 		}
 			
