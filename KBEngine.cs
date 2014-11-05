@@ -127,7 +127,7 @@ START_RUN:
 		
 		public static EntityDef entityDef = new EntityDef();
 		
-		public bool isbreak = false;
+		public bool isbreak_ = false;
 		
         public KBEngineApp(string persistentDataPath, string ip, UInt16 port, sbyte clientType)
         {
@@ -162,7 +162,7 @@ START_RUN:
         public void destroy()
         {
         	Dbg.WARNING_MSG("KBEngine::destroy()");
-        	isbreak = true;
+        	breakProcess();
         	
         	int i = 0;
         	while(!kbethread.over && i < 50)
@@ -257,9 +257,19 @@ START_RUN:
 			return Regex.IsMatch(strEmail, @"^([\w-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([\w-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$"); 
 		}  
 		
+		public void breakProcess()
+		{
+			isbreak_ = true;
+		}
+		
+		public bool isbreak()
+		{
+			return isbreak_;
+		}
+		
 		public void process()
 		{
-			while(!isbreak)
+			while(!isbreak())
 			{
 				Event.processInEvents();
 				_networkInterface.process();
@@ -1398,7 +1408,14 @@ START_RUN:
 				args[i] = methoddata.args[i].createFromStream(stream);
 			}
 			
-			methoddata.handler.Invoke(entity, args);
+			try
+			{
+				methoddata.handler.Invoke(entity, args);
+			}
+            catch (Exception e)
+            {
+                Dbg.ERROR_MSG("KBEngine::Client_onRemoteMethodCall: entity(" + eid + "), call( " + methoddata.name + ") is error!\nerror=" + e.ToString());
+            }
 		}
 			
 		public void Client_onEntityEnterWorld(MemoryStream stream)
