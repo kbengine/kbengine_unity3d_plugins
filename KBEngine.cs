@@ -1420,7 +1420,7 @@ START_RUN:
 				}
 				else
 				{
-					Dbg.ERROR_MSG("KBEngine::Client_onRemoteMethodCall: " + entity.classtype + "(" + eid + "), not found method(" + entity.classtype + "." + methoddata.name + ") is error!\nerror=" + e.ToString());
+					Dbg.ERROR_MSG("KBEngine::Client_onRemoteMethodCall: " + entity.classtype + "(" + eid + "), not found method(" + entity.classtype + "." + methoddata.name + ")!\nerror=" + e.ToString());
 				}
             }
 		}
