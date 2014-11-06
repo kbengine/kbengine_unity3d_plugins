@@ -218,8 +218,7 @@ START_RUN:
 		{
 			KBEngine.Event.clearFiredEvents();
 			
-			foreach(Entity e in entities.Values)
-				e.destroy();
+			clearEntities(true);
 			
 			currserver = "loginapp";
 			currstate = "create";
@@ -228,7 +227,6 @@ START_RUN:
 			serverVersion = "";
 			serverScriptVersion = "";
 			
-			entities.Clear();
 			entity_uuid = 0;
 			entity_id = 0;
 			entity_type = "";
@@ -1489,7 +1487,7 @@ START_RUN:
 					// 如果服务端上使用giveClientTo切换控制权
 					// 之前的实体已经进入世界， 切换后的实体也进入世界， 这里可能会残留之前那个实体进入世界的信息
 					_entityIDAliasIDList.Clear();
-					entities.Clear();
+					clearEntities(false);
 					entities[entity.id] = entity;
 				
 					entity.cellMailbox = new Mailbox();
@@ -1646,7 +1644,13 @@ START_RUN:
 		{
 			_entityIDAliasIDList.Clear();
 			_spacedatas.Clear();
-			
+			clearEntities(isall);
+			isLoadedGeometry = false;
+			spaceID = 0;
+		}
+		
+		public void clearEntities(bool isall)
+		{
 			if(!isall)
 			{
 				Entity entity = player();
@@ -1656,7 +1660,10 @@ START_RUN:
 					if(dic.Key == entity.id)
 						continue;
 					
-				    dic.Value.onLeaveWorld();
+					if(dic.Value.inWorld)
+						dic.Value.onLeaveWorld();
+					
+				    dic.Value.destroy();
 				}  
 		
 				entities.Clear();
@@ -1666,14 +1673,14 @@ START_RUN:
 			{
 				foreach (KeyValuePair<Int32, Entity> dic in entities)  
 				{ 
-				    dic.Value.onLeaveWorld();
+					if(dic.Value.inWorld)
+						dic.Value.onLeaveWorld();
+
+				    dic.Value.destroy();
 				}  
 		
 				entities.Clear();
 			}
-			
-			isLoadedGeometry = false;
-			spaceID = 0;
 		}
 		
 		public void Client_initSpaceData(MemoryStream stream)
@@ -1734,6 +1741,7 @@ START_RUN:
 				entity.onLeaveWorld();
 			
 			entities.Remove(eid);
+			entity.destroy();
 		}
 		
 		public void Client_onUpdateBasePos(MemoryStream stream)
