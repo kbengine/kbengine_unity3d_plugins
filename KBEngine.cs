@@ -127,7 +127,7 @@ START_RUN:
 		
 		public static EntityDef entityDef = new EntityDef();
 		
-		private bool isbreak_ = false;
+		private bool _isbreak = false;
 		
         public KBEngineApp(string persistentDataPath, string ip, UInt16 port, sbyte clientType)
         {
@@ -257,12 +257,12 @@ START_RUN:
 		
 		public void breakProcess()
 		{
-			isbreak_ = true;
+			_isbreak = true;
 		}
 		
 		public bool isbreak()
 		{
-			return isbreak_;
+			return _isbreak;
 		}
 		
 		public void process()
