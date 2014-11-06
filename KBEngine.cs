@@ -1236,8 +1236,8 @@ START_RUN:
 			
 			if(this.entities.ContainsKey(eid))
 			{
-				Dbg.WARNING_MSG("KBEngine::Client_onCreatedProxies: eid(" + eid + ") has exist!");
-				return;
+				// Dbg.WARNING_MSG("KBEngine::Client_onCreatedProxies: eid(" + eid + ") has exist!");
+				Client_onEntityDestroyed(eid);
 			}
 			
 			Type runclass = EntityDef.moduledefs[entityType].script;
