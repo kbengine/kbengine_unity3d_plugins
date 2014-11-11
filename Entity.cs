@@ -52,7 +52,7 @@
 			}
 		}
 		
-		public virtual void destroy ()
+		public virtual void onDestroy ()
 		{
 		}
 		

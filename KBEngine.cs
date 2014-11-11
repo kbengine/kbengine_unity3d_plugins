@@ -1529,7 +1529,7 @@ START_RUN:
 			else
 			{
 				entities.Remove(eid);
-				entity.destroy();
+				entity.onDestroy();
 				_entityIDAliasIDList.Remove(eid);
 			}
 		}
@@ -1663,7 +1663,7 @@ START_RUN:
 					if(dic.Value.inWorld)
 						dic.Value.onLeaveWorld();
 					
-				    dic.Value.destroy();
+				    dic.Value.onDestroy();
 				}  
 		
 				entities.Clear();
@@ -1676,7 +1676,7 @@ START_RUN:
 					if(dic.Value.inWorld)
 						dic.Value.onLeaveWorld();
 
-				    dic.Value.destroy();
+				    dic.Value.onDestroy();
 				}  
 		
 				entities.Clear();
@@ -1741,7 +1741,7 @@ START_RUN:
 				entity.onLeaveWorld();
 			
 			entities.Remove(eid);
-			entity.destroy();
+			entity.onDestroy();
 		}
 		
 		public void Client_onUpdateBasePos(MemoryStream stream)
