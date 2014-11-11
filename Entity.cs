@@ -52,7 +52,7 @@
 			}
 		}
 		
-		public virtual void destroy ()
+		protected virtual void destroy ()
 		{
 		}
 		
