@@ -5,19 +5,29 @@
 	
 	using MessageID = System.UInt16;
 	using MessageLength = System.UInt16;
+	using MessageLengthEx = System.UInt32;
 	
     public class MessageReader
     {
 		enum READ_STATE
 		{
+			// 消息ID
 			READ_STATE_MSGID = 0,
+
+			// 消息的长度65535以内
 			READ_STATE_MSGLEN = 1,
-			READ_STATE_BODY = 2
+
+			// 当上面的消息长度都无法到达要求时使用扩展长度
+			// uint32
+			READ_STATE_MSGLEN_EX = 2,
+
+			// 消息的内容
+			READ_STATE_BODY = 3
 		}
 		
 		private MessageID msgid = 0;
 		private MessageLength msglen = 0;
-		private MessageLength expectSize = 2;
+		private MessageLengthEx expectSize = 2;
 		private READ_STATE state = READ_STATE.READ_STATE_MSGID;
 		private MemoryStream stream = new MemoryStream();
 		
@@ -25,9 +35,9 @@
 		{
 		}
 		
-		public void process(byte[] datas, MessageLength length)
+		public void process(byte[] datas, MessageLengthEx length)
 		{
-			MessageLength totallen = 0;
+			MessageLengthEx totallen = 0;
 			
 			while(length > 0 && expectSize > 0)
 			{
@@ -37,10 +47,11 @@
 					{
 						Array.Copy(datas, totallen, stream.data(), stream.wpos, expectSize);
 						totallen += expectSize;
-						stream.wpos += expectSize;
+						stream.wpos += (int)expectSize;
 						length -= expectSize;
-						
+					//	Dbg.DEBUG_MSG("----111----------"+totallen + "  " + stream.wpos + " " + length + "    " + stream.data().Length);
 						msgid = stream.readUint16();
+					//	Dbg.DEBUG_MSG("----222----------"+msgid);
 						stream.clear();
 
 						Message msg = Message.clientMessages[msgid];
@@ -52,14 +63,14 @@
 						}
 						else
 						{
+							expectSize = (MessageLengthEx)msg.msglen;
 							state = READ_STATE.READ_STATE_BODY;
-							expectSize = (MessageLength)msg.msglen;
 						}
 					}
 					else
 					{
 						Array.Copy(datas, totallen, stream.data(), stream.wpos, length);
-						stream.wpos += length;
+						stream.wpos += (int)length;
 						expectSize -= length;
 						break;
 					}
@@ -70,19 +81,50 @@
 					{
 						Array.Copy(datas, totallen, stream.data(), stream.wpos, expectSize);
 						totallen += expectSize;
-						stream.wpos += expectSize;
+						stream.wpos += (int)expectSize;
 						length -= expectSize;
 						
 						msglen = stream.readUint16();
 						stream.clear();
-
-						state = READ_STATE.READ_STATE_BODY;
-						expectSize = msglen;
+						
+						// 长度扩展
+						if(msglen >= 65535)
+						{
+							state = READ_STATE.READ_STATE_MSGLEN_EX;
+							expectSize = 4;
+						}
+						else
+						{
+							state = READ_STATE.READ_STATE_BODY;
+							expectSize = msglen;
+						}
 					}
 					else
 					{
 						Array.Copy(datas, totallen, stream.data(), stream.wpos, length);
-						stream.wpos += length;
+						stream.wpos += (int)length;
+						expectSize -= length;
+						break;
+					}
+				}
+				else if(state == READ_STATE.READ_STATE_MSGLEN_EX)
+				{
+					if(length >= expectSize)
+					{
+						Array.Copy(datas, totallen, stream.data(), stream.wpos, expectSize);
+						totallen += expectSize;
+						stream.wpos += (int)expectSize;
+						length -= expectSize;
+						
+						expectSize = stream.readUint32();
+						stream.clear();
+						
+						state = READ_STATE.READ_STATE_BODY;
+					}
+					else
+					{
+						Array.Copy(datas, totallen, stream.data(), stream.wpos, length);
+						stream.wpos += (int)length;
 						expectSize -= length;
 						break;
 					}
@@ -91,9 +133,8 @@
 				{
 					if(length >= expectSize)
 					{
-						Array.Copy(datas, totallen, stream.data(), stream.wpos, expectSize);
+						stream.append (datas, totallen, expectSize);
 						totallen += expectSize;
-						stream.wpos += expectSize;
 						length -= expectSize;
 
 						Message msg = Message.clientMessages[msgid];
@@ -106,8 +147,7 @@
 					}
 					else
 					{
-						Array.Copy(datas, totallen, stream.data(), stream.wpos, length);
-						stream.wpos += length;
+						stream.append (datas, totallen, length);
 						expectSize -= length;
 						break;
 					}

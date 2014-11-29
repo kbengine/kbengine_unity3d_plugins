@@ -273,7 +273,21 @@
 			
 			datas_[wpos++] = 0;
 		}
-		
+
+		//---------------------------------------------------------------------------------
+		public void append(byte[] datas, UInt32 offset, UInt32 size)
+		{
+			UInt32 free = fillfree ();
+			if (free < size) {
+				byte[] newdatas = new byte[datas_.Length + size * 2]; 
+				Array.Copy(datas_, 0, newdatas, 0, wpos);
+				datas_ = newdatas;
+			}
+
+			Array.Copy(datas, offset, datas_, wpos, size);
+			wpos += (int)size;
+		}
+
 		//---------------------------------------------------------------------------------
 		public void readSkip(UInt32 v)
 		{
@@ -283,7 +297,7 @@
 		//---------------------------------------------------------------------------------
 		public UInt32 fillfree()
 		{
-			return (UInt32)(BUFFER_MAX - wpos);
+			return (UInt32)(data().Length - wpos);
 		}
 	
 		//---------------------------------------------------------------------------------
@@ -314,6 +328,9 @@
 		public void clear()
 		{
 			rpos = wpos = 0;
+
+			if(datas_.Length > BUFFER_MAX)
+			   datas_ = new byte[BUFFER_MAX]; 
 		}
 		
 		//---------------------------------------------------------------------------------
