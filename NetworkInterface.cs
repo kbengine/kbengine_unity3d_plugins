@@ -182,61 +182,58 @@ __RETRY:
 				
 				int successReceiveBytes = 0;
 				
-				while(true)
+				try
 				{
-					try
-					{
-						successReceiveBytes = socket_.Receive(_datas, MemoryStream.BUFFER_MAX, 0);
-					}
-					catch (SocketException err)
-					{
-	                    if (err.ErrorCode == 10054 || err.ErrorCode == 10053)
-	                    {
-							Dbg.DEBUG_MSG(string.Format("NetworkInterface::recv(): disable connect!"));
-							
-							if(socket_ != null && socket_.Connected)
-								socket_.Close();
-							
-							socket_ = null;
-	                    }
-						else{
-							Dbg.ERROR_MSG(string.Format("NetworkInterface::recv(): socket error(" + err.ErrorCode + ")!"));
-						}
-						
-						Event.fireAll("onDisableConnect", new object[]{});
-						return;
-					}
-					
-					if(successReceiveBytes > 0)
-					{
-					//	Dbg.DEBUG_MSG(string.Format("NetworkInterface::recv(): size={0}!", successReceiveBytes));
-					}
-					else if(successReceiveBytes == 0)
-					{
+					successReceiveBytes = socket_.Receive(_datas, MemoryStream.BUFFER_MAX, 0);
+				}
+				catch (SocketException err)
+				{
+                    if (err.ErrorCode == 10054 || err.ErrorCode == 10053)
+                    {
 						Dbg.DEBUG_MSG(string.Format("NetworkInterface::recv(): disable connect!"));
+						
 						if(socket_ != null && socket_.Connected)
 							socket_.Close();
 						
 						socket_ = null;
-						
-						Event.fireAll("onDisableConnect", new object[]{});
-						return;
-					}
-					else
-					{
-						Dbg.ERROR_MSG(string.Format("NetworkInterface::recv(): socket error!"));
-						
-						if(socket_ != null && socket_.Connected)
-							socket_.Close();
-						socket_ = null;
-						
-						Event.fireAll("onDisableConnect", new object[]{});
-						return;
+                    }
+					else{
+						Dbg.ERROR_MSG(string.Format("NetworkInterface::recv(): socket error(" + err.ErrorCode + ")!"));
 					}
 					
-					msgReader.process(_datas, (MessageLength)successReceiveBytes);
-	            }
-	        }
+					Event.fireAll("onDisableConnect", new object[]{});
+					return;
+				}
+				
+				if(successReceiveBytes > 0)
+				{
+				//	Dbg.DEBUG_MSG(string.Format("NetworkInterface::recv(): size={0}!", successReceiveBytes));
+				}
+				else if(successReceiveBytes == 0)
+				{
+					Dbg.DEBUG_MSG(string.Format("NetworkInterface::recv(): disable connect!"));
+					if(socket_ != null && socket_.Connected)
+						socket_.Close();
+					
+					socket_ = null;
+					
+					Event.fireAll("onDisableConnect", new object[]{});
+				}
+				else
+				{
+					Dbg.ERROR_MSG(string.Format("NetworkInterface::recv(): socket error!"));
+					
+					if(socket_ != null && socket_.Connected)
+						socket_.Close();
+					
+					socket_ = null;
+					
+					Event.fireAll("onDisableConnect", new object[]{});
+					return;
+				}
+				
+				msgReader.process(_datas, (MessageLength)successReceiveBytes);
+            }
 		}
 		
 		public void process() 
