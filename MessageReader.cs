@@ -49,9 +49,7 @@
 						totallen += expectSize;
 						stream.wpos += (int)expectSize;
 						length -= expectSize;
-					//	Dbg.DEBUG_MSG("----111----------"+totallen + "  " + stream.wpos + " " + length + "    " + stream.data().Length);
 						msgid = stream.readUint16();
-					//	Dbg.DEBUG_MSG("----222----------"+msgid);
 						stream.clear();
 
 						Message msg = Message.clientMessages[msgid];
