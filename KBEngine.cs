@@ -470,34 +470,18 @@
 		{
 			KBEngineApp.app.username = username;
 			KBEngineApp.app.password = password;
-			
-			if(!KBEngineApp.app.login_loginapp(true))
-			{
-				Dbg.ERROR_MSG("login: connect is error!");
-				return;
-			}
+			KBEngineApp.app.login_loginapp(true);
 		}
 		
 		/*
 			登录到服务端(loginapp), 登录成功后还必须登录到网关(baseapp)登录流程才算完毕
 		*/
-		public bool login_loginapp(bool noconnect)
+		public void login_loginapp(bool noconnect)
 		{
 			if(noconnect)
 			{
 				reset();
-
-				if(!_networkInterface.connect(_ip, _port))
-				{
-					Dbg.ERROR_MSG(string.Format("KBEngine::login_loginapp(): connect {0}:{1} is error!", _ip, _port));  
-					return false;
-				}
-				
-				currserver = "loginapp";
-				currstate = "login";
-			
-				hello();
-				Dbg.DEBUG_MSG(string.Format("KBEngine::login_loginapp(): connect {0}:{1} is successfylly!", _ip, _port));
+				_networkInterface.connectTo(_ip, _port, onConnectTo_loginapp_callback, null);
 			}
 			else
 			{
@@ -510,8 +494,22 @@
 				bundle.writeString(password);
 				bundle.send(_networkInterface);
 			}
+		}
+		
+		private void onConnectTo_loginapp_callback(string ip, int port, bool success, object userData)
+		{
+			if(!success)
+			{
+				Dbg.ERROR_MSG(string.Format("KBEngine::login_loginapp(): connect {0}:{1} is error!", ip, port));  
+				return;
+			}
 			
-			return true;
+			currserver = "loginapp";
+			currstate = "login";
+			
+			Dbg.DEBUG_MSG(string.Format("KBEngine::login_loginapp(): connect {0}:{1} is successfylly!", ip, port));
+
+			hello();
 		}
 		
 		private void onLogin_loginapp()
@@ -533,24 +531,14 @@
 		/*
 			登录到服务端，登录到网关(baseapp)
 		*/
-		public bool login_baseapp(bool noconnect)
+		public void login_baseapp(bool noconnect)
 		{  
 			if(noconnect)
 			{
 				Event.fireAll("login_baseapp", new object[]{});
 				
 				_networkInterface.reset();
-				if(!_networkInterface.connect(baseappIP, baseappPort))
-				{
-					Dbg.ERROR_MSG(string.Format("KBEngine::login_baseapp(): connect {0}:{1} is error!", baseappIP, baseappPort));
-					return false;
-				}
-				
-				currserver = "baseapp";
-				currstate = "";
-			
-				hello();
-				Dbg.DEBUG_MSG(string.Format("KBEngine::login_baseapp(): connect {0}:{1} is successfully!", baseappIP, baseappPort));
+				_networkInterface.connectTo(baseappIP, baseappPort, onConnectTo_baseapp_callback, null);
 			}
 			else
 			{
@@ -560,10 +548,24 @@
 				bundle.writeString(password);
 				bundle.send(_networkInterface);
 			}
-			
-			return true;
 		}
-	
+
+		private void onConnectTo_baseapp_callback(string ip, int port, bool success, object userData)
+		{
+			if(!success)
+			{
+				Dbg.ERROR_MSG(string.Format("KBEngine::login_baseapp(): connect {0}:{1} is error!", ip, port));
+				return;
+			}
+			
+			currserver = "baseapp";
+			currstate = "";
+			
+			Dbg.DEBUG_MSG(string.Format("KBEngine::login_baseapp(): connect {0}:{1} is successfully!", ip, port));
+
+			hello();
+		}
+		
 		private void onLogin_baseapp()
 		{
 			if(!baseappMessageImported_)
@@ -584,16 +586,22 @@
 			重登录到网关(baseapp)
 			一些移动类应用容易掉线，可以使用该功能快速的重新与服务端建立通信
 		*/
-		public bool relogin_baseapp()
+		public void relogin_baseapp()
 		{  
 			Event.fireAll("onRelogin_baseapp", new object[]{});
-			if(!_networkInterface.connect(baseappIP, baseappPort))
+			_networkInterface.connectTo(baseappIP, baseappPort, onReConnectTo_baseapp_callback, null);
+		}
+
+		private void onReConnectTo_baseapp_callback(string ip, int port, bool success, object userData)
+		{
+			if(!success)
 			{
-				Dbg.ERROR_MSG(string.Format("KBEngine::relogin_baseapp(): connect {0}:{1} is error!", baseappIP, baseappPort));
-				return false;
+				Dbg.ERROR_MSG(string.Format("KBEngine::relogin_baseapp(): connect {0}:{1} is error!", ip, port));
+				return;
 			}
 			
-			Dbg.DEBUG_MSG(string.Format("KBEngine::relogin_baseapp(): connect {0}:{1} is successfully!", baseappIP, baseappPort));
+			
+			Dbg.DEBUG_MSG(string.Format("KBEngine::relogin_baseapp(): connect {0}:{1} is successfully!", ip, port));
 
 			Bundle bundle = new Bundle();
 			bundle.newMessage(Message.messages["Baseapp_reLoginGateway"]);
@@ -602,23 +610,26 @@
 			bundle.writeUint64(entity_uuid);
 			bundle.writeInt32(entity_id);
 			bundle.send(_networkInterface);
-			return true;
 		}
 		
 		/*
 			自动完成协议导入的所有流程
 		*/
-		public bool autoImportMessagesFromServer(bool isLoginapp)
+		public void autoImportMessagesFromServer(bool isLoginapp)
 		{  
 			reset();
-			
-			if(!_networkInterface.connect(_ip, _port))
-			{
-				Dbg.ERROR_MSG(string.Format("KBEngine::autoImportMessagesFromServer(): connect {0}:{1} is error!", _ip, _port));
-				return false;
-			}
+			_networkInterface.connectTo(_ip, _port, onConnectTo_autoImportMessagesFromServer_callback, isLoginapp);
+		}
 
-			if(isLoginapp)
+		private void onConnectTo_autoImportMessagesFromServer_callback(string ip, int port, bool success, object isLoginapp)
+		{
+			if(!success)
+			{
+				Dbg.ERROR_MSG(string.Format("KBEngine::autoImportMessagesFromServer(): connect {0}:{1} is error!", ip, port));
+				return;
+			}
+			
+			if((bool)isLoginapp)
 			{
 				currserver = "loginapp";
 				currstate = "autoimport";
@@ -653,9 +664,8 @@
 			}
 			
 			Dbg.DEBUG_MSG(string.Format("KBEngine::autoImportMessagesFromServer(): connect {0}:{1} is successfully!", _ip, _port));
-			return true;
 		}
-	
+		
 		/*
 			从二进制流导入消息协议
 		*/
@@ -1163,19 +1173,12 @@
 		/*
 			重置密码, 通过loginapp
 		*/
-		public bool resetpassword_loginapp(bool noconnect)
+		public void resetpassword_loginapp(bool noconnect)
 		{
 			if(noconnect)
 			{
 				reset();
-				if(!_networkInterface.connect(_ip, _port))
-				{
-					Dbg.ERROR_MSG(string.Format("KBEngine::resetpassword_loginapp(): connect {0}:{1} is error!", _ip, _port));
-					return false;
-				}
-				
-				onOpenLoginapp_resetpassword();
-				Dbg.DEBUG_MSG(string.Format("KBEngine::resetpassword_loginapp(): connect {0}:{1} is successfylly!", _ip, _port)); 
+				_networkInterface.connectTo(_ip, _port, onConnectTo_resetpassword_callback, null);
 			}
 			else
 			{
@@ -1184,10 +1187,20 @@
 				bundle.writeString(username);
 				bundle.send(_networkInterface);
 			}
-			
-			return true;
 		}
 
+		private void onConnectTo_resetpassword_callback(string ip, int port, bool success, object userData)
+		{
+			if(!success)
+			{
+				Dbg.ERROR_MSG(string.Format("KBEngine::resetpassword_loginapp(): connect {0}:{1} is error!", ip, port));
+				return;
+			}
+			
+			Dbg.DEBUG_MSG(string.Format("KBEngine::resetpassword_loginapp(): connect {0}:{1} is successfylly!", ip, port)); 
+			onOpenLoginapp_resetpassword();
+		}
+		
 		public void Client_onReqAccountResetPasswordCB(UInt16 failcode)
 		{
 			if(failcode != 0)
@@ -1271,30 +1284,18 @@
 		{
 			KBEngineApp.app.username = username;
 			KBEngineApp.app.password = password;
-			
-			if(!KBEngineApp.app.createAccount_loginapp(true))
-			{
-				Dbg.ERROR_MSG("createAccount: connect is error!");
-				return;
-			}
+			KBEngineApp.app.createAccount_loginapp(true);
 		}
 
 		/*
 			创建账号，通过loginapp
 		*/
-		public bool createAccount_loginapp(bool noconnect)
+		public void createAccount_loginapp(bool noconnect)
 		{
 			if(noconnect)
 			{
 				reset();
-				if(!_networkInterface.connect(_ip, _port))
-				{
-					Dbg.ERROR_MSG(string.Format("KBEngine::createAccount_loginapp(): connect {0}:{1} is error!", _ip, _port));
-					return false;
-				}
-				
-				onOpenLoginapp_createAccount();
-				Dbg.DEBUG_MSG(string.Format("KBEngine::createAccount_loginapp(): connect {0}:{1} is successfylly!", _ip, _port));
+				_networkInterface.connectTo(_ip, _port, onConnectTo_createAccount_callback, null);
 			}
 			else
 			{
@@ -1305,8 +1306,18 @@
 				bundle.writeBlob(new byte[0]);
 				bundle.send(_networkInterface);
 			}
+		}
+
+		private void onConnectTo_createAccount_callback(string ip, int port, bool success, object userData)
+		{
+			if(!success)
+			{
+				Dbg.ERROR_MSG(string.Format("KBEngine::createAccount_loginapp(): connect {0}:{1} is error!", ip, port));
+				return;
+			}
 			
-			return true;
+			Dbg.DEBUG_MSG(string.Format("KBEngine::createAccount_loginapp(): connect {0}:{1} is successfylly!", ip, port)); 
+			onOpenLoginapp_createAccount();
 		}
 		
 		/*

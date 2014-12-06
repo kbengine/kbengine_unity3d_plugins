@@ -20,11 +20,17 @@
     public class NetworkInterface 
     {
     	public const int TCP_PACKET_MAX = 1460;
+    	public delegate void ConnectCallback(string ip, int port, bool success, object userData);
     	
+		// for connect
+		string _connectIP;
+		int _connectPort;
+		ConnectCallback _connectCB;
+		object _userData;
+		
         private Socket socket_ = null;
 		private List<MemoryStream> packets_ = null;
 		private MessageReader msgReader = new MessageReader();
-		private static ManualResetEvent TimeoutObject = new ManualResetEvent(false);
 		private static byte[] _datas = new byte[MemoryStream.BUFFER_MAX];
 		
         public NetworkInterface(KBEngineApp app)
@@ -41,7 +47,6 @@
 			socket_ = null;
 			msgReader = new MessageReader();
 			packets_.Clear();
-			TimeoutObject.Set();
 		}
 		
 		public Socket sock()
@@ -54,77 +59,73 @@
 			return ((socket_ != null) && (socket_.Connected == true));
 		}
 		
-		private static void connectCB(IAsyncResult asyncresult)
+		private void connectCB(object sender, SocketAsyncEventArgs e)
 		{
-			if(KBEngineApp.app.networkInterface().valid())
-			{
-				Dbg.DEBUG_MSG("connect is successfully!");
-				KBEngineApp.app.networkInterface().sock().EndConnect(asyncresult);
-			}
+			Dbg.INFO_MSG(string.Format("NetworkInterface::connectCB(), connect callback. ip: {0}:{1}, {2}", _connectIP, _connectPort, e.SocketError));
 		
-			TimeoutObject.Set();
+			switch (e.SocketError)
+			{
+			case SocketError.Success:
+				if (_connectCB != null)
+					_connectCB( _connectIP, _connectPort, true, _userData );
+			
+				Event.fireAll("onConnectStatus", new object[]{true});
+				break;
+
+			default:
+				if (_connectCB != null)
+					_connectCB( _connectIP, _connectPort, false, _userData );
+			
+				Event.fireAll("onConnectStatus", new object[]{false});
+				break;
+			}
 		}
 	    
-		public bool connect(string ip, int port) 
+		public bool connectTo(string ip, int port, ConnectCallback callback, object userData) 
 		{
 			if (valid())
 				throw new InvalidOperationException( "Have already connected!" );
 			
-			int count = 0;
-			
-			Dbg.DEBUG_MSG("connect to " + ip + ":" + port + " ...");
-			
-			Regex rx = new Regex( @"((?:(?:25[0-5]|2[0-4]\d|((1\d{2})|([1-9]?\d)))\.){3}(?:25[0-5]|2[0-4]\d|((1\d{2})|([1-9]?\d))))");
-			if (rx.IsMatch(ip))
-			{
-			}else
+			if(!(new Regex( @"((?:(?:25[0-5]|2[0-4]\d|((1\d{2})|([1-9]?\d)))\.){3}(?:25[0-5]|2[0-4]\d|((1\d{2})|([1-9]?\d))))")).IsMatch(ip))
 			{
 				IPHostEntry ipHost = Dns.GetHostEntry (ip);
 				ip = ipHost.AddressList[0].ToString();
 			}
-__RETRY:
+
 			reset();
-			TimeoutObject.Reset();
 			
+			_connectIP = ip;
+			_connectPort = port;
+			_connectCB = callback;
+			_userData = userData;
+			
+			bool result = false;
+	        
 			// Security.PrefetchSocketPolicy(ip, 843);
 			socket_ = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp); 
 			socket_.SetSocketOption (System.Net.Sockets.SocketOptionLevel.Socket, SocketOptionName.ReceiveBuffer, MemoryStream.BUFFER_MAX);
 			
-            try 
-            { 
-                IPEndPoint endpoint = new IPEndPoint(IPAddress.Parse(ip), port); 
-                
-				socket_.BeginConnect(endpoint, new AsyncCallback(connectCB), socket_);
-				
-		        if (TimeoutObject.WaitOne(10000))
-		        {
-		        }
-		        else
-		        {
-		        	reset();
-		        }
-        
+			SocketAsyncEventArgs connectEventArgs = new SocketAsyncEventArgs();
+			connectEventArgs.RemoteEndPoint = new IPEndPoint(IPAddress.Parse(ip), port);
+			connectEventArgs.Completed += new EventHandler<SocketAsyncEventArgs>(connectCB);
+			Dbg.DEBUG_MSG("connect to " + ip + ":" + port + " ...");
+			
+			try 
+			{ 
+				result = socket_.ConnectAsync(connectEventArgs);
             } 
             catch (Exception e) 
             {
-                Dbg.WARNING_MSG(e.ToString());
-                
-                if(count < 3)
-                {
-                	Dbg.WARNING_MSG("connect to " + ip + ":" + port + " is error, try=" + (count++) + "!");
-                	goto __RETRY;
-           		 }
-            
-				return false;
-            } 
-			
-			if(!valid())
-			{
+				Dbg.WARNING_MSG(string.Format("NetworkInterface::connect(): is error（0）! ip: {1}:{2}", e.ToString(), _connectIP, _connectPort));
 				Event.fireAll("onConnectStatus", new object[]{false});
-				return false;
+            } 
+
+			if (!result)
+			{
+				// Completed immediately
+				connectCB(this, connectEventArgs);
 			}
 			
-			Event.fireAll("onConnectStatus", new object[]{true});
 			return true;
 		}
         
