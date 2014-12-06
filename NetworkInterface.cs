@@ -86,7 +86,7 @@
 			}
 		}
 	    
-		public bool connectTo(string ip, int port, ConnectCallback callback, object userData) 
+		public void connectTo(string ip, int port, ConnectCallback callback, object userData) 
 		{
 			if (valid())
 				throw new InvalidOperationException( "Have already connected!" );
@@ -130,8 +130,6 @@
 				// Completed immediately
 				connectCB(this, connectEventArgs);
 			}
-			
-			return true;
 		}
         
         public void close()
