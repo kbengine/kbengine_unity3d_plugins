@@ -3,6 +3,10 @@
   	using UnityEngine; 
 	using System; 
 	
+	/*
+		抽象出一个entitydef中定义的属性
+		该模块描述了属性的id以及数据类型等信息
+	*/
     public class Property 
     {
 		public string name = "";

@@ -5,6 +5,10 @@
 	using System.Collections; 
 	using System.Collections.Generic;
 
+	/*
+		EntityDef模块
+		管理了所有的实体定义的描述以及所有的数据类型描述
+	*/
     public class EntityDef
     {
 		public static Dictionary<string, Int32> datatype2id = new Dictionary<string, Int32>();

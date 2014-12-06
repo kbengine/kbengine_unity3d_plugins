@@ -5,6 +5,10 @@
 	using System.Collections; 
 	using System.Collections.Generic;
 	
+	/*
+		KBEngine逻辑层的实体基础类
+		所有扩展出的游戏实体都应该继承于该模块
+	*/
     public class Entity 
     {
     	public Int32 id = 0;
@@ -220,6 +224,7 @@
 			
 			Event.fireOut("set_position", new object[]{this});
 		}
+
 
 		public virtual void set_direction(object old)
 		{

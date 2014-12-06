@@ -5,7 +5,10 @@ using System.Collections;
 
 namespace KBEngine
 {
-	
+
+/*
+	KBEngine的数学相关模块
+*/
 public class KBEMath 
 {
 	public static float int82angle(SByte angle, bool half)

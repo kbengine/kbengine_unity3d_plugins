@@ -13,6 +13,10 @@
 	using MessageID = System.UInt16;
 	using MessageLength = System.UInt16;
 	
+	/*
+		网络模块
+		处理连接、收发数据
+	*/
     public class NetworkInterface 
     {
     	public const int TCP_PACKET_MAX = 1460;

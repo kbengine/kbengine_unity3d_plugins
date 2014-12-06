@@ -6,6 +6,10 @@
 	using System.Collections.Generic;
 	using System.Reflection;
 
+	/*
+		一个entitydef中定义的脚本模块的描述类
+		包含了某个entity定义的属性与方法以及该entity脚本模块的名称与模块ID
+	*/
     public class ScriptModule
     {
 		public string name;

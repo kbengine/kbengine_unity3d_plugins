@@ -5,6 +5,9 @@
 	using System.Collections; 
 	using System.Collections.Generic;
 	
+	/*
+		根据数据类型绑定读写函数
+	*/
     public class StreamRWBinder 
     {
 		public static System.Reflection.MethodInfo bindwriter(Byte argType)

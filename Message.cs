@@ -7,6 +7,10 @@
 	
 	using MessageID = System.UInt16;
 	
+	/*
+		消息模块
+		客户端与服务端交互基于消息通讯， 任何一个行为一条指令都是以一个消息包来描述
+	*/
     public class Message 
     {
     	public MessageID id = 0;
@@ -32,6 +36,10 @@
 			bindFixedMessage();
 		}
 
+		/*
+			提前约定一些固定的协议
+			这样可以在没有从服务端导入协议之前就能与服务端进行握手等交互。
+		*/
 		public static void bindFixedMessage()
 		{
 			// 引擎协议说明参见: http://www.kbengine.org/cn/docs/programming/clientsdkprogramming.html
@@ -63,6 +71,8 @@
 			handler = msghandler;
 			argsType = argstype;
 			
+			// 对该消息的所有参数绑定反序列化方法，改方法能够将二进制流转化为参数需要的值
+			// 在服务端下发消息数据时会用到
 			argtypes = new System.Reflection.MethodInfo[msgargtypes.Count];
 			for(int i=0; i<msgargtypes.Count; i++)
 			{
@@ -77,6 +87,9 @@
 			//	msgname, msgid, msglen));
 		}
 		
+		/*
+			从二进制数据流中创建该消息的参数数据
+		*/
 		public object[] createFromStream(MemoryStream msgstream)
 		{
 			if(argtypes.Length <= 0)
@@ -92,6 +105,10 @@
 			return result;
 		}
 		
+		/*
+			将一个消息包反序列化后交给消息相关联的函数处理
+			例如：KBEngineApp.Client_onRemoteMethodCall
+		*/
 		public void handleMessage(MemoryStream msgstream)
 		{
 			if(argtypes.Length <= 0)

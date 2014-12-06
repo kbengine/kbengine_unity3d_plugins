@@ -11,44 +11,10 @@
 	using MessageID = System.UInt16;
 	using MessageLength = System.UInt16;
 	
-    public class KBEThread
-    {
-
-        KBEngineApp app_;
-		public bool over = false;
-		
-        public KBEThread(KBEngineApp app)
-        {
-            this.app_ = app;
-        }
-
-        public void run()
-        {
-			Dbg.INFO_MSG("KBEThread::run()");
-			int count = 0;
-START_RUN:
-			over = false;
-
-            try
-            {
-                this.app_.process();
-                count = 0;
-            }
-            catch (Exception e)
-            {
-                Dbg.ERROR_MSG(e.ToString());
-                Dbg.INFO_MSG("KBEThread::try run:" + count);
-                
-                count ++;
-                if(count < 10)
-                	goto START_RUN;
-            }
-			
-			over = true;
-			Dbg.INFO_MSG("KBEThread::end()");
-        }
-    }
-
+	/*
+		这是KBEngine插件的核心模块
+		包括网络创建、持久化协议、entities的管理、以及引起对外可调用接口。
+	*/
 	public class KBEngineApp
 	{
 		public static KBEngineApp app = null;
@@ -2182,4 +2148,47 @@ START_RUN:
 			Dbg.DEBUG_MSG("KBEngine::Client_onReqAccountNewPasswordCB: " + username + " is successfully!");
 		}
 	}
+	
+	
+	
+	/*
+		KBEngine处理线程
+	*/
+    public class KBEThread
+    {
+
+        KBEngineApp app_;
+		public bool over = false;
+		
+        public KBEThread(KBEngineApp app)
+        {
+            this.app_ = app;
+        }
+
+        public void run()
+        {
+			Dbg.INFO_MSG("KBEThread::run()");
+			int count = 0;
+START_RUN:
+			over = false;
+
+            try
+            {
+                this.app_.process();
+                count = 0;
+            }
+            catch (Exception e)
+            {
+                Dbg.ERROR_MSG(e.ToString());
+                Dbg.INFO_MSG("KBEThread::try run:" + count);
+                
+                count ++;
+                if(count < 10)
+                	goto START_RUN;
+            }
+			
+			over = true;
+			Dbg.INFO_MSG("KBEThread::end()");
+        }
+    }
 } 

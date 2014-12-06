@@ -7,6 +7,13 @@
 	
 	using MessageID = System.UInt16;
 	
+	/*
+		entitydef所支持的基本数据类型
+		改模块中的类抽象出了所有的支持类型并提供了这些类型的数据序列化成二进制数据与反序列化操作（主要用于网络通讯的打包与解包）
+	*/
+	
+	
+	
 	public class KBEDATATYPE_BASE
 	{
 		public static float KBE_FLT_MAX = float.MaxValue;

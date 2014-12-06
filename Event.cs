@@ -6,6 +6,10 @@
 	using System.Collections.Generic;
 	using System.Threading;
 	
+	/*
+		事件模块
+		KBEngine插件层与Unity3D表现层通过事件来交互
+	*/
     public class Event
     {
 		public struct Pair
