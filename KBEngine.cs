@@ -184,7 +184,7 @@
         	KBEngine.Event.deregisterIn(this);
         	resetMessages();
         	
-        	KBEngine.app = null;
+        	KBEngineApp.app = null;
         }
         
         public Thread t()
