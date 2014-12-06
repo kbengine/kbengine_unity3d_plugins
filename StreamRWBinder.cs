@@ -82,83 +82,83 @@
 			
 			if(argType == EntityDef.datatype2id["UINT8"])
 			{
-				info =  reader.GetMethod("readUint8");
+				info = reader.GetMethod("readUint8");
 			}
 			else if(argType == EntityDef.datatype2id["UINT16"])
 			{
-				info =  reader.GetMethod("readUint16");
+				info = reader.GetMethod("readUint16");
 			}
 			else if(argType == EntityDef.datatype2id["UINT32"])
 			{
-				info =  reader.GetMethod("readUint32");
+				info = reader.GetMethod("readUint32");
 			}
 			else if(argType == EntityDef.datatype2id["UINT64"])
 			{
-				info =  reader.GetMethod("readUint64");
+				info = reader.GetMethod("readUint64");
 			}
 			else if(argType == EntityDef.datatype2id["INT8"])
 			{
-				info =  reader.GetMethod("readInt8");
+				info = reader.GetMethod("readInt8");
 			}
 			else if(argType == EntityDef.datatype2id["INT16"])
 			{
-				info =  reader.GetMethod("readInt16");
+				info = reader.GetMethod("readInt16");
 			}
 			else if(argType == EntityDef.datatype2id["INT32"])
 			{
-				info =  reader.GetMethod("readInt32");
+				info = reader.GetMethod("readInt32");
 			}
 			else if(argType == EntityDef.datatype2id["INT64"])
 			{
-				info =  reader.GetMethod("readInt64");
+				info = reader.GetMethod("readInt64");
 			}
 			else if(argType == EntityDef.datatype2id["FLOAT"])
 			{
-				info =  reader.GetMethod("readFloat");
+				info = reader.GetMethod("readFloat");
 			}
 			else if(argType == EntityDef.datatype2id["DOUBLE"])
 			{
-				info =  reader.GetMethod("readDouble");
+				info = reader.GetMethod("readDouble");
 			}
 			else if(argType == EntityDef.datatype2id["STRING"])
 			{
-				info =  reader.GetMethod("readString");
+				info = reader.GetMethod("readString");
 			}
 			else if(argType == EntityDef.datatype2id["PYTHON"])
 			{
-				info =  reader.GetMethod("readStream");
+				info = reader.GetMethod("readStream");
 			}
 			else if(argType == EntityDef.datatype2id["VECTOR2"])
 			{
-				info =  reader.GetMethod("readStream");
+				info = reader.GetMethod("readStream");
 			}
 			else if(argType == EntityDef.datatype2id["VECTOR3"])
 			{
-				info =  reader.GetMethod("readStream");
+				info = reader.GetMethod("readStream");
 			}
 			else if(argType == EntityDef.datatype2id["VECTOR4"])
 			{
-				info =  reader.GetMethod("readStream");
+				info = reader.GetMethod("readStream");
 			}
 			else if(argType == EntityDef.datatype2id["BLOB"])
 			{
-				info =  reader.GetMethod("readStream");
+				info = reader.GetMethod("readStream");
 			}
 			else if(argType == EntityDef.datatype2id["UNICODE"])
 			{
-				info =  reader.GetMethod("readStream");
+				info = reader.GetMethod("readStream");
 			}
 			else if(argType == EntityDef.datatype2id["FIXED_DICT"])
 			{
-				info =  reader.GetMethod("readStream");
+				info = reader.GetMethod("readStream");
 			}
 			else if(argType == EntityDef.datatype2id["ARRAY"])
 			{
-				info =  reader.GetMethod("readStream");
+				info = reader.GetMethod("readStream");
 			}
 			else
 			{
-				info =  reader.GetMethod("readStream");
+				info = reader.GetMethod("readStream");
 			}
 			
 			if(info == null)
