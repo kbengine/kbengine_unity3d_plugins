@@ -5,12 +5,18 @@
 	using System.Collections; 
 	using System.Collections.Generic;
 	
+	/*
+		实体的Mailbox
+		关于Mailbox请参考API手册中对它的描述
+		https://github.com/kbengine/kbengine/tree/master/docs/api
+	*/
     public class Mailbox 
     {
+    	// Mailbox的类别
 		public enum MAILBOX_TYPE
 		{
-			MAILBOX_TYPE_CELL = 0,
-			MAILBOX_TYPE_BASE = 1
+			MAILBOX_TYPE_CELL = 0,		// CELL_MAILBOX
+			MAILBOX_TYPE_BASE = 1		// BASE_MAILBOX
 		}
 		
     	public Int32 id = 0;
@@ -30,8 +36,6 @@
 		{
 		}
 		
-		
-		
 		bool isBase()
 		{
 			return type == MAILBOX_TYPE.MAILBOX_TYPE_BASE;
@@ -42,6 +46,9 @@
 			return type == MAILBOX_TYPE.MAILBOX_TYPE_CELL;
 		}
 		
+		/*
+			创建新的mail
+		*/
 		public Bundle newMail()
 		{  
 			if(bundle == null)
@@ -57,6 +64,9 @@
 			return bundle;
 		}
 		
+		/*
+			向服务端发送这个mail
+		*/
 		public void postMail(Bundle inbundle)
 		{
 			if(inbundle == null)
