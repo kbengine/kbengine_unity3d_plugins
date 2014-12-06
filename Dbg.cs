@@ -8,7 +8,7 @@ namespace KBEngine
 	public class Dbg {
 		public static string getHead()
 		{
-			return "[" + DateTime.Now.ToString() + "]";
+			return "[" + DateTime.Now.ToString() + "] ";
 		}
 
 		public static void INFO_MSG(object s)

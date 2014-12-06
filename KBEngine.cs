@@ -131,27 +131,44 @@ START_RUN:
 		
         public KBEngineApp(string persistentDataPath, string ip, UInt16 port, sbyte clientType)
         {
+			if (app != null)
+				throw new Exception( "Only one instance of KBEngineApp!" );
+			
 			_clientType = clientType;
 			_ip = ip;
 			_port = port;
 			
 			app = this;
+			
+			initialize(persistentDataPath);
+        }
 
-        	_networkInterface = new NetworkInterface(this);
-        	
-            kbethread = new KBEThread(this);
-            
-            _t = new Thread(new ThreadStart(kbethread.run));
-            _t.Start();
-            
+		void initialize(string persistentDataPath)
+		{
+        	initNetwork();
+        	initThread();
+
             // 注册事件
             installEvents();
             
             // 允许持久化KBE(例如:协议，entitydef等)
             if(persistentDataPath != "")
          	   _persistentInofs = new PersistentInofs(persistentDataPath);
-        }
-
+		}
+		
+		void initNetwork()
+		{
+			Message.bindFixedMessage();
+        	_networkInterface = new NetworkInterface(this);
+		}
+		
+		void initThread()
+		{
+            kbethread = new KBEThread(this);
+            _t = new Thread(new ThreadStart(kbethread.run));
+            _t.Start();
+		}
+		
 		void installEvents()
 		{
 			Event.registerIn("createAccount", this, "createAccount");
@@ -181,11 +198,13 @@ START_RUN:
         	resetMessages();
         }
         
-        public Thread t(){
+        public Thread t()
+        {
         	return _t;
         }
         
-        public NetworkInterface networkInterface(){
+        public NetworkInterface networkInterface()
+        {
         	return _networkInterface;
         }
         
@@ -202,7 +221,6 @@ START_RUN:
         public void resetMessages()
         {
 	        loadingLocalMessages_ = false;
-	        
 			loginappMessageImported_ = false;
 			baseappMessageImported_ = false;
 			entitydefImported_ = false;
@@ -243,6 +261,8 @@ START_RUN:
 			_networkInterface.reset();
 			
 			_spacedatas.Clear();
+			
+			_isbreak = false;
 		}
 		
 		public string getIP()
@@ -277,7 +297,8 @@ START_RUN:
 			Dbg.WARNING_MSG("KBEngine::process(): break!");
 		}
 		
-		public Entity player(){
+		public Entity player()
+		{
 			Entity e;
 			if(entities.TryGetValue(entity_id, out e))
 				return e;
@@ -406,6 +427,7 @@ START_RUN:
 			if(noconnect)
 			{
 				reset();
+
 				if(!_networkInterface.connect(_ip, _port))
 				{
 					Dbg.ERROR_MSG(string.Format("KBEngine::login_loginapp(): connect {0}:{1} is error!", _ip, _port));  
@@ -454,6 +476,8 @@ START_RUN:
 			if(noconnect)
 			{
 				Event.fireAll("login_baseapp", new object[]{});
+				
+				_networkInterface.reset();
 				if(!_networkInterface.connect(baseappIP, baseappPort))
 				{
 					Dbg.ERROR_MSG(string.Format("KBEngine::login_baseapp(): connect {0}:{1} is error!", baseappIP, baseappPort));
@@ -518,6 +542,7 @@ START_RUN:
 		public bool autoImportMessagesFromServer(bool isLoginapp)
 		{  
 			reset();
+			
 			if(!_networkInterface.connect(_ip, _port))
 			{
 				Dbg.ERROR_MSG(string.Format("KBEngine::autoImportMessagesFromServer(): connect {0}:{1} is error!", _ip, _port));

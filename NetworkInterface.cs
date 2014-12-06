@@ -26,8 +26,6 @@
         public NetworkInterface(KBEngineApp app)
         {
         	packets_ = new List<MemoryStream>();
-        	
-        	Message.bindFixedMessage();
         }
 		
 		public void reset()
@@ -55,15 +53,23 @@
 		private static void connectCB(IAsyncResult asyncresult)
 		{
 			if(KBEngineApp.app.networkInterface().valid())
+			{
+				Dbg.DEBUG_MSG("connect is successfully!");
 				KBEngineApp.app.networkInterface().sock().EndConnect(asyncresult);
-			
+			}
+		
 			TimeoutObject.Set();
 		}
 	    
 		public bool connect(string ip, int port) 
 		{
+			if (valid())
+				throw new InvalidOperationException( "Have already connected!" );
+			
 			int count = 0;
-
+			
+			Dbg.DEBUG_MSG("connect to " + ip + ":" + port + " ...");
+			
 			Regex rx = new Regex( @"((?:(?:25[0-5]|2[0-4]\d|((1\d{2})|([1-9]?\d)))\.){3}(?:25[0-5]|2[0-4]\d|((1\d{2})|([1-9]?\d))))");
 			if (rx.IsMatch(ip))
 			{
@@ -101,7 +107,7 @@ __RETRY:
                 
                 if(count < 3)
                 {
-                	Dbg.WARNING_MSG("connect(" + ip + ":" + port + ") is error, try=" + (count++) + "!");
+                	Dbg.WARNING_MSG("connect to " + ip + ":" + port + " is error, try=" + (count++) + "!");
                 	goto __RETRY;
            		 }
             
@@ -133,12 +139,12 @@ __RETRY:
 
         public void send(byte[] datas)
         {
-           if(socket_ == null || socket_.Connected == false) 
+           if(!valid()) 
 			{
                throw new ArgumentException ("invalid socket!");
             }
 			
-            if (datas == null || datas.Length == 0 ) 
+            if (datas == null || datas.Length == 0) 
 			{
                 throw new ArgumentException ("invalid datas!");
             }
@@ -238,7 +244,7 @@ __RETRY:
 		
 		public void process() 
 		{
-			if(socket_ != null && socket_.Connected)
+			if(valid())
 			{
 				recv();
 			}
