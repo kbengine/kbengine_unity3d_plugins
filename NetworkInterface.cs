@@ -47,6 +47,11 @@
 			socket_ = null;
 			msgReader = new MessageReader();
 			packets_.Clear();
+			
+			_connectIP = "";
+			_connectPort = 0;
+			_connectCB = null;
+			_userData = null;
 		}
 		
 		public Socket sock()
