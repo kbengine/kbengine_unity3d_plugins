@@ -846,7 +846,7 @@
 				}
 			}
 			
-			while(stream.opsize() > 0)
+			while(stream.length() > 0)
 			{
 				string scriptmethod_name = stream.readString();
 				UInt16 scriptUtype = stream.readUint16();
@@ -1515,7 +1515,7 @@
 			ScriptModule sm = EntityDef.moduledefs[entity.classtype];
 			Dictionary<UInt16, Property> pdatas = sm.idpropertys;
 
-			while(stream.opsize() > 0)
+			while(stream.length() > 0)
 			{
 				UInt16 utype = 0;
 				
@@ -1626,7 +1626,7 @@
 			
 			sbyte isOnGound = 1;
 			
-			if(stream.opsize() > 0)
+			if(stream.length() > 0)
 				isOnGound = stream.readInt8();
 			
 			string entityType = EntityDef.idmoduledefs[uentityType].name;
@@ -1738,7 +1738,7 @@
 			
 			sbyte isOnGound = 1;
 			
-			if(stream.opsize() > 0)
+			if(stream.length() > 0)
 				isOnGound = stream.readInt8();
 			
 			Entity entity = null;
@@ -1902,7 +1902,7 @@
 			clearSpace(false);
 			spaceID = stream.readUint32();
 			
-			while(stream.opsize() > 0)
+			while(stream.length() > 0)
 			{
 				string key = stream.readString();
 				string val = stream.readString();

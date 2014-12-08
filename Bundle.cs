@@ -43,15 +43,15 @@
 			if(msgtype.msglen != -1)
 				return;
 
-			if(stream.opsize() >= messageLength)
+			if(stream.length() >= messageLength)
 			{
-				int idx = (int)stream.opsize() - messageLength - 2;
+				int idx = (int)stream.length() - messageLength - 2;
 				stream.data()[idx] = (Byte)(messageLength & 0xff);
 				stream.data()[idx + 1] = (Byte)(messageLength >> 8 & 0xff);
 			}
 			else
 			{
-				int size = messageLength - (int)stream.opsize();
+				int size = messageLength - (int)stream.length();
 				byte[] data = streamList[numMessage - 1].data();
 				
 				int idx = data.Length - size - 2;
@@ -100,7 +100,7 @@
 		
 		public void checkStream(int v)
 		{
-			if(v > stream.fillfree())
+			if(v > stream.space())
 			{
 				streamList.Add(stream);
 				stream = new MemoryStream();
