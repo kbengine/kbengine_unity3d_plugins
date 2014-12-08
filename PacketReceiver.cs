@@ -57,7 +57,7 @@
 			}
 			catch (SocketException err)
 			{
-				Dbg.ERROR_MSG("PacketReceiver::postRecv(): call ReceiveAsync() is err: " + err);
+				Dbg.ERROR_MSG("PacketReceiver::startRecv(): call ReceiveAsync() is err: " + err);
 				_networkInterface.close();
 			}
 		}

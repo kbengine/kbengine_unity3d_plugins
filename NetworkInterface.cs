@@ -30,6 +30,7 @@
 		
         Socket _socket = null;
 		PacketReceiver _packetReceiver = null;
+		PacketSender _packetSender = null;
 		
         public NetworkInterface()
         {
@@ -44,6 +45,7 @@
 			}
 			_socket = null;
 			_packetReceiver = null;
+			_packetSender = null;
 			
 			_connectIP = "";
 			_connectPort = 0;
@@ -75,6 +77,7 @@
 				
 				_packetReceiver = new PacketReceiver(this);
 				_packetReceiver.startRecv();
+				
 				break;
 
 			default:
@@ -142,33 +145,27 @@
             _socket = null;
         }
 
-        public void send(byte[] datas)
+        public bool send(byte[] datas)
         {
-           if(!valid()) 
+			if(!valid()) 
 			{
-               throw new ArgumentException ("invalid socket!");
-            }
+			   throw new ArgumentException ("invalid socket!");
+			}
 			
-            if (datas == null || datas.Length == 0) 
-			{
-                throw new ArgumentException ("invalid datas!");
-            }
+			if(_packetSender == null)
+				_packetSender = new PacketSender(this);
 			
 			try
 			{
-				_socket.Send(datas);
+				return _packetSender.send(datas);
 			}
 			catch (SocketException err)
 			{
-                if (err.ErrorCode == 10054 || err.ErrorCode == 10053)
-                {
-					Dbg.DEBUG_MSG(string.Format("NetworkInterface::send(): disable connect!"));
-					close();
-                }
-				else{
-					Dbg.ERROR_MSG(string.Format("NetworkInterface::send(): socket error(" + err.ErrorCode + ")!"));
-				}
+				Dbg.ERROR_MSG(string.Format("NetworkInterface::send(): socket error(" + err.ErrorCode + ")!"));
+				close();
 			}
+			
+			return false;
         }
 
 		public void process() 
