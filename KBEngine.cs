@@ -685,26 +685,22 @@
 		{
 			loadingLocalMessages_ = true;
 			MemoryStream stream = new MemoryStream();
-			Array.Copy(loginapp_clientMessages, stream.data(), loginapp_clientMessages.Length);
-			stream.wpos = loginapp_clientMessages.Length;
+			stream.append(loginapp_clientMessages, (UInt32)0, (UInt32)loginapp_clientMessages.Length);
 			currserver = "loginapp";
 			onImportClientMessages(stream);
 
 			stream = new MemoryStream();
-			Array.Copy(baseapp_clientMessages, stream.data(), baseapp_clientMessages.Length);
-			stream.wpos = baseapp_clientMessages.Length;
+			stream.append(baseapp_clientMessages, (UInt32)0, (UInt32)baseapp_clientMessages.Length);
 			currserver = "baseapp";
 			onImportClientMessages(stream);
 			currserver = "loginapp";
 
 			stream = new MemoryStream();
-			Array.Copy(serverErrorsDescr, stream.data(), serverErrorsDescr.Length);
-			stream.wpos = serverErrorsDescr.Length;
+			stream.append(serverErrorsDescr, (UInt32)0, (UInt32)serverErrorsDescr.Length);
 			onImportServerErrorsDescr(stream);
 				
 			stream = new MemoryStream();
-			Array.Copy(entitydefMessages, stream.data(), entitydefMessages.Length);
-			stream.wpos = entitydefMessages.Length;
+			stream.append(entitydefMessages, (UInt32)0, (UInt32)entitydefMessages.Length);
 			onImportClientEntityDef(stream);
 
 			loadingLocalMessages_ = false;
