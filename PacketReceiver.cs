@@ -57,7 +57,7 @@
 			}
 			catch (SocketException err)
 			{
-				Dbg.DEBUG_MSG("PacketReceiver::postRecv(): call ReceiveAsync() is err: " + err);
+				Dbg.ERROR_MSG("PacketReceiver::postRecv(): call ReceiveAsync() is err: " + err);
 				_networkInterface.close();
 			}
 		}
@@ -76,7 +76,11 @@
 			}
 			else
 			{
-				Dbg.WARNING_MSG(string.Format("PacketReceiver::_processRecved(): is error({0})! BytesTransferred: {1}", e.SocketError, e.BytesTransferred));
+				if(e.BytesTransferred == 0)
+					Dbg.WARNING_MSG(string.Format("PacketReceiver::_processRecved(): disconnect!");
+				else
+					Dbg.ERROR_MSG(string.Format("PacketReceiver::_processRecved(): is error({0})! BytesTransferred: {1}", e.SocketError, e.BytesTransferred));
+				
 				_networkInterface.close();
 			}
 		}
