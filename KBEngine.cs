@@ -119,7 +119,7 @@
         public KBEngineApp(string persistentDataPath, string ip, UInt16 port, sbyte clientType)
         {
 			if (app != null)
-				throw new Exception( "Only one instance of KBEngineApp!" );
+				throw new Exception("Only one instance of KBEngineApp!");
 			
 			_clientType = clientType;
 			_ip = ip;
@@ -146,7 +146,7 @@
 		void initNetwork()
 		{
 			Message.bindFixedMessage();
-        	_networkInterface = new NetworkInterface(this);
+        	_networkInterface = new NetworkInterface();
 		}
 		
 		void initThread()
@@ -248,6 +248,7 @@
 			isLoadedGeometry = false;
 			
 			_networkInterface.reset();
+			_networkInterface = new NetworkInterface();
 			
 			_spacedatas.Clear();
 			
@@ -292,9 +293,19 @@
 				
 				// 向服务端发送心跳以及同步角色信息到服务端
 				sendTick();
+				
+				_thread_wait();
 			}
 			
 			Dbg.WARNING_MSG("KBEngine::process(): break!");
+		}
+		
+		/*
+			防止占满CPU, 需要让线程等待一会
+		*/
+		void _thread_wait()
+		{
+			System.Threading.Thread.Sleep(100);
 		}
 		
 		/*
@@ -538,6 +549,7 @@
 				Event.fireAll("login_baseapp", new object[]{});
 				
 				_networkInterface.reset();
+				_networkInterface = new NetworkInterface();
 				_networkInterface.connectTo(baseappIP, baseappPort, onConnectTo_baseapp_callback, null);
 			}
 			else

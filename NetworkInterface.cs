@@ -28,25 +28,22 @@
 		ConnectCallback _connectCB;
 		object _userData;
 		
-        private Socket socket_ = null;
-		private List<MemoryStream> packets_ = null;
-		private MessageReader msgReader = new MessageReader();
-		private static byte[] _datas = new byte[MemoryStream.BUFFER_MAX];
+        Socket _socket = null;
+		PacketReceiver _packetReceiver = null;
 		
-        public NetworkInterface(KBEngineApp app)
+        public NetworkInterface()
         {
-        	packets_ = new List<MemoryStream>();
+        	reset();
         }
 		
 		public void reset()
 		{
 			if(valid())
 			{
-         	   socket_.Close(0);
+         	   _socket.Close(0);
 			}
-			socket_ = null;
-			msgReader = new MessageReader();
-			packets_.Clear();
+			_socket = null;
+			_packetReceiver = null;
 			
 			_connectIP = "";
 			_connectPort = 0;
@@ -56,12 +53,12 @@
 		
 		public Socket sock()
 		{
-			return socket_;
+			return _socket;
 		}
 		
 		public bool valid()
 		{
-			return ((socket_ != null) && (socket_.Connected == true));
+			return ((_socket != null) && (_socket.Connected == true));
 		}
 		
 		private void connectCB(object sender, SocketAsyncEventArgs e)
@@ -75,6 +72,9 @@
 					_connectCB( _connectIP, _connectPort, true, _userData );
 			
 				Event.fireAll("onConnectStatus", new object[]{true});
+				
+				_packetReceiver = new PacketReceiver(this);
+				_packetReceiver.startRecv();
 				break;
 
 			default:
@@ -96,8 +96,6 @@
 				IPHostEntry ipHost = Dns.GetHostEntry (ip);
 				ip = ipHost.AddressList[0].ToString();
 			}
-
-			reset();
 			
 			_connectIP = ip;
 			_connectPort = port;
@@ -107,8 +105,8 @@
 			bool result = false;
 	        
 			// Security.PrefetchSocketPolicy(ip, 843);
-			socket_ = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp); 
-			socket_.SetSocketOption (System.Net.Sockets.SocketOptionLevel.Socket, SocketOptionName.ReceiveBuffer, MemoryStream.BUFFER_MAX);
+			_socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp); 
+			_socket.SetSocketOption (System.Net.Sockets.SocketOptionLevel.Socket, SocketOptionName.ReceiveBuffer, MemoryStream.BUFFER_MAX);
 			
 			SocketAsyncEventArgs connectEventArgs = new SocketAsyncEventArgs();
 			connectEventArgs.RemoteEndPoint = new IPEndPoint(IPAddress.Parse(ip), port);
@@ -117,7 +115,7 @@
 			
 			try 
 			{ 
-				result = socket_.ConnectAsync(connectEventArgs);
+				result = _socket.ConnectAsync(connectEventArgs);
             } 
             catch (Exception e) 
             {
@@ -134,15 +132,14 @@
         
         public void close()
         {
-           if(socket_ != null && socket_.Connected)
+           if(_socket != null)
 			{
-				socket_.Close(0);
-				socket_ = null;
+				_socket.Close(0);
+				_socket = null;
 				Event.fireAll("onDisableConnect", new object[]{});
-               
             }
 
-            socket_ = null;
+            _socket = null;
         }
 
         public void send(byte[] datas)
@@ -159,107 +156,23 @@
 			
 			try
 			{
-				socket_.Send(datas);
+				_socket.Send(datas);
 			}
 			catch (SocketException err)
 			{
                 if (err.ErrorCode == 10054 || err.ErrorCode == 10053)
                 {
 					Dbg.DEBUG_MSG(string.Format("NetworkInterface::send(): disable connect!"));
-					
-					if(socket_ != null && socket_.Connected)
-						socket_.Close();
-					
-					socket_ = null;
-					Event.fireAll("onDisableConnect", new object[]{});
+					close();
                 }
 				else{
 					Dbg.ERROR_MSG(string.Format("NetworkInterface::send(): socket error(" + err.ErrorCode + ")!"));
 				}
 			}
         }
-		
-		public void recv()
-		{
-           if(socket_ == null || socket_.Connected == false) 
-			{
-				throw new ArgumentException ("invalid socket!");
-            }
-			
-            if (socket_.Poll(100000, SelectMode.SelectRead))
-            {
-	           if(socket_ == null || socket_.Connected == false) 
-				{
-					Dbg.WARNING_MSG("invalid socket!");
-					return;
-	            }
-				
-				int successReceiveBytes = 0;
-				
-				try
-				{
-					successReceiveBytes = socket_.Receive(_datas, MemoryStream.BUFFER_MAX, 0);
-				}
-				catch (SocketException err)
-				{
-                    if (err.ErrorCode == 10054 || err.ErrorCode == 10053)
-                    {
-						Dbg.DEBUG_MSG(string.Format("NetworkInterface::recv(): disable connect!"));
-						
-						if(socket_ != null && socket_.Connected)
-							socket_.Close();
-						
-						socket_ = null;
-                    }
-					else{
-						Dbg.ERROR_MSG(string.Format("NetworkInterface::recv(): socket error(" + err.ErrorCode + ")!"));
-					}
-					
-					Event.fireAll("onDisableConnect", new object[]{});
-					return;
-				}
-				
-				if(successReceiveBytes > 0)
-				{
-				//	Dbg.DEBUG_MSG(string.Format("NetworkInterface::recv(): size={0}!", successReceiveBytes));
-				}
-				else if(successReceiveBytes == 0)
-				{
-					Dbg.DEBUG_MSG(string.Format("NetworkInterface::recv(): disable connect!"));
-					if(socket_ != null && socket_.Connected)
-						socket_.Close();
-					
-					socket_ = null;
-					
-					Event.fireAll("onDisableConnect", new object[]{});
-				}
-				else
-				{
-					Dbg.ERROR_MSG(string.Format("NetworkInterface::recv(): socket error!"));
-					
-					if(socket_ != null && socket_.Connected)
-						socket_.Close();
-					
-					socket_ = null;
-					
-					Event.fireAll("onDisableConnect", new object[]{});
-					return;
-				}
-				
-				msgReader.process(_datas, (MessageLength)successReceiveBytes);
-            }
-		}
-		
+
 		public void process() 
 		{
-			if(valid())
-			{
-				recv();
-			}
-			else
-			{
-				System.Threading.Thread.Sleep(1);
-			}
 		}
 	}
 } 
