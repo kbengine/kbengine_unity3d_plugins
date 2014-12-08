@@ -77,7 +77,7 @@
 			else
 			{
 				if(e.BytesTransferred == 0)
-					Dbg.WARNING_MSG(string.Format("PacketReceiver::_processRecved(): disconnect!");
+					Dbg.WARNING_MSG(string.Format("PacketReceiver::_processRecved(): disconnect!"));
 				else
 					Dbg.ERROR_MSG(string.Format("PacketReceiver::_processRecved(): is error({0})! BytesTransferred: {1}", e.SocketError, e.BytesTransferred));
 				
