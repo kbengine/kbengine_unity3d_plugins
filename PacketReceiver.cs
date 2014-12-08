@@ -38,7 +38,7 @@
 		void init(NetworkInterface networkInterface, MessageLength buffLen)
 		{
 			_networkInterface = networkInterface;
-			_buffer = new byte[RECV_BUFFER_MAX];
+			_buffer = new byte[buffLen];
 			messageReader = new MessageReader();
 		}
 		
