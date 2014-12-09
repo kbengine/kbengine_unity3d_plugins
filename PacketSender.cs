@@ -21,7 +21,6 @@
 		private byte[] _buffer;
 		int _wpos = 0;				// 写入的数据位置
 		int _spos = 0;				// 发送完毕的数据位置
-		bool _sending = false;		// 指示当前是否正在请求发送中
 		
 		private NetworkInterface _networkInterface = null;
 		SocketAsyncEventArgs _socketEventArgs = null;

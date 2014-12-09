@@ -11,13 +11,12 @@
     {
     	// 登录ip和端口
 		public string ip = "127.0.0.1";
-		public UInt16 port = 20013;
+		public int port = 20013;
 		
 		
 		// 客户端类型
 		// Reference: http://www.kbengine.org/docs/programming/clientsdkprogramming.html, client types
-		public sbyte clientType = 5;
-		
+		public KBEngineApp.CLIENT_TYPE clientType = KBEngineApp.CLIENT_TYPE.CLIENT_TYPE_MINI;
 		
 		// 持久化插件信息， 例如：从服务端导入的协议可以持久化到本地，下次登录版本不发生改变
 		// 可以直接从本地加载来提供登录速度

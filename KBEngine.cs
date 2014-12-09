@@ -22,6 +22,30 @@
         
         KBEngineArgs _args = null;
         
+    	// 客户端的类别
+    	// http://www.kbengine.org/docs/programming/clientsdkprogramming.html
+    	// http://www.kbengine.org/cn/docs/programming/clientsdkprogramming.html
+		public enum CLIENT_TYPE
+		{
+			// Mobile(Phone, Pad)
+			CLIENT_TYPE_MOBILE				= 1,
+
+			// Windows/Linux/Mac Application program
+			// Contains the Python-scripts, entitydefs parsing and check entitydefs-MD5, Native
+			CLIENT_TYPE_PC					= 2,
+
+			// Web，HTML5，Flash
+			// not contain Python-scripts and entitydefs analysis, can be imported protocol from network
+			CLIENT_TYPE_BROWSER				= 3,
+
+			// bots(Contains the Python-scripts, entitydefs parsing and check entitydefs-MD5, Native)
+			CLIENT_TYPE_BOTS				= 4,
+
+			// Mini-Client
+			// Allowing does not contain Python-scripts and entitydefs analysis, can be imported protocol from network
+			CLIENT_TYPE_MINI				= 5,
+		};
+		
         public string username = "kbengine";
         public string password = "123456";
         
@@ -33,10 +57,6 @@
 		private static bool baseappMessageImported_ = false;
 		private static bool entitydefImported_ = false;
 		private static bool isImportServerErrorsDescr_ = false;
-		
-		// 连接服务端的IP地址
-		private string _ip = "127.0.0.1";
-		private UInt16 _port = 20013;
 		
 		// 服务端分配的baseapp地址
 		public string baseappIP = "";
@@ -62,15 +82,6 @@
 		// 持久化插件信息， 例如：从服务端导入的协议可以持久化到本地，下次登录版本不发生改变
 		// 可以直接从本地加载来提供登录速度
 		private PersistentInofs _persistentInofs = null;
-		
-		// 客户端类型
-		// Reference: http://www.kbengine.org/docs/programming/clientsdkprogramming.html, client types
-		private sbyte _clientType = 5;
-		
-		// Allow synchronization role position information to the server
-		// 是否开启自动同步玩家信息到服务端，信息包括位置与方向
-		// 非高实时类游戏不需要开放这个选项
-		private bool _syncPlayer = true;
 		
 		// 当前玩家的实体id与实体类别
 		public UInt64 entity_uuid = 0;
@@ -129,11 +140,6 @@
 		public virtual bool initialize(KBEngineArgs args)
 		{
 			_args = args;
-			
-			_clientType = args.clientType;
-			_ip = args.ip;
-			_port = args.port;
-			_syncPlayer = args.syncPlayer;
 			
         	initNetwork();
 
@@ -236,11 +242,6 @@
 			_networkInterface = new NetworkInterface();
 			
 			_spacedatas.Clear();
-		}
-		
-		public string ip()
-		{
-			return _ip;
 		}
 		
 		public static bool validEmail(string strEmail) 
@@ -444,14 +445,14 @@
 			if(noconnect)
 			{
 				reset();
-				_networkInterface.connectTo(_ip, _port, onConnectTo_loginapp_callback, null);
+				_networkInterface.connectTo(_args.ip, _args.port, onConnectTo_loginapp_callback, null);
 			}
 			else
 			{
 				Dbg.DEBUG_MSG("KBEngine::login_loginapp(): send login! username=" + username);
 				Bundle bundle = new Bundle();
 				bundle.newMessage(Message.messages["Loginapp_login"]);
-				bundle.writeInt8(_clientType); // clientType
+				bundle.writeInt8((sbyte)_args.clientType); // clientType
 				bundle.writeBlob(new byte[0]);
 				bundle.writeString(username);
 				bundle.writeString(password);
@@ -582,7 +583,7 @@
 		public void autoImportMessagesFromServer(bool isLoginapp)
 		{  
 			reset();
-			_networkInterface.connectTo(_ip, _port, onConnectTo_autoImportMessagesFromServer_callback, isLoginapp);
+			_networkInterface.connectTo(_args.ip, _args.port, onConnectTo_autoImportMessagesFromServer_callback, isLoginapp);
 		}
 
 		private void onConnectTo_autoImportMessagesFromServer_callback(string ip, int port, bool success, object isLoginapp)
@@ -627,7 +628,7 @@
 				}
 			}
 			
-			Dbg.DEBUG_MSG(string.Format("KBEngine::autoImportMessagesFromServer(): connect {0}:{1} is successfully!", _ip, _port));
+			Dbg.DEBUG_MSG(string.Format("KBEngine::autoImportMessagesFromServer(): connect {0}:{1} is successfully!", _args.ip, _args.port));
 		}
 		
 		/*
@@ -1138,7 +1139,7 @@
 			if(noconnect)
 			{
 				reset();
-				_networkInterface.connectTo(_ip, _port, onConnectTo_resetpassword_callback, null);
+				_networkInterface.connectTo(_args.ip, _args.port, onConnectTo_resetpassword_callback, null);
 			}
 			else
 			{
@@ -1255,7 +1256,7 @@
 			if(noconnect)
 			{
 				reset();
-				_networkInterface.connectTo(_ip, _port, onConnectTo_createAccount_callback, null);
+				_networkInterface.connectTo(_args.ip, _args.port, onConnectTo_createAccount_callback, null);
 			}
 			else
 			{
@@ -1747,7 +1748,7 @@
 		*/
 		public void updatePlayerToServer()
 		{
-			if(!_syncPlayer || spaceID == 0)
+			if(!_args.syncPlayer || spaceID == 0)
 			{
 				return;
 			}
