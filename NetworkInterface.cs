@@ -167,9 +167,5 @@
 			
 			return false;
         }
-
-		public void process() 
-		{
-		}
 	}
 } 

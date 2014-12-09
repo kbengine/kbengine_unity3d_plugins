@@ -19,9 +19,6 @@
 	{
 		public static KBEngineApp app = null;
 		private NetworkInterface _networkInterface = null;
-		
-        private Thread _t = null;
-        public KBEThread kbethread = null;
         
         public string username = "kbengine";
         public string password = "123456";
@@ -71,7 +68,7 @@
 		// Allow synchronization role position information to the server
 		// 是否开启自动同步玩家信息到服务端，信息包括位置与方向
 		// 非高实时类游戏不需要开放这个选项
-		public bool syncPlayer = true;
+		private bool _syncPlayer = true;
 		
 		// 当前玩家的实体id与实体类别
 		public UInt64 entity_uuid = 0;
@@ -87,7 +84,11 @@
 		// https://github.com/kbengine/kbengine/tree/master/docs/api
 		private Dictionary<string, string> _spacedatas = new Dictionary<string, string>();
 		
+		// 所有实体都保存于这里， 请参看API手册关于entities部分
+		// https://github.com/kbengine/kbengine/tree/master/docs/api
 		public Dictionary<Int32, Entity> entities = new Dictionary<Int32, Entity>();
+		
+		// 在玩家AOI范围小于256个实体时我们可以通过一字节索引来找到entity
 		private List<Int32> _entityIDAliasIDList = new List<Int32>();
 		private Dictionary<Int32, MemoryStream> _bufferedCreateEntityMessage = new Dictionary<Int32, MemoryStream>(); 
 		
@@ -102,8 +103,8 @@
 		// 所有服务端错误码对应的错误描述
 		public static Dictionary<UInt16, ServerErr> serverErrs = new Dictionary<UInt16, ServerErr>(); 
 		
-		private System.DateTime _lastticktime_ = System.DateTime.Now;
-		private System.DateTime _lastUpdateToServerTime_ = System.DateTime.Now;
+		private System.DateTime _lastticktime = System.DateTime.Now;
+		private System.DateTime _lastUpdateToServerTime = System.DateTime.Now;
 		
 		// 玩家当前所在空间的id， 以及空间对应的资源
 		public UInt32 spaceID = 0;
@@ -113,47 +114,39 @@
 		// entityDef管理模块
 		public static EntityDef entityDef = new EntityDef();
 		
-		// 插件是否退出
-		private bool _isbreak = false;
-		
-        public KBEngineApp(string persistentDataPath, string ip, UInt16 port, sbyte clientType)
+        public KBEngineApp(KBEngineArgs args)
         {
 			if (app != null)
 				throw new Exception("Only one instance of KBEngineApp!");
 			
-			_clientType = clientType;
-			_ip = ip;
-			_port = port;
-			
 			app = this;
 			
-			initialize(persistentDataPath);
+			initialize(args);
         }
 
-		void initialize(string persistentDataPath)
+		public virtual bool initialize(KBEngineArgs args)
 		{
+			_clientType = args.clientType;
+			_ip = args.ip;
+			_port = args.port;
+			_syncPlayer = args.syncPlayer;
+			
         	initNetwork();
-        	initThread();
 
             // 注册事件
             installEvents();
             
             // 允许持久化KBE(例如:协议，entitydef等)
-            if(persistentDataPath != "")
-         	   _persistentInofs = new PersistentInofs(persistentDataPath);
+            if(args.persistentDataPath != "")
+         	   _persistentInofs = new PersistentInofs(args.persistentDataPath);
+         	
+         	return true;
 		}
 		
 		void initNetwork()
 		{
 			Message.bindFixedMessage();
         	_networkInterface = new NetworkInterface();
-		}
-		
-		void initThread()
-		{
-            kbethread = new KBEThread(this);
-            _t = new Thread(new ThreadStart(kbethread.run));
-            _t.Start();
 		}
 		
 		void installEvents()
@@ -163,33 +156,15 @@
 			Event.registerIn("relogin_baseapp", this, "relogin_baseapp");
 		}
 	
-        public void destroy()
+        public virtual void destroy()
         {
         	Dbg.WARNING_MSG("KBEngine::destroy()");
-        	breakProcess();
-        	
-        	int i = 0;
-        	while(!kbethread.over && i < 50)
-        	{
-        		Thread.Sleep(1);
-        		i += 1;
-        	}
-        	
-			if(_t != null)
-        		_t.Abort();
-
-        	_t = null;
         	
         	reset();
         	KBEngine.Event.deregisterIn(this);
         	resetMessages();
         	
         	KBEngineApp.app = null;
-        }
-        
-        public Thread t()
-        {
-        	return _t;
         }
         
         public NetworkInterface networkInterface()
@@ -221,7 +196,7 @@
 			Dbg.DEBUG_MSG("KBEngine::resetMessages()");
         }
         
-		public void reset()
+		public virtual void reset()
 		{
 			KBEngine.Event.clearFiredEvents();
 			
@@ -241,8 +216,9 @@
 			_entityIDAliasIDList.Clear();
 			_bufferedCreateEntityMessage.Clear();
 			
-			_lastticktime_ = System.DateTime.Now;
-			_lastUpdateToServerTime_ = System.DateTime.Now;
+			_lastticktime = System.DateTime.Now;
+			_lastUpdateToServerTime = System.DateTime.Now;
+			
 			spaceID = 0;
 			spaceResPath = "";
 			isLoadedGeometry = false;
@@ -251,8 +227,6 @@
 			_networkInterface = new NetworkInterface();
 			
 			_spacedatas.Clear();
-			
-			_isbreak = false;
 		}
 		
 		public string ip()
@@ -266,46 +240,15 @@
 		}  
 		
 		/*
-			插件退出处理
-		*/
-		public void breakProcess()
-		{
-			_isbreak = true;
-		}
-		
-		public bool isbreak()
-		{
-			return _isbreak;
-		}
-		
-		/*
 			插件的主循环处理函数
 		*/
-		public void process()
+		public virtual void process()
 		{
-			while(!isbreak())
-			{
-				// 处理外层抛入的事件
-				Event.processInEvents();
-				
-				// 处理网络
-				_networkInterface.process();
-				
-				// 向服务端发送心跳以及同步角色信息到服务端
-				sendTick();
-				
-				_thread_wait();
-			}
+			// 处理外层抛入的事件
+			Event.processInEvents();
 			
-			Dbg.WARNING_MSG("KBEngine::process(): break!");
-		}
-		
-		/*
-			防止占满CPU, 需要让线程等待一会
-		*/
-		void _thread_wait()
-		{
-			System.Threading.Thread.Sleep(100);
+			// 向服务端发送心跳以及同步角色信息到服务端
+			sendTick();
 		}
 		
 		/*
@@ -331,7 +274,7 @@
 			if(!loginappMessageImported_ && !baseappMessageImported_)
 				return;
 			
-			TimeSpan span = DateTime.Now - _lastticktime_; 
+			TimeSpan span = DateTime.Now - _lastticktime; 
 			
 			// 更新玩家的位置与朝向到服务端
 			updatePlayerToServer();
@@ -363,7 +306,7 @@
 					}
 				}
 				
-				_lastticktime_ = System.DateTime.Now;
+				_lastticktime = System.DateTime.Now;
 			}
 		}
 		
@@ -1791,16 +1734,16 @@
 		}
 
 		/*
-			更新当前玩家的位置与朝向到服务端， 可以通过开关syncPlayer关闭这个机制
+			更新当前玩家的位置与朝向到服务端， 可以通过开关_syncPlayer关闭这个机制
 		*/
 		public void updatePlayerToServer()
 		{
-			if(!syncPlayer || spaceID == 0)
+			if(!_syncPlayer || spaceID == 0)
 			{
 				return;
 			}
 			
-			TimeSpan span = DateTime.Now - _lastUpdateToServerTime_; 
+			TimeSpan span = DateTime.Now - _lastUpdateToServerTime; 
 			
 			if(span.Milliseconds < 50)
 				return;
@@ -1809,7 +1752,7 @@
 			if(playerEntity == null || playerEntity.inWorld == false)
 				return;
 			
-			_lastUpdateToServerTime_ = System.DateTime.Now;
+			_lastUpdateToServerTime = System.DateTime.Now;
 			
 			Vector3 position = playerEntity.position;
 			Vector3 direction = playerEntity.direction;
@@ -2359,46 +2302,146 @@
 		}
 	}
 	
-	
-	
-	/*
-		KBEngine处理线程
-	*/
-    public class KBEThread
-    {
 
-        KBEngineApp app_;
-		public bool over = false;
-		
-        public KBEThread(KBEngineApp app)
-        {
-            this.app_ = app;
-        }
+	public class KBEngineAppThread : KBEngineApp
+	{
+		/*
+			KBEngine处理线程
+		*/
+	    public class KBEThread
+	    {
 
-        public void run()
-        {
-			Dbg.INFO_MSG("KBEThread::run()");
-			int count = 0;
-START_RUN:
-			over = false;
-
-            try
-            {
-                this.app_.process();
-                count = 0;
-            }
-            catch (Exception e)
-            {
-                Dbg.ERROR_MSG(e.ToString());
-                Dbg.INFO_MSG("KBEThread::try run:" + count);
-                
-                count ++;
-                if(count < 10)
-                	goto START_RUN;
-            }
+	        KBEngineApp app_;
+			public bool over = false;
 			
-			over = true;
-			Dbg.INFO_MSG("KBEThread::end()");
-        }
-    }
+	        public KBEThread(KBEngineApp app)
+	        {
+	            this.app_ = app;
+	        }
+
+	        public void run()
+	        {
+				Dbg.INFO_MSG("KBEThread::run()");
+				int count = 0;
+START_RUN:
+				over = false;
+
+	            try
+	            {
+	                this.app_.process();
+	                count = 0;
+	            }
+	            catch (Exception e)
+	            {
+	                Dbg.ERROR_MSG(e.ToString());
+	                Dbg.INFO_MSG("KBEThread::try run:" + count);
+	                
+	                count ++;
+	                if(count < 10)
+	                	goto START_RUN;
+	            }
+				
+				over = true;
+				Dbg.INFO_MSG("KBEThread::end()");
+	        }
+	    }
+    
+		private Thread _t = null;
+		public KBEThread kbethread = null;
+
+		// 主循环tick间隔
+		public static int HZ_TICK = 100;
+		
+		// 插件是否退出
+		private bool _isbreak = false;
+		
+		private System.DateTime _lasttime = System.DateTime.Now;
+
+		public KBEngineAppThread(KBEngineArgs args) : 
+			base(args)
+		{
+		}
+
+		public override bool initialize(KBEngineArgs args)
+		{
+			base.initialize(args);
+			
+			KBEngineAppThread.HZ_TICK = args.HZ_TICK;
+			
+			kbethread = new KBEThread(this);
+			_t = new Thread(new ThreadStart(kbethread.run));
+			_t.Start();
+			
+			return true;
+		}
+		
+		public override void reset()
+		{
+			_isbreak = false;
+			_lasttime = System.DateTime.Now;
+			
+			base.reset();
+		}
+		
+		/*
+			插件退出处理
+		*/
+		public void breakProcess()
+		{
+			_isbreak = true;
+		}
+		
+		public bool isbreak()
+		{
+			return _isbreak;
+		}
+		
+		public override void process()
+		{
+			while(!isbreak())
+			{
+				base.process();
+				_thread_wait();
+			}
+			
+			Dbg.WARNING_MSG("KBEngineAppThread::process(): break!");
+		}
+	
+		/*
+			防止占满CPU, 需要让线程等待一会
+		*/
+		void _thread_wait()
+		{
+			TimeSpan span = DateTime.Now - _lasttime; 
+			
+			int diff = HZ_TICK - span.Milliseconds;
+
+			
+			if(diff < 0)
+				diff = 0;
+			
+			System.Threading.Thread.Sleep(diff);
+			_lasttime = DateTime.Now;
+		}
+		
+		public override void destroy()
+		{
+			Dbg.WARNING_MSG("KBEngineAppThread::destroy()");
+			breakProcess();
+			
+			int i = 0;
+			while(!kbethread.over && i < 50)
+			{
+				Thread.Sleep(1);
+				i += 1;
+			}
+			
+			if(_t != null)
+				_t.Abort();
+			
+			_t = null;
+
+			base.destroy();
+		}
+	}
 } 
