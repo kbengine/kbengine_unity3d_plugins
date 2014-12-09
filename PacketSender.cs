@@ -18,8 +18,6 @@
 	*/
     public class PacketSender 
     {
-    	public const MessageLength SEND_BUFFER_MAX = NetworkInterface.TCP_PACKET_MAX * 3;
-    	
 		private byte[] _buffer;
 		int _wpos = 0;				// 写入的数据位置
 		int _spos = 0;				// 发送完毕的数据位置
@@ -30,18 +28,13 @@
 		
         public PacketSender(NetworkInterface networkInterface)
         {
-        	init(networkInterface, SEND_BUFFER_MAX);
+        	init(networkInterface);
         }
 
-		public PacketSender(NetworkInterface networkInterface, MessageLength buffLen)
-		{
-			init(networkInterface, buffLen);
-		}
-
-		void init(NetworkInterface networkInterface, MessageLength buffLen)
+		void init(NetworkInterface networkInterface)
 		{
 			_networkInterface = networkInterface;
-			_buffer = new byte[buffLen];
+			_buffer = new byte[KBEngineApp.app.getInitArgs().SEND_BUFFER_MAX];
 			
 			_wpos = 0; 
 			_spos = 0;

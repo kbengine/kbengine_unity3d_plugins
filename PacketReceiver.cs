@@ -18,8 +18,6 @@
 	*/
     public class PacketReceiver 
     {
-    	public const MessageLength RECV_BUFFER_MAX = NetworkInterface.TCP_PACKET_MAX * 3;
-    	
 		private MessageReader messageReader = null;
 		private byte[] _buffer;
 		private NetworkInterface _networkInterface = null;
@@ -27,18 +25,13 @@
 		
         public PacketReceiver(NetworkInterface networkInterface)
         {
-        	init(networkInterface, RECV_BUFFER_MAX);
+        	init(networkInterface);
         }
 
-		public PacketReceiver(NetworkInterface networkInterface, MessageLength buffLen)
-		{
-			init(networkInterface, buffLen);
-		}
-
-		void init(NetworkInterface networkInterface, MessageLength buffLen)
+		void init(NetworkInterface networkInterface)
 		{
 			_networkInterface = networkInterface;
-			_buffer = new byte[buffLen];
+			_buffer = new byte[KBEngineApp.app.getInitArgs().RECV_BUFFER_MAX];
 			messageReader = new MessageReader();
 		}
 		

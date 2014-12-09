@@ -2,6 +2,8 @@
 {
 	using System; 
 	
+	using MessageLength = System.UInt16;
+	
 	/*
 		初始化KBEngine的参数类
 	*/
@@ -27,6 +29,10 @@
 		// 非高实时类游戏不需要开放这个选项
 		public bool syncPlayer = true;
 		
+		
+		// 接收与发送缓冲大小
+		public MessageLength SEND_BUFFER_MAX = NetworkInterface.TCP_PACKET_MAX;
+		public MessageLength RECV_BUFFER_MAX = NetworkInterface.TCP_PACKET_MAX;
 		
 		// 只在多线程模式启用
 		// 主循环tick间隔

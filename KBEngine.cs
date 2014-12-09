@@ -20,6 +20,8 @@
 		public static KBEngineApp app = null;
 		private NetworkInterface _networkInterface = null;
         
+        KBEngineArgs _args = null;
+        
         public string username = "kbengine";
         public string password = "123456";
         
@@ -126,6 +128,8 @@
 
 		public virtual bool initialize(KBEngineArgs args)
 		{
+			_args = args;
+			
 			_clientType = args.clientType;
 			_ip = args.ip;
 			_port = args.port;
@@ -156,6 +160,11 @@
 			Event.registerIn("relogin_baseapp", this, "relogin_baseapp");
 		}
 	
+		public KBEngineArgs getInitArgs()
+		{
+			return _args;
+		}
+		
         public virtual void destroy()
         {
         	Dbg.WARNING_MSG("KBEngine::destroy()");
