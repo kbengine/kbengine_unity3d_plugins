@@ -65,13 +65,13 @@
 		
 		private void connectCB(object sender, SocketAsyncEventArgs e)
 		{
-			Dbg.INFO_MSG(string.Format("NetworkInterface::connectCB(), connect callback. ip: {0}:{1}, {2}", _connectIP, _connectPort, e.SocketError));
-		
 			switch (e.SocketError)
 			{
 			case SocketError.Success:
+				Dbg.INFO_MSG(string.Format("NetworkInterface::connectCB(), connect callback. ip: {0}:{1}, {2}", _connectIP, _connectPort, e.SocketError));
+			
 				if (_connectCB != null)
-					_connectCB( _connectIP, _connectPort, true, _userData );
+					_connectCB(_connectIP, _connectPort, true, _userData);
 			
 				Event.fireAll("onConnectStatus", new object[]{true});
 				
@@ -81,8 +81,10 @@
 				break;
 
 			default:
+				Dbg.ERROR_MSG(string.Format("NetworkInterface::connectCB(), connect callback. ip: {0}:{1}, {2}", _connectIP, _connectPort, e.SocketError));
+			
 				if (_connectCB != null)
-					_connectCB( _connectIP, _connectPort, false, _userData );
+					_connectCB(_connectIP, _connectPort, false, _userData);
 			
 				Event.fireAll("onConnectStatus", new object[]{false});
 				break;
