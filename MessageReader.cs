@@ -39,9 +39,9 @@
 		{
 		}
 		
-		public void process(byte[] datas, MessageLengthEx length)
+		public void process(byte[] datas, MessageLengthEx offset, MessageLengthEx length)
 		{
-			MessageLengthEx totallen = 0;
+			MessageLengthEx totallen = offset;
 			
 			while(length > 0 && expectSize > 0)
 			{
@@ -140,8 +140,16 @@
 						length -= expectSize;
 
 						Message msg = Message.clientMessages[msgid];
+						
+#if UNITY_EDITOR
+						Dbg.profileStart(msg.name);
+#endif
 
 						msg.handleMessage(stream);
+#if UNITY_EDITOR
+						Dbg.profileEnd(msg.name);
+#endif
+						
 						stream.clear();
 						
 						state = READ_STATE.READ_STATE_MSGID;

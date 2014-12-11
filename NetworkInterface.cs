@@ -22,15 +22,15 @@
     	public const int TCP_PACKET_MAX = 1460;
     	public delegate void ConnectCallback(string ip, int port, bool success, object userData);
     	
+        Socket _socket = null;
+		PacketReceiver _packetReceiver = null;
+		PacketSender _packetSender = null;
+		
 		// for connect
 		string _connectIP;
 		int _connectPort;
 		ConnectCallback _connectCB;
 		object _userData;
-		
-        Socket _socket = null;
-		PacketReceiver _packetReceiver = null;
-		PacketSender _packetSender = null;
 		
         public NetworkInterface()
         {
@@ -58,36 +58,54 @@
 			return _socket;
 		}
 		
+		public PacketReceiver packetReceiver()
+		{
+			return _packetReceiver;
+		}
+		
 		public bool valid()
 		{
 			return ((_socket != null) && (_socket.Connected == true));
 		}
 		
-		private void connectCB(object sender, SocketAsyncEventArgs e)
+		public void _onConnectStatus(string error)
 		{
-			switch (e.SocketError)
+			KBEngine.Event.deregisterIn(this);
+			
+			bool success = (error == "");
+			
+			if(success)
 			{
-			case SocketError.Success:
-				Dbg.INFO_MSG(string.Format("NetworkInterface::connectCB(), connect callback. ip: {0}:{1}, {2}", _connectIP, _connectPort, e.SocketError));
-			
-				if (_connectCB != null)
-					_connectCB(_connectIP, _connectPort, true, _userData);
-			
-				Event.fireAll("onConnectStatus", new object[]{true});
-				
+				Dbg.INFO_MSG(string.Format("NetworkInterface::_onConnectStatus(), connected to {0}", sock().RemoteEndPoint.ToString()));
 				_packetReceiver = new PacketReceiver(this);
 				_packetReceiver.startRecv();
-				
-				break;
+			}
+			else
+			{
+				Dbg.ERROR_MSG(string.Format("NetworkInterface::_onConnectStatus(), connect is error! ip: {0}:{1}, err: {2}", _connectIP, _connectPort, error));
+			}
+			
+			Event.fireAll("onConnectStatus", new object[]{success});
+			
+			if (_connectCB != null)
+				_connectCB(_connectIP, _connectPort, success, _userData);
+		}
+		
+		private static void connectCB(IAsyncResult ar)
+		{
+			try 
+			{
+				// Retrieve the socket from the state object.
+				NetworkInterface networkInterface = (NetworkInterface) ar.AsyncState;
 
-			default:
-				Dbg.ERROR_MSG(string.Format("NetworkInterface::connectCB(), connect callback. ip: {0}:{1}, {2}", _connectIP, _connectPort, e.SocketError));
-			
-				if (_connectCB != null)
-					_connectCB(_connectIP, _connectPort, false, _userData);
-			
-				Event.fireAll("onConnectStatus", new object[]{false});
-				break;
+				// Complete the connection.
+				networkInterface.sock().EndConnect(ar);
+
+				Event.fireIn("_onConnectStatus", new object[]{""});
+			} 
+			catch (Exception e) 
+			{
+				Event.fireIn("_onConnectStatus", new object[]{e.ToString()});
 			}
 		}
 	    
@@ -101,38 +119,29 @@
 				IPHostEntry ipHost = Dns.GetHostEntry (ip);
 				ip = ipHost.AddressList[0].ToString();
 			}
+
+			// Security.PrefetchSocketPolicy(ip, 843);
+			_socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp); 
+			_socket.SetSocketOption (System.Net.Sockets.SocketOptionLevel.Socket, SocketOptionName.ReceiveBuffer, KBEngineApp.app.getInitArgs().RECV_BUFFER_MAX);
 			
 			_connectIP = ip;
 			_connectPort = port;
 			_connectCB = callback;
 			_userData = userData;
 			
-			bool result = false;
-	        
-			// Security.PrefetchSocketPolicy(ip, 843);
-			_socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp); 
-			_socket.SetSocketOption (System.Net.Sockets.SocketOptionLevel.Socket, SocketOptionName.ReceiveBuffer, MemoryStream.BUFFER_MAX);
-			
-			SocketAsyncEventArgs connectEventArgs = new SocketAsyncEventArgs();
-			connectEventArgs.RemoteEndPoint = new IPEndPoint(IPAddress.Parse(ip), port);
-			connectEventArgs.Completed += new EventHandler<SocketAsyncEventArgs>(connectCB);
 			Dbg.DEBUG_MSG("connect to " + ip + ":" + port + " ...");
+			
+			// 先注册一个事件回调，该事件在当前线程触发
+			Event.registerIn("_onConnectStatus", this, "_onConnectStatus");
 			
 			try 
 			{ 
-				result = _socket.ConnectAsync(connectEventArgs);
+				_socket.BeginConnect(new IPEndPoint(IPAddress.Parse(ip), port), new AsyncCallback(connectCB), this);
             } 
             catch (Exception e) 
             {
-				Dbg.WARNING_MSG(string.Format("NetworkInterface::connect(): is error（0）! ip: {1}:{2}", e.ToString(), _connectIP, _connectPort));
-				Event.fireAll("onConnectStatus", new object[]{false});
-            } 
-
-			if (!result)
-			{
-				// Completed immediately
-				connectCB(this, connectEventArgs);
-			}
+				Event.fireIn("_onConnectStatus", new object[]{e.ToString()});
+            }
 		}
         
         public void close()
@@ -168,6 +177,15 @@
 			}
 			
 			return false;
+        }
+        
+        public void process()
+        {
+        	if(!valid())
+        		return;
+        	
+        	if(_packetReceiver != null)
+        		_packetReceiver.process();
         }
 	}
 } 

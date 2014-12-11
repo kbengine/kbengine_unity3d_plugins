@@ -63,8 +63,8 @@
 		public UInt16 baseappPort = 0;
 		
 		// 当前状态
-		public string currserver = "loginapp";
-		public string currstate = "create";
+		public string currserver = "";
+		public string currstate = "";
 		
 		// 服务端下行以及客户端上行用于登录时处理的账号绑定的二进制信息
 		// 该信息由用户自己进行扩展
@@ -217,8 +217,8 @@
 			
 			clearEntities(true);
 			
-			currserver = "loginapp";
-			currstate = "create";
+			currserver = "";
+			currstate = "";
 			_serverdatas = new byte[0];
 			_clientdatas = new byte[0];
 			serverVersion = "";
@@ -259,6 +259,9 @@
 			
 			// 向服务端发送心跳以及同步角色信息到服务端
 			sendTick();
+			
+			// 处理网络
+			_networkInterface.process();
 		}
 		
 		/*
@@ -444,6 +447,9 @@
 		{
 			if(noconnect)
 			{
+				if(currserver != "")
+					return;
+				
 				reset();
 				_networkInterface.connectTo(_args.ip, _args.port, onConnectTo_loginapp_callback, null);
 			}
@@ -662,6 +668,7 @@
 			entitydefImported_ = true;
 			isImportServerErrorsDescr_ = true;
 		
+			currserver = "";
 			Dbg.DEBUG_MSG("KBEngine::importMessagesFromMemoryStream(): is successfully!");
 			return true;
 		}
@@ -1173,26 +1180,6 @@
 			Dbg.DEBUG_MSG("KBEngine::Client_onReqAccountResetPasswordCB: " + username + " is successfully!");
 		}
 		
-		public void onOpenLoginapp_createAccount()
-		{  
-			Dbg.DEBUG_MSG("KBEngine::onOpenLoginapp_createAccount: successfully!");
-			currserver = "loginapp";
-			currstate = "createAccount";
-			
-			if(!loginappMessageImported_)
-			{
-				Bundle bundle = new Bundle();
-				bundle.newMessage(Message.messages["Loginapp_importClientMessages"]);
-				bundle.send(_networkInterface);
-				Dbg.DEBUG_MSG("KBEngine::onOpenLoginapp_createAccount: start importClientMessages ...");
-			}
-			else
-			{
-				onImportClientMessagesCompleted();
-			}
-		}
-		
-
 		/*
 			绑定Email，通过baseapp
 		*/
@@ -1269,6 +1256,25 @@
 			}
 		}
 
+		public void onOpenLoginapp_createAccount()
+		{  
+			Dbg.DEBUG_MSG("KBEngine::onOpenLoginapp_createAccount: successfully!");
+			currserver = "loginapp";
+			currstate = "createAccount";
+			
+			if(!loginappMessageImported_)
+			{
+				Bundle bundle = new Bundle();
+				bundle.newMessage(Message.messages["Loginapp_importClientMessages"]);
+				bundle.send(_networkInterface);
+				Dbg.DEBUG_MSG("KBEngine::onOpenLoginapp_createAccount: start importClientMessages ...");
+			}
+			else
+			{
+				onImportClientMessagesCompleted();
+			}
+		}
+		
 		private void onConnectTo_createAccount_callback(string ip, int port, bool success, object userData)
 		{
 			if(!success)
@@ -1484,18 +1490,19 @@
 				Property propertydata = pdatas[utype];
 				utype = propertydata.properUtype;
 				System.Reflection.MethodInfo setmethod = propertydata.setmethod;
-				
+
 				object val = propertydata.utype.createFromStream(stream);
 				object oldval = entity.getDefinedProptertyByUType(utype);
-				
-				// Dbg.DEBUG_MSG("KBEngine::Client_onUpdatePropertys: " + entity.classtype + "(id=" + eid  + " " + 
-				//	propertydata.name + "=" + val + "), hasSetMethod=" + setmethod + "!");
-				
+
+				 // Dbg.DEBUG_MSG("KBEngine::Client_onUpdatePropertys: " + entity.classtype + "(id=" + eid  + " " + 
+				 // propertydata.name + "=" + val + "), hasSetMethod=" + setmethod + "!");
+			
 				entity.setDefinedProptertyByUType(utype, val);
 				if(setmethod != null)
 				{
 					setmethod.Invoke(entity, new object[]{oldval});
 				}
+				
 			}
 		}
 
@@ -2384,7 +2391,7 @@ START_RUN:
 			
 			return true;
 		}
-		
+
 		public override void reset()
 		{
 			_isbreak = false;
@@ -2392,7 +2399,7 @@ START_RUN:
 			
 			base.reset();
 		}
-		
+
 		/*
 			插件退出处理
 		*/
@@ -2426,7 +2433,6 @@ START_RUN:
 			
 			int diff = HZ_TICK - span.Milliseconds;
 
-			
 			if(diff < 0)
 				diff = 0;
 			
