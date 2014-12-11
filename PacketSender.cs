@@ -47,24 +47,35 @@
 			return _networkInterface;
 		}
 		
-		public bool send(byte[] datas)
+		public bool hasFree(byte[] datas)
 		{
 			if(datas.Length <= 0)
 				return true;
-
+			
 			int t_spos = Interlocked.Add(ref spos, 0);
 			
 			// 数据长度溢出则返回错误
 			// 剩余空间与已经发送的空间都是可以使用的空间
-			int space = (_buffer.Length - wpos + t_spos);
+			int space = t_spos - wpos;
+			if(space <= 0)
+				space = (_buffer.Length - wpos + t_spos);
+			
 			if (datas.Length > space)
 			{
-				Dbg.ERROR_MSG("PacketSender::send(): no space! data(" + datas.Length 
+				Dbg.ERROR_MSG("PacketSender::hasFree(): no space! data(" + datas.Length 
 					+ ") > space(" + space + "), wpos=" + wpos + ", spos=" + t_spos);
 				
 				return false;
 			}
-
+			
+			return true;
+		}
+		
+		public bool send(byte[] datas)
+		{
+			if(!hasFree(datas))
+				return false;
+			
 			int expect_total = wpos + datas.Length;
 			
 			if(expect_total <= _buffer.Length)
