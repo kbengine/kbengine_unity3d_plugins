@@ -112,10 +112,12 @@
 			while(block <= 0)
 			{
 				updateStates();
-				System.Threading.Thread.Sleep(5);
 				
 				if(first > 0)
+				{
 					Dbg.WARNING_MSG("PacketReceiver::startRecv(): wait for space! retries=" + first);
+					System.Threading.Thread.Sleep(5);
+				}
 				
 				first += 1;
 			}
