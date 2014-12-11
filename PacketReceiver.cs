@@ -41,9 +41,9 @@
 		void init(NetworkInterface networkInterface)
 		{
 			_networkInterface = networkInterface;
-			BUFFER_BLOCK_SIZE = KBEngineApp.app.getInitArgs().RECV_BUFFER_MAX;
+			BUFFER_BLOCK_SIZE = KBEngineApp.app.getInitArgs().RECV_BUFFER_BLOCK;
 			
-			_buffer = new byte[BUFFER_BLOCK_SIZE * 10];
+			_buffer = new byte[BUFFER_BLOCK_SIZE * KBEngineApp.app.getInitArgs().RECV_BUFFER_BLOCK_SIZE];
 			
 			messageReader = new MessageReader();
 		}

@@ -36,7 +36,7 @@
 		void init(NetworkInterface networkInterface)
 		{
 			_networkInterface = networkInterface;
-			BUFFER_BLOCK_SIZE = KBEngineApp.app.getInitArgs().SEND_BUFFER_MAX;
+			BUFFER_BLOCK_SIZE = KBEngineApp.app.getInitArgs().SEND_BUFFER_BLOCK;
 			
 			_buffer = new byte[BUFFER_BLOCK_SIZE];
 			
