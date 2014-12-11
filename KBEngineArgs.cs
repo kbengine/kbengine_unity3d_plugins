@@ -29,13 +29,28 @@
 		public bool syncPlayer = true;
 		
 		
-		// 接收与发送缓冲大小
+		// 发送缓冲大小
 		public MessageLength SEND_BUFFER_MAX = NetworkInterface.TCP_PACKET_MAX;
-		public MessageLength RECV_BUFFER_MAX = NetworkInterface.TCP_PACKET_MAX;
+		
+		// 接收缓冲区是一个环形缓冲区， RECV_BUFFER_BLOCK是每一个区段的大小(既：每次最大收到的数据缓冲)
+		public MessageLength RECV_BUFFER_BLOCK = NetworkInterface.TCP_PACKET_MAX;
+		
+		// 这是接收缓冲区整个环的节点数量
+		public MessageLength RECV_BUFFER_BLOCK_LIST_SIZE = 5;
 		
 		// 只在多线程模式启用
 		// 主循环tick间隔
 		public int HZ_TICK = 100;
+		
+		public int getRecvBufferSize()
+		{
+			return RECV_BUFFER_BLOCK * RECV_BUFFER_BLOCK_LIST_SIZE;
+		}
+		
+		public int getSendBufferSize()
+		{
+			return SEND_BUFFER_MAX;
+		}
     }
 
 } 

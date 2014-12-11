@@ -43,7 +43,7 @@
 			_networkInterface = networkInterface;
 			BUFFER_BLOCK_SIZE = KBEngineApp.app.getInitArgs().RECV_BUFFER_BLOCK;
 			
-			_buffer = new byte[BUFFER_BLOCK_SIZE * KBEngineApp.app.getInitArgs().RECV_BUFFER_BLOCK_SIZE];
+			_buffer = new byte[BUFFER_BLOCK_SIZE * KBEngineApp.app.getInitArgs().RECV_BUFFER_BLOCK_LIST_SIZE];
 			
 			messageReader = new MessageReader();
 		}

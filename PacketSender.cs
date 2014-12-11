@@ -19,9 +19,7 @@
     public class PacketSender 
     {
 		private byte[] _buffer;
-		
-		private static int BUFFER_BLOCK_SIZE = 1460;
-		
+
 		public int wpos = 0;				// 写入的数据位置
 		public int spos = 0;				// 发送完毕的数据位置
 		public int sending = 0;
@@ -36,9 +34,8 @@
 		void init(NetworkInterface networkInterface)
 		{
 			_networkInterface = networkInterface;
-			BUFFER_BLOCK_SIZE = KBEngineApp.app.getInitArgs().SEND_BUFFER_BLOCK;
 			
-			_buffer = new byte[BUFFER_BLOCK_SIZE];
+			_buffer = new byte[KBEngineApp.app.getInitArgs().SEND_BUFFER_MAX];
 			
 			wpos = 0; 
 			spos = 0;
