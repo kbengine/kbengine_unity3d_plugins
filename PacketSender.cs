@@ -56,8 +56,12 @@
 			
 			// 数据长度溢出则返回错误
 			// 剩余空间与已经发送的空间都是可以使用的空间
-			if (datas.Length > (_buffer.Length - wpos + t_spos))
+			int space = (_buffer.Length - wpos + t_spos);
+			if (datas.Length > space)
 			{
+				Dbg.ERROR_MSG("PacketSender::send(): no space! data(" + datas.Length 
+					+ ") > space(" + space + "), wpos=" + wpos + ", spos=" + t_spos);
+				
 				return false;
 			}
 
