@@ -35,7 +35,7 @@
 		// 接收缓冲区是一个环形缓冲区， RECV_BUFFER_BLOCK是每一个区段的大小(既：每次最大收到的数据缓冲)
 		public MessageLength RECV_BUFFER_BLOCK = NetworkInterface.TCP_PACKET_MAX;
 		
-		// 这是接收缓冲区整个环的节点数量
+		// 这是接收缓冲区整个环的区块数量
 		public MessageLength RECV_BUFFER_BLOCK_LIST_SIZE = 5;
 		
 		// 只在多线程模式启用
