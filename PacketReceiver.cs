@@ -25,24 +25,24 @@
 		private byte[] _buffer;
 		
 		// socket向缓冲区写的起始位置
-		public int wpos = 0;	
+		int _wpos = 0;	
 		
 		// 主线程读取数据的起始位置
-		public int rpos = 0;	
+		int _rpos = 0;	
 		
 		// 当前能写入的区块大小
-		public int block = BUFFER_BLOCK_SIZE;
+		int _block = BUFFER_BLOCK_SIZE;
 		
         public PacketReceiver(NetworkInterface networkInterface)
         {
-        	init(networkInterface);
+        	_init(networkInterface);
         }
 
-		void init(NetworkInterface networkInterface)
+		void _init(NetworkInterface networkInterface)
 		{
 			_networkInterface = networkInterface;
 			BUFFER_BLOCK_SIZE = KBEngineApp.app.getInitArgs().RECV_BUFFER_BLOCK;
-			
+			_block = BUFFER_BLOCK_SIZE;
 			_buffer = new byte[BUFFER_BLOCK_SIZE * KBEngineApp.app.getInitArgs().RECV_BUFFER_BLOCK_LIST_SIZE];
 			
 			messageReader = new MessageReader();
@@ -55,17 +55,17 @@
 		
 		public void process()
 		{
-			int t_wpos = Interlocked.Add(ref wpos, 0);
+			int t_wpos = Interlocked.Add(ref _wpos, 0);
 				
-			if(rpos < t_wpos)
+			if(_rpos < t_wpos)
 			{
-				messageReader.process(_buffer, (UInt32)rpos, (UInt32)(t_wpos - rpos));
-				Interlocked.Exchange(ref rpos, t_wpos);
+				messageReader.process(_buffer, (UInt32)_rpos, (UInt32)(t_wpos - _rpos));
+				Interlocked.Exchange(ref _rpos, t_wpos);
 			} 
-			else if(t_wpos < rpos)
+			else if(t_wpos < _rpos)
 			{
-				messageReader.process(_buffer, (UInt32)rpos, (UInt32)(_buffer.Length - rpos));
-				Interlocked.Exchange(ref rpos, 0);
+				messageReader.process(_buffer, (UInt32)_rpos, (UInt32)(_buffer.Length - _rpos));
+				Interlocked.Exchange(ref _rpos, 0);
 			}
 			else
 			{
@@ -73,33 +73,33 @@
 			}
 		}
 		
-		public void updateStates()
+		void _updateStates()
 		{
-			int t_rpos = Interlocked.Add(ref rpos, 0);
+			int t_rpos = Interlocked.Add(ref _rpos, 0);
 
-			block = BUFFER_BLOCK_SIZE;
+			_block = BUFFER_BLOCK_SIZE;
 			
-			if(t_rpos <= wpos)
+			if(t_rpos <= _wpos)
 			{
-				int iblock = _buffer.Length - wpos;
+				int iblock = _buffer.Length - _wpos;
 				if(iblock < BUFFER_BLOCK_SIZE)
 				{
 					if(iblock == 0)
-						Interlocked.Exchange(ref wpos, 0);
+						Interlocked.Exchange(ref _wpos, 0);
 					else
-						block = iblock;
+						_block = iblock;
 				}
 			}
 			else
 			{
-				int iblock = t_rpos - wpos;
+				int iblock = t_rpos - _wpos;
 				if(iblock > BUFFER_BLOCK_SIZE)
 				{
-					block = BUFFER_BLOCK_SIZE;
+					_block = BUFFER_BLOCK_SIZE;
 				}
 				else
 				{
-					block = iblock;
+					_block = iblock;
 				}
 			}
 		}
@@ -109,9 +109,9 @@
 			// 必须有空间可写，否则我们阻塞在线程中直到有空间为止
 			int first = 0;
 			
-			while(block <= 0)
+			while(_block <= 0)
 			{
-				updateStates();
+				_updateStates();
 				
 				if(first > 0)
 				{
@@ -124,8 +124,8 @@
 			
 			try
 			{
-				// 此时可以不加锁，没有任何地方会改变wpos, block
-				_networkInterface.sock().BeginReceive(_buffer, wpos, block, 0,
+				// 此时可以不加锁，没有任何地方会改变_wpos, _block
+				_networkInterface.sock().BeginReceive(_buffer, _wpos, _block, 0,
 			            new AsyncCallback(_onRecv), this);
 			}
 			catch (Exception e) 
@@ -155,8 +155,8 @@
 		        if (bytesRead > 0) 
 		        {
 		        	// 更新写位置
-		        	Interlocked.Add(ref state.wpos, bytesRead);
-					state.block = 0;
+		        	Interlocked.Add(ref state._wpos, bytesRead);
+					state._block = 0;
 
 		            state.startRecv();
 		        }

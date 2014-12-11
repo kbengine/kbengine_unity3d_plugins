@@ -20,26 +20,26 @@
     {
 		private byte[] _buffer;
 
-		public int wpos = 0;				// 写入的数据位置
-		public int spos = 0;				// 发送完毕的数据位置
-		public int sending = 0;
+		int _wpos = 0;				// 写入的数据位置
+		int _spos = 0;				// 发送完毕的数据位置
+		int _sending = 0;
 		
 		private NetworkInterface _networkInterface = null;
 		
         public PacketSender(NetworkInterface networkInterface)
         {
-        	init(networkInterface);
+        	_init(networkInterface);
         }
 
-		void init(NetworkInterface networkInterface)
+		void _init(NetworkInterface networkInterface)
 		{
 			_networkInterface = networkInterface;
 			
 			_buffer = new byte[KBEngineApp.app.getInitArgs().SEND_BUFFER_MAX];
 			
-			wpos = 0; 
-			spos = 0;
-			sending = 0;
+			_wpos = 0; 
+			_spos = 0;
+			_sending = 0;
 		}
 
 		public NetworkInterface networkInterface()
@@ -47,71 +47,89 @@
 			return _networkInterface;
 		}
 		
-		public bool hasFree(byte[] datas)
+		int _free(int t_spos)
 		{
-			if(datas.Length <= 0)
-				return true;
-			
-			int t_spos = Interlocked.Add(ref spos, 0);
-			
 			// 数据长度溢出则返回错误
 			// 剩余空间与已经发送的空间都是可以使用的空间
-			int space = t_spos - wpos;
+			int space = t_spos - _wpos;
 			if(space <= 0)
-				space = (_buffer.Length - wpos + t_spos);
-			
-			if (datas.Length > space)
-			{
-				Dbg.ERROR_MSG("PacketSender::hasFree(): no space! data(" + datas.Length 
-					+ ") > space(" + space + "), wpos=" + wpos + ", spos=" + t_spos);
-				
-				return false;
-			}
-			
-			return true;
+				space = (_buffer.Length - _wpos + t_spos);
+
+			return space;
 		}
 		
 		public bool send(byte[] datas)
 		{
-			if(!hasFree(datas))
+			if(datas.Length <= 0)
+				return true;
+			
+			int t_spos = Interlocked.Add(ref _spos, 0);
+			
+			int space= _free(t_spos);
+			if (datas.Length > space)
+			{
+				Dbg.ERROR_MSG("PacketSender::hasFree(): no space! data(" + datas.Length 
+					+ ") > space(" + space + "), wpos=" + _wpos + ", spos=" + t_spos);
+				
 				return false;
+			}
+
+			int expect_total = _wpos + datas.Length;
 			
-			int expect_total = wpos + datas.Length;
-			
+			// 如果总长度不超过_buffer，那么结合前面获得的space大小可以断定
+			// _spos小于_wpos, _wpos后面的空间可以全部用来填充
+			// 否则先填充尾部数据，剩余的数据从头部开始填充
 			if(expect_total <= _buffer.Length)
 			{
-				Array.Copy(datas, 0, _buffer, wpos, datas.Length);
-				Interlocked.Add(ref wpos, datas.Length);
+				if(t_spos > _wpos && expect_total >= t_spos)
+				{
+					Dbg.ERROR_MSG("wpos=" + _wpos + " > spos=" + t_spos + ", expect_total=" + 
+						expect_total + ", buffer=" + _buffer.Length);
+					
+					throw new Exception("t_spos > _wpos");
+				}
+				
+				Array.Copy(datas, 0, _buffer, _wpos, datas.Length);
+				Interlocked.Add(ref _wpos, datas.Length);
 			}
 			else
 			{
-				int remain = _buffer.Length - wpos;
-				Array.Copy(datas, 0, _buffer, wpos, remain);
-				Interlocked.Exchange(ref wpos, expect_total - _buffer.Length);
-				Array.Copy(datas, remain, _buffer, 0, wpos);
+				if(t_spos > _wpos)
+				{
+					int remain = t_spos - _wpos;
+					Array.Copy(datas, 0, _buffer, _wpos, remain);
+					Interlocked.Add(ref _wpos, t_spos);
+				}
+				else
+				{
+					int remain = _buffer.Length - _wpos;
+					Array.Copy(datas, 0, _buffer, _wpos, remain);
+					Interlocked.Exchange(ref _wpos, expect_total - _buffer.Length);
+					Array.Copy(datas, remain, _buffer, 0, _wpos);
+				}
 			}
 			
-			if(Interlocked.Add(ref sending, 0) == 0)
+			if(Interlocked.Add(ref _sending, 0) == 0)
 			{
-				Interlocked.Exchange(ref sending, 1);
-				startSend();
+				Interlocked.Exchange(ref _sending, 1);
+				_startSend();
 			}
 			
 			return true;
 		}
 		
-		public void startSend()
+		void _startSend()
 		{
-			if(spos >= _buffer.Length)
-				Interlocked.Exchange(ref spos, 0);
+			if(_spos >= _buffer.Length)
+				Interlocked.Exchange(ref _spos, 0);
 			
-			int sendSize = Interlocked.Add(ref wpos, 0) - spos;
+			int sendSize = Interlocked.Add(ref _wpos, 0) - _spos;
 			if(sendSize < 0)
-				sendSize = _buffer.Length - spos;
+				sendSize = _buffer.Length - _spos;
 			
 			try
 			{
-				_networkInterface.sock().BeginSend(_buffer, spos, sendSize, 0,
+				_networkInterface.sock().BeginSend(_buffer, _spos, sendSize, 0,
          		   new AsyncCallback(_onSent), this);
 			}
 			catch (Exception e) 
@@ -138,23 +156,24 @@
 				// Complete sending the data to the remote device.
 				int bytesSent = client.EndSend(ar);
 				
-				int spos = Interlocked.Add(ref state.spos, bytesSent);
+				int spos = Interlocked.Add(ref state._spos, bytesSent);
 				
 				// 如果数据没有发送完毕需要继续投递发送
-				if(spos != Interlocked.Add(ref state.wpos, 0))
+				if(spos != Interlocked.Add(ref state._wpos, 0))
 				{
-					state.startSend();
+					state._startSend();
 				}
 				else
 				{
 					// 所有数据发送完毕了
-					Interlocked.Exchange(ref state.sending, 0);
+					Interlocked.Exchange(ref state._sending, 0);
 				}
 			} 
 			catch (Exception e) 
 			{
 				Dbg.ERROR_MSG(string.Format("PacketSender::_processSent(): is error({0})!", e.ToString()));
 				state.networkInterface().close();
+				Interlocked.Exchange(ref state._sending, 0);
 			}
 		}
 	}
