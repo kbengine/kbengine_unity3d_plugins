@@ -53,7 +53,20 @@ namespace KBEngine
 
 			if(loginapp_onImportClientMessages.Length > 0 && baseapp_onImportClientMessages.Length > 0)
 			{
-				KBEngineApp.app.importMessagesFromMemoryStream (loginapp_onImportClientMessages, baseapp_onImportClientMessages, onImportClientEntityDef, onImportServerErrorsDescr);
+				try
+				{
+					if(!KBEngineApp.app.importMessagesFromMemoryStream (loginapp_onImportClientMessages, 
+							baseapp_onImportClientMessages, onImportClientEntityDef, onImportServerErrorsDescr))
+						
+						clearMessageFiles();
+						return false;
+				}
+				catch(Exception e)
+				{
+					Dbg.ERROR_MSG("PersistentInofs::loadAll(): is error(" + e.ToString() + ")!");  
+					clearMessageFiles();
+					return false;
+				}
 			}
 			
 			return true;
