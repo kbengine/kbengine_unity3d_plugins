@@ -39,14 +39,14 @@
 		// 主循环tick间隔
 		public int HZ_TICK = 100;
 		
-		public MessageLengthEx getRecvBufferSize()
+		public int getRecvBufferSize()
 		{
-			return RECV_BUFFER_MAX;
+			return (int)RECV_BUFFER_MAX;
 		}
 		
-		public MessageLengthEx getSendBufferSize()
+		public int getSendBufferSize()
 		{
-			return SEND_BUFFER_MAX;
+			return (int)SEND_BUFFER_MAX;
 		}
     }
 
