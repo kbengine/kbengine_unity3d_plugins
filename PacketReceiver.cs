@@ -37,7 +37,7 @@
 		void _init(NetworkInterface networkInterface)
 		{
 			_networkInterface = networkInterface;
-			_buffer = new byte[KBEngineApp.app.getInitArgs().RECV_BUFFER_BLOCK];
+			_buffer = new byte[KBEngineApp.app.getInitArgs().RECV_BUFFER_MAX];
 			
 			messageReader = new MessageReader();
 		}
