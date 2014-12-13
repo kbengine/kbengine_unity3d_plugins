@@ -448,9 +448,6 @@
 		{
 			if(noconnect)
 			{
-				if(currserver != "")
-					return;
-				
 				reset();
 				_networkInterface.connectTo(_args.ip, _args.port, onConnectTo_loginapp_callback, null);
 			}
