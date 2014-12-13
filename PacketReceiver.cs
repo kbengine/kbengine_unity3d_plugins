@@ -20,8 +20,7 @@
     {
 		private MessageReader messageReader = null;
 		private NetworkInterface _networkInterface = null;
-		private static int BUFFER_BLOCK_SIZE = 1460;
-		
+
 		private byte[] _buffer;
 		
 		// socket向缓冲区写的起始位置
@@ -29,9 +28,6 @@
 		
 		// 主线程读取数据的起始位置
 		int _rpos = 0;	
-		
-		// 当前能写入的区块大小
-		int _block = BUFFER_BLOCK_SIZE;
 		
         public PacketReceiver(NetworkInterface networkInterface)
         {
@@ -41,9 +37,7 @@
 		void _init(NetworkInterface networkInterface)
 		{
 			_networkInterface = networkInterface;
-			BUFFER_BLOCK_SIZE = KBEngineApp.app.getInitArgs().RECV_BUFFER_BLOCK;
-			_block = BUFFER_BLOCK_SIZE;
-			_buffer = new byte[BUFFER_BLOCK_SIZE * KBEngineApp.app.getInitArgs().RECV_BUFFER_BLOCK_LIST_SIZE];
+			_buffer = new byte[KBEngineApp.app.getInitArgs().RECV_BUFFER_BLOCK];
 			
 			messageReader = new MessageReader();
 		}
@@ -56,7 +50,7 @@
 		public void process()
 		{
 			int t_wpos = Interlocked.Add(ref _wpos, 0);
-				
+
 			if(_rpos < t_wpos)
 			{
 				messageReader.process(_buffer, (UInt32)_rpos, (UInt32)(t_wpos - _rpos));
@@ -65,7 +59,8 @@
 			else if(t_wpos < _rpos)
 			{
 				messageReader.process(_buffer, (UInt32)_rpos, (UInt32)(_buffer.Length - _rpos));
-				Interlocked.Exchange(ref _rpos, 0);
+				messageReader.process(_buffer, (UInt32)0, (UInt32)t_wpos);
+				Interlocked.Exchange(ref _rpos, t_wpos);
 			}
 			else
 			{
@@ -73,46 +68,40 @@
 			}
 		}
 		
-		void _updateStates()
+		int _free()
 		{
 			int t_rpos = Interlocked.Add(ref _rpos, 0);
-
-			_block = BUFFER_BLOCK_SIZE;
+			
+			if(_wpos == _buffer.Length)
+			{
+				if(t_rpos == 0)
+				{
+					return 0;
+				}
+				
+				Interlocked.Exchange(ref _wpos, 0);
+			}
 			
 			if(t_rpos <= _wpos)
 			{
-				int iblock = _buffer.Length - _wpos;
-				if(iblock < BUFFER_BLOCK_SIZE)
-				{
-					if(iblock == 0)
-						Interlocked.Exchange(ref _wpos, 0);
-					else
-						_block = iblock;
-				}
+				return _buffer.Length - _wpos;
 			}
 			else
 			{
-				int iblock = t_rpos - _wpos;
-				if(iblock > BUFFER_BLOCK_SIZE)
-				{
-					_block = BUFFER_BLOCK_SIZE;
-				}
-				else
-				{
-					_block = iblock;
-				}
+				return t_rpos - _wpos - 1;
 			}
+			
+			return 0;
 		}
 		
 		public void startRecv()
 		{
 			// 必须有空间可写，否则我们阻塞在线程中直到有空间为止
 			int first = 0;
+			int space = _free();
 			
-			while(_block <= 0)
+			while(space == 0)
 			{
-				_updateStates();
-				
 				if(first > 0)
 				{
 					Dbg.WARNING_MSG("PacketReceiver::startRecv(): wait for space! retries=" + first);
@@ -120,12 +109,12 @@
 				}
 				
 				first += 1;
+				space = _free();
 			}
 			
 			try
 			{
-				// 此时可以不加锁，没有任何地方会改变_wpos, _block
-				_networkInterface.sock().BeginReceive(_buffer, _wpos, _block, 0,
+				_networkInterface.sock().BeginReceive(_buffer, _wpos, space, 0,
 			            new AsyncCallback(_onRecv), this);
 			}
 			catch (Exception e) 
@@ -156,22 +145,11 @@
 		        {
 		        	// 更新写位置
 		        	Interlocked.Add(ref state._wpos, bytesRead);
-					state._block = 0;
-
 		            state.startRecv();
 		        }
 				else
 		        {
-		        	if (bytesRead == 0) 
-		        	{
-		        		Dbg.WARNING_MSG(string.Format("PacketReceiver::_processRecved(): disconnect!"));
-		        		state.networkInterface().close();
-		        		return;
-		        	}
-		        	else
-		        	{
-		        		state.startRecv();
-		        	}
+		        	state.startRecv();
 		        }
 			} 
 			catch (Exception e) 
