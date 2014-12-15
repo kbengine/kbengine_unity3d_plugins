@@ -79,7 +79,7 @@
 			}
 			
 			int expect_total = tt_wpos + datas.Length;
-			if(expect_total <= _buffer.Length || tt_spos > tt_wpos)
+			if(expect_total <= _buffer.Length)
 			{
 				Array.Copy(datas, 0, _buffer, tt_wpos, datas.Length);
 			}
