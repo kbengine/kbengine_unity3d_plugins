@@ -47,71 +47,53 @@
 			return _networkInterface;
 		}
 		
-		int _free(int t_spos)
-		{
-			// 数据长度溢出则返回错误
-			// 剩余空间与已经发送的空间都是可以使用的空间
-			int space = t_spos - _wpos;
-			if(space <= 0)
-				space = (_buffer.Length - _wpos + t_spos);
-
-			return space;
-		}
-		
 		public bool send(byte[] datas)
 		{
 			if(datas.Length <= 0)
 				return true;
 			
-			int t_spos = Interlocked.Add(ref _spos, 0);
+			bool startSend = false;
+			if(Interlocked.CompareExchange(ref _sending, 1, 0) == 0)
+			{
+				startSend = true;
+				_wpos = 0;
+				_spos = 0;
+			}
 			
-			int space= _free(t_spos);
+			int t_spos = Interlocked.Add(ref _spos, 0);
+			int space = 0;
+			int tt_wpos = _wpos % _buffer.Length;
+			int tt_spos = t_spos % _buffer.Length;
+			
+			if(tt_wpos >= tt_spos)
+				space = _buffer.Length - tt_wpos + tt_spos - 1;
+			else
+				space = tt_spos - tt_wpos - 1;
+			
 			if (datas.Length > space)
 			{
-				Dbg.ERROR_MSG("PacketSender::hasFree(): no space! data(" + datas.Length 
+				Dbg.ERROR_MSG("PacketSender::send(): no space! data(" + datas.Length 
 					+ ") > space(" + space + "), wpos=" + _wpos + ", spos=" + t_spos);
 				
 				return false;
 			}
-
-			int expect_total = _wpos + datas.Length;
 			
-			// 如果总长度不超过_buffer，那么结合前面获得的space大小可以断定
-			// _spos小于_wpos, _wpos后面的空间可以全部用来填充
-			// 否则先填充尾部数据，剩余的数据从头部开始填充
-			if(expect_total <= _buffer.Length)
+			int expect_total = tt_wpos + datas.Length;
+			if(expect_total <= _buffer.Length || tt_spos > tt_wpos)
 			{
-				if(t_spos > _wpos && expect_total >= t_spos)
-				{
-					Dbg.ERROR_MSG("wpos=" + _wpos + " > spos=" + t_spos + ", expect_total=" + 
-						expect_total + ", buffer=" + _buffer.Length);
-					
-					throw new Exception("t_spos > _wpos");
-				}
-				
-				Array.Copy(datas, 0, _buffer, _wpos, datas.Length);
-				Interlocked.Add(ref _wpos, datas.Length);
+				Array.Copy(datas, 0, _buffer, tt_wpos, datas.Length);
 			}
 			else
 			{
-				if(t_spos > _wpos)
-				{
-					int remain = t_spos - _wpos;
-					Array.Copy(datas, 0, _buffer, _wpos, remain);
-					Interlocked.Add(ref _wpos, t_spos);
-				}
-				else
-				{
-					int remain = _buffer.Length - _wpos;
-					Array.Copy(datas, 0, _buffer, _wpos, remain);
-					Interlocked.Exchange(ref _wpos, expect_total - _buffer.Length);
-					Array.Copy(datas, remain, _buffer, 0, _wpos);
-				}
+				int remain = _buffer.Length - tt_wpos;
+				Array.Copy(datas, 0, _buffer, tt_wpos, remain);
+				Array.Copy(datas, remain, _buffer, 0, expect_total - _buffer.Length);
 			}
 			
-			if(Interlocked.Add(ref _sending, 0) == 0)
+			Interlocked.Add(ref _wpos, datas.Length);
+
+			if(startSend)
 			{
-				Interlocked.Exchange(ref _sending, 1);
 				_startSend();
 			}
 			
@@ -120,16 +102,17 @@
 		
 		void _startSend()
 		{
-			if(_spos >= _buffer.Length)
-				Interlocked.Exchange(ref _spos, 0);
-			
 			int sendSize = Interlocked.Add(ref _wpos, 0) - _spos;
-			if(sendSize < 0)
-				sendSize = _buffer.Length - _spos;
-			
+			int t_spos = _spos % _buffer.Length;
+			if(t_spos == 0)
+				t_spos = sendSize;
+		
+			if(sendSize > _buffer.Length - t_spos)
+				sendSize = _buffer.Length - t_spos;
+
 			try
 			{
-				_networkInterface.sock().BeginSend(_buffer, _spos, sendSize, 0,
+				_networkInterface.sock().BeginSend(_buffer, _spos % _buffer.Length, sendSize, 0,
          		   new AsyncCallback(_onSent), this);
 			}
 			catch (Exception e) 
@@ -157,7 +140,7 @@
 				int bytesSent = client.EndSend(ar);
 				
 				int spos = Interlocked.Add(ref state._spos, bytesSent);
-				
+
 				// 如果数据没有发送完毕需要继续投递发送
 				if(spos != Interlocked.Add(ref state._wpos, 0))
 				{

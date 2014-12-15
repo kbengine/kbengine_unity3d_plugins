@@ -86,12 +86,8 @@
 			{
 				return _buffer.Length - _wpos;
 			}
-			else
-			{
-				return t_rpos - _wpos - 1;
-			}
-			
-			return 0;
+
+			return t_rpos - _wpos - 1;
 		}
 		
 		public void startRecv()
