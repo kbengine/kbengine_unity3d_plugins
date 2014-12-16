@@ -840,7 +840,16 @@
 					
 					if(Class != null)
 					{
-						setmethod = Class.GetMethod("set_" + name);
+						try{
+							setmethod = Class.GetMethod("set_" + name);
+						}
+						catch (Exception e)
+						{
+							string err = "KBEngine::Client_onImportClientEntityDef: " + 
+								scriptmethod_name + ".set_" + name + ", error=" + e.ToString();
+							
+							throw new Exception(err);
+						}
 					}
 					
 					Property savedata = new Property();
@@ -890,7 +899,16 @@
 					savedata.args = args;
 					
 					if(Class != null)
-						savedata.handler = Class.GetMethod(name);
+					{
+						try{
+							savedata.handler = Class.GetMethod(name);
+						}
+						catch (Exception e)
+						{
+							string err = "KBEngine::Client_onImportClientEntityDef: " + scriptmethod_name + "." + name + ", error=" + e.ToString();
+							throw new Exception(err);
+						}
+					}
 							
 					module.methods[name] = savedata;
 					
@@ -2337,23 +2355,15 @@
 	        public void run()
 	        {
 				Dbg.INFO_MSG("KBEThread::run()");
-				int count = 0;
-START_RUN:
 				over = false;
 
 	            try
 	            {
 	                this.app_.process();
-	                count = 0;
 	            }
 	            catch (Exception e)
 	            {
 	                Dbg.ERROR_MSG(e.ToString());
-	                Dbg.INFO_MSG("KBEThread::try run:" + count);
-	                
-	                count ++;
-	                if(count < 10)
-	                	goto START_RUN;
 	            }
 				
 				over = true;
