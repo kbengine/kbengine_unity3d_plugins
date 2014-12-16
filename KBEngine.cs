@@ -14,6 +14,13 @@
 	/*
 		这是KBEngine插件的核心模块
 		包括网络创建、持久化协议、entities的管理、以及引起对外可调用接口。
+		
+		一些可以参考的地方:
+		http://www.kbengine.org/docs/programming/clientsdkprogramming.html
+		http://www.kbengine.org/docs/programming/kbe_message_format.html
+		
+		http://www.kbengine.org/cn/docs/programming/clientsdkprogramming.html
+		http://www.kbengine.org/cn/docs/programming/kbe_message_format.html
 	*/
 	public class KBEngineApp
 	{
