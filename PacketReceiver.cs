@@ -145,7 +145,16 @@
 		        }
 				else
 		        {
-		        	state.startRecv();
+		        	if (bytesRead == 0) 
+		        	{
+		        		Dbg.WARNING_MSG(string.Format("PacketReceiver::_processRecved(): disconnect!"));
+		        		state.networkInterface().close();
+		        		return;
+		        	}
+		        	else
+		        	{
+		        		state.startRecv();
+		        	}
 		        }
 			} 
 			catch (Exception e) 
