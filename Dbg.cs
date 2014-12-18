@@ -14,7 +14,7 @@ namespace KBEngine
 
 		public static string getHead()
 		{
-			return "[" + DateTime.Now.ToString() + "] ";
+			return "[" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss fff") + "] ";
 		}
 
 		public static void INFO_MSG(object s)
