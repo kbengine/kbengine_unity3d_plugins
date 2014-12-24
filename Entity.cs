@@ -12,7 +12,7 @@
     public class Entity 
     {
     	public Int32 id = 0;
-		public string classtype = "";
+		public string className = "";
 		public Vector3 position = new Vector3(0.0f, 0.0f, 0.0f);
 		public Vector3 direction = new Vector3(0.0f, 0.0f, 0.0f);
 		public float velocity = 0.0f;
@@ -115,16 +115,16 @@
 		{			
 			if(KBEngineApp.app.currserver == "loginapp")
 			{
-				Dbg.ERROR_MSG(classtype + "::baseCall(" + methodname + "), currserver=!" + KBEngineApp.app.currserver);  
+				Dbg.ERROR_MSG(className + "::baseCall(" + methodname + "), currserver=!" + KBEngineApp.app.currserver);  
 				return;
 			}
 			
-			Method method = EntityDef.moduledefs[classtype].base_methods[methodname];
+			Method method = EntityDef.moduledefs[className].base_methods[methodname];
 			UInt16 methodID = method.methodUtype;
 			
 			if(arguments.Length != method.args.Count)
 			{
-				Dbg.ERROR_MSG(classtype + "::baseCall(" + methodname + "): args(" + (arguments.Length) + "!= " + method.args.Count + ") size is error!");  
+				Dbg.ERROR_MSG(className + "::baseCall(" + methodname + "): args(" + (arguments.Length) + "!= " + method.args.Count + ") size is error!");  
 				return;
 			}
 			
@@ -140,7 +140,7 @@
 			}
 			catch(Exception e)
 			{
-				Dbg.ERROR_MSG(classtype + "::baseCall(" + methodname + "): args is error(" + e.Message + ")!");  
+				Dbg.ERROR_MSG(className + "::baseCall(" + methodname + "): args is error(" + e.Message + ")!");  
 				baseMailbox.bundle = null;
 				return;
 			}
@@ -152,16 +152,16 @@
 		{
 			if(KBEngineApp.app.currserver == "loginapp")
 			{
-				Dbg.ERROR_MSG(classtype + "::cellCall(" + methodname + "), currserver=!" + KBEngineApp.app.currserver);  
+				Dbg.ERROR_MSG(className + "::cellCall(" + methodname + "), currserver=!" + KBEngineApp.app.currserver);  
 				return;
 			}
 			
-			Method method = EntityDef.moduledefs[classtype].cell_methods[methodname];
+			Method method = EntityDef.moduledefs[className].cell_methods[methodname];
 			UInt16 methodID = method.methodUtype;
 			
 			if(arguments.Length != method.args.Count)
 			{
-				Dbg.ERROR_MSG(classtype + "::cellCall(" + methodname + "): args(" + (arguments.Length) + "!= " + method.args.Count + ") size is error!");  
+				Dbg.ERROR_MSG(className + "::cellCall(" + methodname + "): args(" + (arguments.Length) + "!= " + method.args.Count + ") size is error!");  
 				return;
 			}
 
@@ -177,7 +177,7 @@
 			}
 			catch(Exception e)
 			{
-				Dbg.ERROR_MSG(classtype + "::cellCall(" + methodname + "): args is error(" + e.Message + ")!");  
+				Dbg.ERROR_MSG(className + "::cellCall(" + methodname + "): args is error(" + e.Message + ")!");  
 				cellMailbox.bundle = null;
 				return;
 			}
@@ -187,28 +187,28 @@
 	
 		public virtual void onEnterWorld()
 		{
-			Dbg.DEBUG_MSG(classtype + "::onEnterWorld(" + getDefinedPropterty("uid") + "): " + id); 
+			Dbg.DEBUG_MSG(className + "::onEnterWorld(" + getDefinedPropterty("uid") + "): " + id); 
 			inWorld = true;
 			Event.fireOut("onEnterWorld", new object[]{this});
 		}
 		
 		public virtual void onLeaveWorld()
 		{
-			Dbg.DEBUG_MSG(classtype + "::onLeaveWorld: " + id); 
+			Dbg.DEBUG_MSG(className + "::onLeaveWorld: " + id); 
 			inWorld = false;
 			Event.fireOut("onLeaveWorld", new object[]{this});
 		}
 
 		public virtual void onEnterSpace()
 		{
-			Dbg.DEBUG_MSG(classtype + "::onEnterSpace(" + getDefinedPropterty("uid") + "): " + id); 
+			Dbg.DEBUG_MSG(className + "::onEnterSpace(" + getDefinedPropterty("uid") + "): " + id); 
 			inWorld = true;
 			Event.fireOut("onEnterSpace", new object[]{this});
 		}
 		
 		public virtual void onLeaveSpace()
 		{
-			Dbg.DEBUG_MSG(classtype + "::onLeaveSpace: " + id); 
+			Dbg.DEBUG_MSG(className + "::onLeaveSpace: " + id); 
 			inWorld = false;
 			Event.fireOut("onLeaveSpace", new object[]{this});
 		}
@@ -217,7 +217,7 @@
 		{
 			Vector3 v = (Vector3)getDefinedPropterty("position");
 			position = v;
-			Dbg.DEBUG_MSG(classtype + "::set_position: " + old + " => " + v); 
+			Dbg.DEBUG_MSG(className + "::set_position: " + old + " => " + v); 
 			
 			if(isPlayer())
 				KBEngineApp.app.entityServerPos(position);
@@ -236,7 +236,7 @@
 			
 			direction = v;
 			
-			Dbg.DEBUG_MSG(classtype + "::set_direction: " + old + " => " + v); 
+			Dbg.DEBUG_MSG(className + "::set_direction: " + old + " => " + v); 
 			Event.fireOut("set_direction", new object[]{this});
 		}
     }

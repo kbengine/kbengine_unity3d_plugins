@@ -20,7 +20,7 @@
 		}
 		
     	public Int32 id = 0;
-		public string classtype = "";
+		public string className = "";
 		public MAILBOX_TYPE type = MAILBOX_TYPE.MAILBOX_TYPE_CELL;
 		
 		private NetworkInterface networkInterface_;

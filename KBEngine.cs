@@ -1167,6 +1167,15 @@
 		/*
 			重置密码, 通过loginapp
 		*/
+		public void reset_password(string username)
+		{
+			KBEngineApp.app.username = username;
+			resetpassword_loginapp(true);
+		}
+		
+		/*
+			重置密码, 通过loginapp
+		*/
 		public void resetpassword_loginapp(bool noconnect)
 		{
 			if(noconnect)
@@ -1209,7 +1218,7 @@
 		/*
 			绑定Email，通过baseapp
 		*/
-		public void bindEMail_baseapp(string emailaddress)
+		public void bind_email(string emailaddress)
 		{  
 			Bundle bundle = new Bundle();
 			bundle.newMessage(Message.messages["Baseapp_reqAccountBindEmail"]);
@@ -1233,7 +1242,7 @@
 		/*
 			设置新密码，通过baseapp， 必须玩家登录在线操作所以是baseapp。
 		*/
-		public void newpassword_baseapp(string oldpassword, string newpassword)
+		public void new_password(string oldpassword, string newpassword)
 		{
 			Bundle bundle = new Bundle();
 			bundle.newMessage(Message.messages["Baseapp_reqAccountNewPassword"]);
@@ -1402,11 +1411,11 @@
 			
 			Entity entity = (Entity)Activator.CreateInstance(runclass);
 			entity.id = eid;
-			entity.classtype = entityType;
+			entity.className = entityType;
 			
 			entity.baseMailbox = new Mailbox();
 			entity.baseMailbox.id = eid;
-			entity.baseMailbox.classtype = entityType;
+			entity.baseMailbox.className = entityType;
 			entity.baseMailbox.type = Mailbox.MAILBOX_TYPE.MAILBOX_TYPE_BASE;
 			
 			entities[eid] = entity;
@@ -1497,7 +1506,7 @@
 				return;
 			}
 			
-			ScriptModule sm = EntityDef.moduledefs[entity.classtype];
+			ScriptModule sm = EntityDef.moduledefs[entity.className];
 			Dictionary<UInt16, Property> pdatas = sm.idpropertys;
 
 			while(stream.length() > 0)
@@ -1520,7 +1529,7 @@
 				object val = propertydata.utype.createFromStream(stream);
 				object oldval = entity.getDefinedProptertyByUType(utype);
 
-				 // Dbg.DEBUG_MSG("KBEngine::Client_onUpdatePropertys: " + entity.classtype + "(id=" + eid  + " " + 
+				 // Dbg.DEBUG_MSG("KBEngine::Client_onUpdatePropertys: " + entity.className + "(id=" + eid  + " " + 
 				 // propertydata.name + "=" + val + "), hasSetMethod=" + setmethod + "!");
 			
 				entity.setDefinedProptertyByUType(utype, val);
@@ -1562,14 +1571,14 @@
 			
 			UInt16 methodUtype = 0;
 
-			if(EntityDef.moduledefs[entity.classtype].useMethodDescrAlias)
+			if(EntityDef.moduledefs[entity.className].useMethodDescrAlias)
 				methodUtype = stream.readUint8();
 			else
 				methodUtype = stream.readUint16();
 			
-			Method methoddata = EntityDef.moduledefs[entity.classtype].idmethods[methodUtype];
+			Method methoddata = EntityDef.moduledefs[entity.className].idmethods[methodUtype];
 			
-			// Dbg.DEBUG_MSG("KBEngine::Client_onRemoteMethodCall: " + entity.classtype + "." + methoddata.name);
+			// Dbg.DEBUG_MSG("KBEngine::Client_onRemoteMethodCall: " + entity.className + "." + methoddata.name);
 			
 			object[] args = new object[methoddata.args.Count];
 	
@@ -1586,11 +1595,11 @@
             {
             	if(methoddata.handler != null)
             	{
-					Dbg.ERROR_MSG("KBEngine::Client_onRemoteMethodCall: " + entity.classtype + "(" + eid + "), callMethod(" + entity.classtype + "." + methoddata.name + ") is error!\nerror=" + e.ToString());
+					Dbg.ERROR_MSG("KBEngine::Client_onRemoteMethodCall: " + entity.className + "(" + eid + "), callMethod(" + entity.className + "." + methoddata.name + ") is error!\nerror=" + e.ToString());
 				}
 				else
 				{
-					Dbg.ERROR_MSG("KBEngine::Client_onRemoteMethodCall: " + entity.classtype + "(" + eid + "), not found method(" + entity.classtype + "." + methoddata.name + ")!\nerror=" + e.ToString());
+					Dbg.ERROR_MSG("KBEngine::Client_onRemoteMethodCall: " + entity.className + "(" + eid + "), not found method(" + entity.className + "." + methoddata.name + ")!\nerror=" + e.ToString());
 				}
             }
 		}
@@ -1635,11 +1644,11 @@
 				
 				entity = (Entity)Activator.CreateInstance(runclass);
 				entity.id = eid;
-				entity.classtype = entityType;
+				entity.className = entityType;
 				
 				entity.cellMailbox = new Mailbox();
 				entity.cellMailbox.id = eid;
-				entity.cellMailbox.classtype = entityType;
+				entity.cellMailbox.className = entityType;
 				entity.cellMailbox.type = Mailbox.MAILBOX_TYPE.MAILBOX_TYPE_CELL;
 				
 				entities[eid] = entity;
@@ -1667,7 +1676,7 @@
 				
 					entity.cellMailbox = new Mailbox();
 					entity.cellMailbox.id = eid;
-					entity.cellMailbox.classtype = entityType;
+					entity.cellMailbox.className = entityType;
 					entity.cellMailbox.type = Mailbox.MAILBOX_TYPE.MAILBOX_TYPE_CELL;
 					
 					_entityServerPos = entity.position;
