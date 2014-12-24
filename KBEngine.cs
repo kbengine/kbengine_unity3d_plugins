@@ -134,6 +134,9 @@
 		// entityDef管理模块
 		public static EntityDef entityDef = new EntityDef();
 		
+		// 按照标准，每个客户端部分都应该包含这个属性
+		public const string component = "client"; 
+		
         public KBEngineApp(KBEngineArgs args)
         {
 			if (app != null)
