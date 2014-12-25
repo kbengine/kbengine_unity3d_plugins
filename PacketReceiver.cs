@@ -100,7 +100,7 @@
 			{
 				if(first > 0)
 				{
-					Dbg.WARNING_MSG("PacketReceiver::startRecv(): waiting for space! retries=" + first);
+					Dbg.WARNING_MSG("PacketReceiver::startRecv(): waiting for space, Please adjust 'RECV_BUFFER_MAX'! retries=" + first);
 					System.Threading.Thread.Sleep(5);
 				}
 				

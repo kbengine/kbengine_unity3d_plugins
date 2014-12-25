@@ -72,7 +72,7 @@
 			
 			if (datas.Length > space)
 			{
-				Dbg.ERROR_MSG("PacketSender::send(): no space! data(" + datas.Length 
+				Dbg.ERROR_MSG("PacketSender::send(): no space, Please adjust 'SEND_BUFFER_MAX'! data(" + datas.Length 
 					+ ") > space(" + space + "), wpos=" + _wpos + ", spos=" + t_spos);
 				
 				return false;
