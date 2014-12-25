@@ -3,6 +3,11 @@ using System;
 using System.Collections;
 using KBEngine;
 
+/*
+	可以理解为插件的入口模块
+	在这个入口中安装了需要监听的事件(installEvents)，同时初始化可KBEngine(initKBEngine)
+*/
+	
 public class KBEMain : MonoBehaviour 
 {
 	public KBEngineApp gameapp = null;
