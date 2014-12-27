@@ -13,13 +13,12 @@ namespace KBEngine
 	public class PersistentInofs
 	{
 		string _persistentDataPath = "";
-		bool _isGood = false;
+		string _digest = "";
 		
 	    public PersistentInofs(string path)
 	    {
 	    	_persistentDataPath = path;
 	    	installEvents();
-	    	_isGood = loadAll();
 	    }
 	        
 		void installEvents()
@@ -29,24 +28,16 @@ namespace KBEngine
 			KBEngine.Event.registerOut("onImportClientEntityDef", this, "onImportClientEntityDef");
 			KBEngine.Event.registerOut("onVersionNotMatch", this, "onVersionNotMatch");
 			KBEngine.Event.registerOut("onScriptVersionNotMatch", this, "onScriptVersionNotMatch");
-			KBEngine.Event.registerOut("onServerDigest", this, "onServerDigest");
-		}
-		
-		public bool isGood()
-		{
-			return _isGood;
 		}
 		
 		string _getSuffix()
 		{
-			return KBEngineApp.app.clientVersion + "." + KBEngineApp.app.clientScriptVersion + "." + 
+			return _digest + "." + KBEngineApp.app.clientVersion + "." + KBEngineApp.app.clientScriptVersion + "." + 
 							KBEngineApp.app.getInitArgs().ip + "." + KBEngineApp.app.getInitArgs().port;
 		}
 		
 		public bool loadAll()
 		{
-
-			
 			byte[] loginapp_onImportClientMessages = loadFile (_persistentDataPath, "loginapp_clientMessages." + _getSuffix());
 
 			byte[] baseapp_onImportClientMessages = loadFile (_persistentDataPath, "baseapp_clientMessages." + _getSuffix());
@@ -112,12 +103,17 @@ namespace KBEngine
 				return;
 			}
 			
+			_digest = serverProtocolMD5 + serverEntitydefMD5;
 			if(loadFile(_persistentDataPath, serverProtocolMD5 + serverEntitydefMD5 + "." + 
 				KBEngineApp.app.getInitArgs().ip + "." + KBEngineApp.app.getInitArgs().port).Length == 0)
 			{
 				clearMessageFiles();
 				createFile(_persistentDataPath, serverProtocolMD5 + serverEntitydefMD5 + "." + 
 					KBEngineApp.app.getInitArgs().ip + "." + KBEngineApp.app.getInitArgs().port, new byte[1]);
+			}
+			else
+			{
+				loadAll();
 			}
 		}
 			

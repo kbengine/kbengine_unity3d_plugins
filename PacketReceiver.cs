@@ -100,6 +100,9 @@
 			{
 				if(first > 0)
 				{
+					if(first > 1000)
+						throw new Exception("PacketReceiver::startRecv(): no space!");
+					 
 					Dbg.WARNING_MSG("PacketReceiver::startRecv(): waiting for space, Please adjust 'RECV_BUFFER_MAX'! retries=" + first);
 					System.Threading.Thread.Sleep(5);
 				}
