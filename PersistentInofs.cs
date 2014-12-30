@@ -15,6 +15,8 @@ namespace KBEngine
 		string _persistentDataPath = "";
 		string _digest = "";
 		
+		string _lastloaded = "";
+		
 	    public PersistentInofs(string path)
 	    {
 	    	_persistentDataPath = path;
@@ -38,6 +40,9 @@ namespace KBEngine
 		
 		public bool loadAll()
 		{
+			if(_lastloaded == _getSuffix())
+				return true;
+			
 			byte[] loginapp_onImportClientMessages = loadFile (_persistentDataPath, "loginapp_clientMessages." + _getSuffix());
 
 			byte[] baseapp_onImportClientMessages = loadFile (_persistentDataPath, "baseapp_clientMessages." + _getSuffix());
@@ -64,11 +69,15 @@ namespace KBEngine
 				}
 			}
 			
+			_lastloaded = _getSuffix();
 			return true;
 		}
 		
 		public void onImportClientMessages(string currserver, byte[] stream)
 		{
+			if(_lastloaded == _getSuffix())
+				return;
+			
 			if(currserver == "loginapp")
 				createFile (_persistentDataPath, "loginapp_clientMessages." + _getSuffix(), stream);
 			else
@@ -77,11 +86,17 @@ namespace KBEngine
 
 		public void onImportServerErrorsDescr(byte[] stream)
 		{
+			if(_lastloaded == _getSuffix())
+				return;
+			
 			createFile (_persistentDataPath, "serverErrorsDescr." + _getSuffix(), stream);
 		}
 		
 		public void onImportClientEntityDef(byte[] stream)
 		{
+			if(_lastloaded == _getSuffix())
+				return;
+			
 			createFile (_persistentDataPath, "clientEntityDef." + _getSuffix(), stream);
 		}
 		
@@ -104,6 +119,10 @@ namespace KBEngine
 			}
 			
 			_digest = serverProtocolMD5 + serverEntitydefMD5;
+			
+			if(_lastloaded == _getSuffix())
+				return;
+			
 			if(loadFile(_persistentDataPath, serverProtocolMD5 + serverEntitydefMD5 + "." + 
 				KBEngineApp.app.getInitArgs().ip + "." + KBEngineApp.app.getInitArgs().port).Length == 0)
 			{
@@ -124,6 +143,8 @@ namespace KBEngine
 			deleteFile(_persistentDataPath, "serverErrorsDescr." + _getSuffix());
 			deleteFile(_persistentDataPath, "clientEntityDef." + _getSuffix());
 			KBEngineApp.app.resetMessages();
+			
+			_lastloaded = "";
 		}
 		
 		public void createFile(string path, string name, byte[] datas)  
