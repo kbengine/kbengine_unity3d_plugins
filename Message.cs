@@ -57,6 +57,10 @@
 			Message.messages["Client_onScriptVersionNotMatch"] = new Message(522, "Client_onScriptVersionNotMatch", -1, -1, new List<Byte>(), 
 				KBEngineApp.app.GetType().GetMethod("Client_onScriptVersionNotMatch"));
 			Message.clientMessages[Message.messages["Client_onScriptVersionNotMatch"].id] = Message.messages["Client_onScriptVersionNotMatch"];
+
+			Message.messages["Client_onVersionNotMatch"] = new Message(523, "Client_onVersionNotMatch", -1, -1, new List<Byte>(), 
+				KBEngineApp.app.GetType().GetMethod("Client_onVersionNotMatch"));
+			Message.clientMessages[Message.messages["Client_onVersionNotMatch"].id] = Message.messages["Client_onVersionNotMatch"];
 			
 			Message.messages["Client_onImportClientMessages"] = new Message(518, "Client_onImportClientMessages", -1, -1, new List<Byte>(), 
 				KBEngineApp.app.GetType().GetMethod("Client_onImportClientMessages"));
