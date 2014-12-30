@@ -43,6 +43,8 @@ namespace KBEngine
 			if(_lastloaded == _getSuffix())
 				return true;
 			
+			KBEngineApp.app.resetMessages();
+			
 			byte[] loginapp_onImportClientMessages = loadFile (_persistentDataPath, "loginapp_clientMessages." + _getSuffix());
 
 			byte[] baseapp_onImportClientMessages = loadFile (_persistentDataPath, "baseapp_clientMessages." + _getSuffix());
@@ -63,7 +65,7 @@ namespace KBEngine
 				}
 				catch(Exception e)
 				{
-					Dbg.ERROR_MSG("PersistentInofs::loadAll(): is error(" + e.ToString() + ")!");  
+					Dbg.ERROR_MSG("PersistentInofs::loadAll(): is error(" + e.ToString() + ")! lastloaded=" + _lastloaded);  
 					clearMessageFiles();
 					return false;
 				}
