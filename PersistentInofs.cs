@@ -13,14 +13,13 @@ namespace KBEngine
 	public class PersistentInofs
 	{
 		string _persistentDataPath = "";
-		string _digest = "";
-		
-		string _lastloaded = "";
+		bool _isGood = false;
 		
 	    public PersistentInofs(string path)
 	    {
 	    	_persistentDataPath = path;
 	    	installEvents();
+	    	_isGood = loadAll();
 	    }
 	        
 		void installEvents()
@@ -32,26 +31,24 @@ namespace KBEngine
 			KBEngine.Event.registerOut("onScriptVersionNotMatch", this, "onScriptVersionNotMatch");
 		}
 		
-		string _getSuffix()
+		public bool isGood()
 		{
-			return _digest + "." + KBEngineApp.app.clientVersion + "." + KBEngineApp.app.clientScriptVersion + "." + 
-							KBEngineApp.app.getInitArgs().ip + "." + KBEngineApp.app.getInitArgs().port;
+			return _isGood;
 		}
 		
 		public bool loadAll()
 		{
-			if(_lastloaded == _getSuffix())
-				return true;
-			
-			KBEngineApp.app.resetMessages();
-			
-			byte[] loginapp_onImportClientMessages = loadFile (_persistentDataPath, "loginapp_clientMessages." + _getSuffix());
+			byte[] loginapp_onImportClientMessages = loadFile (_persistentDataPath, "loginapp_clientMessages." + 
+			                                                   KBEngineApp.app.clientVersion + "." + KBEngineApp.app.clientScriptVersion);
 
-			byte[] baseapp_onImportClientMessages = loadFile (_persistentDataPath, "baseapp_clientMessages." + _getSuffix());
+			byte[] baseapp_onImportClientMessages = loadFile (_persistentDataPath, "baseapp_clientMessages." + 
+			                                                  KBEngineApp.app.clientVersion + "." + KBEngineApp.app.clientScriptVersion);
 
-			byte[] onImportServerErrorsDescr = loadFile (_persistentDataPath, "serverErrorsDescr." + _getSuffix());
+			byte[] onImportServerErrorsDescr = loadFile (_persistentDataPath, "serverErrorsDescr." + 
+			                                             KBEngineApp.app.clientVersion + "." + KBEngineApp.app.clientScriptVersion);
 
-			byte[] onImportClientEntityDef = loadFile (_persistentDataPath, "clientEntityDef." + _getSuffix());
+			byte[] onImportClientEntityDef = loadFile (_persistentDataPath, "clientEntityDef." + 
+			                                           KBEngineApp.app.clientVersion + "." + KBEngineApp.app.clientScriptVersion);
 
 			if(loginapp_onImportClientMessages.Length > 0 && baseapp_onImportClientMessages.Length > 0)
 			{
@@ -65,41 +62,35 @@ namespace KBEngine
 				}
 				catch(Exception e)
 				{
-					Dbg.ERROR_MSG("PersistentInofs::loadAll(): is error(" + e.ToString() + ")! lastloaded=" + _lastloaded);  
+					Dbg.ERROR_MSG("PersistentInofs::loadAll(): is error(" + e.ToString() + ")!");  
 					clearMessageFiles();
 					return false;
 				}
 			}
 			
-			_lastloaded = _getSuffix();
 			return true;
 		}
 		
 		public void onImportClientMessages(string currserver, byte[] stream)
 		{
-			if(_lastloaded == _getSuffix())
-				return;
-			
 			if(currserver == "loginapp")
-				createFile (_persistentDataPath, "loginapp_clientMessages." + _getSuffix(), stream);
+				createFile (_persistentDataPath, "loginapp_clientMessages." + 
+				            KBEngineApp.app.clientVersion + "." + KBEngineApp.app.clientScriptVersion, stream);
 			else
-				createFile (_persistentDataPath, "baseapp_clientMessages." + _getSuffix(), stream);
+				createFile (_persistentDataPath, "baseapp_clientMessages." + 
+				            KBEngineApp.app.clientVersion + "." + KBEngineApp.app.clientScriptVersion, stream);
 		}
 
 		public void onImportServerErrorsDescr(byte[] stream)
 		{
-			if(_lastloaded == _getSuffix())
-				return;
-			
-			createFile (_persistentDataPath, "serverErrorsDescr." + _getSuffix(), stream);
+			createFile (_persistentDataPath, "serverErrorsDescr." + 
+			            KBEngineApp.app.clientVersion + "." + KBEngineApp.app.clientScriptVersion, stream);
 		}
 		
 		public void onImportClientEntityDef(byte[] stream)
 		{
-			if(_lastloaded == _getSuffix())
-				return;
-			
-			createFile (_persistentDataPath, "clientEntityDef." + _getSuffix(), stream);
+			createFile (_persistentDataPath, "clientEntityDef." + 
+			            KBEngineApp.app.clientVersion + "." + KBEngineApp.app.clientScriptVersion, stream);
 		}
 		
 		public void onVersionNotMatch(string verInfo, string serVerInfo)
@@ -120,33 +111,20 @@ namespace KBEngine
 				return;
 			}
 			
-			_digest = serverProtocolMD5 + serverEntitydefMD5;
-			
-			if(_lastloaded == _getSuffix())
-				return;
-			
-			if(loadFile(_persistentDataPath, serverProtocolMD5 + serverEntitydefMD5 + "." + 
-				KBEngineApp.app.getInitArgs().ip + "." + KBEngineApp.app.getInitArgs().port).Length == 0)
+			if(loadFile(_persistentDataPath, serverProtocolMD5 + serverEntitydefMD5).Length == 0)
 			{
 				clearMessageFiles();
-				createFile(_persistentDataPath, serverProtocolMD5 + serverEntitydefMD5 + "." + 
-					KBEngineApp.app.getInitArgs().ip + "." + KBEngineApp.app.getInitArgs().port, new byte[1]);
-			}
-			else
-			{
-				loadAll();
+				createFile(_persistentDataPath, serverProtocolMD5 + serverEntitydefMD5, new byte[1]);
 			}
 		}
 			
 		public void clearMessageFiles()
 		{
-			deleteFile(_persistentDataPath, "loginapp_clientMessages." + _getSuffix());
-			deleteFile(_persistentDataPath, "baseapp_clientMessages." + _getSuffix());
-			deleteFile(_persistentDataPath, "serverErrorsDescr." + _getSuffix());
-			deleteFile(_persistentDataPath, "clientEntityDef." + _getSuffix());
+			deleteFile(_persistentDataPath, "loginapp_clientMessages." + KBEngineApp.app.clientVersion + "." + KBEngineApp.app.clientScriptVersion);
+			deleteFile(_persistentDataPath, "baseapp_clientMessages." + KBEngineApp.app.clientVersion + "." + KBEngineApp.app.clientScriptVersion);
+			deleteFile(_persistentDataPath, "serverErrorsDescr." + KBEngineApp.app.clientVersion + "." + KBEngineApp.app.clientScriptVersion);
+			deleteFile(_persistentDataPath, "clientEntityDef." + KBEngineApp.app.clientVersion + "." + KBEngineApp.app.clientScriptVersion);
 			KBEngineApp.app.resetMessages();
-			
-			_lastloaded = "";
 		}
 		
 		public void createFile(string path, string name, byte[] datas)  
