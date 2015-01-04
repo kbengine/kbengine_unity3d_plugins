@@ -72,7 +72,7 @@
 		{
 			KBEngine.Event.deregisterIn(this);
 			
-			bool success = (error == "");
+			bool success = (error == "" && valid());
 			
 			if(success)
 			{
@@ -99,7 +99,8 @@
 				NetworkInterface networkInterface = (NetworkInterface) ar.AsyncState;
 
 				// Complete the connection.
-				networkInterface.sock().EndConnect(ar);
+				if(networkInterface.sock() != null)
+					networkInterface.sock().EndConnect(ar);
 
 				Event.fireIn("_onConnectStatus", new object[]{""});
 			} 
