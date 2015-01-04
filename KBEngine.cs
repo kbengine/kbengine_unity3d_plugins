@@ -1405,7 +1405,13 @@
 				Client_onEntityDestroyed(eid);
 			}
 			
-			Type runclass = EntityDef.moduledefs[entityType].script;
+			ScriptModule module = null;
+			if(!EntityDef.moduledefs.TryGetValue(entityType, out module))
+			{
+				Dbg.ERROR_MSG("KBEngine::Client_onCreatedProxies: not found module(" + entityType + ")!");
+			}
+			
+			Type runclass = module.script;
 			if(runclass == null)
 				return;
 			
@@ -1638,7 +1644,13 @@
 					return;
 				}
 				
-				Type runclass = EntityDef.moduledefs[entityType].script;
+				ScriptModule module = null;
+				if(!EntityDef.moduledefs.TryGetValue(entityType, out module))
+				{
+					Dbg.ERROR_MSG("KBEngine::Client_onCreatedProxies: not found module(" + entityType + ")!");
+				}
+				
+				Type runclass = module.script;
 				if(runclass == null)
 					return;
 				
