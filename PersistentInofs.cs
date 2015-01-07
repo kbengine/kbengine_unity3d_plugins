@@ -36,18 +36,23 @@ namespace KBEngine
 		{
 			return _isGood;
 		}
+
+		string _getSuffixBase()
+		{
+			return KBEngineApp.app.clientVersion + "." + KBEngineApp.app.clientScriptVersion + "." + 
+							KBEngineApp.app.getInitArgs().ip + "." + KBEngineApp.app.getInitArgs().port;
+		}
 		
 		string _getSuffix()
 		{
-			return _digest + "." + KBEngineApp.app.clientVersion + "." + KBEngineApp.app.clientScriptVersion + "." + 
-							KBEngineApp.app.getInitArgs().ip + "." + KBEngineApp.app.getInitArgs().port;
+			return _digest + "." + _getSuffixBase();
 		}
 		
 		public bool loadAll()
 		{
 			KBEngineApp.app.resetMessages();
 			
-			byte[] kbengine_digest = loadFile (_persistentDataPath, "kbengine.digest");
+			byte[] kbengine_digest = loadFile (_persistentDataPath, "kbengine.digest." + _getSuffixBase());
 			if(kbengine_digest.Length <= 0)
 			{
 				clearMessageFiles();
@@ -132,16 +137,16 @@ namespace KBEngine
 				return;
 			}
 			
-			if(loadFile(_persistentDataPath, "kbengine.digest").Length == 0)
+			if(loadFile(_persistentDataPath, "kbengine.digest." + _getSuffixBase()).Length == 0)
 			{
 				System.Text.ASCIIEncoding  encoding = new System.Text.ASCIIEncoding();
-				createFile(_persistentDataPath, "kbengine.digest", encoding.GetBytes(serverProtocolMD5 + serverEntitydefMD5));
+				createFile(_persistentDataPath, "kbengine.digest." + _getSuffixBase(), encoding.GetBytes(serverProtocolMD5 + serverEntitydefMD5));
 			}
 		}
 			
 		public void clearMessageFiles()
 		{
-			deleteFile(_persistentDataPath, "kbengine.digest");
+			deleteFile(_persistentDataPath, "kbengine.digest." + _getSuffixBase());
 			deleteFile(_persistentDataPath, "loginapp_clientMessages." + _getSuffix());
 			deleteFile(_persistentDataPath, "baseapp_clientMessages." + _getSuffix());
 			deleteFile(_persistentDataPath, "serverErrorsDescr." + _getSuffix());
