@@ -123,14 +123,17 @@ namespace KBEngine
 			}
 			
 			if(_digest != serverProtocolMD5 + serverEntitydefMD5)
+			{
 				_digest = serverProtocolMD5 + serverEntitydefMD5;
+				clearMessageFiles();
+			}
 			else
+			{
 				return;
+			}
 			
 			if(loadFile(_persistentDataPath, "kbengine.digest").Length == 0)
 			{
-				clearMessageFiles();
-				
 				System.Text.ASCIIEncoding  encoding = new System.Text.ASCIIEncoding();
 				createFile(_persistentDataPath, "kbengine.digest", encoding.GetBytes(serverProtocolMD5 + serverEntitydefMD5));
 			}
