@@ -76,7 +76,7 @@
 			
 			if(success)
 			{
-				Dbg.INFO_MSG(string.Format("NetworkInterface::_onConnectStatus(), connected to {0}", sock().RemoteEndPoint.ToString()));
+				Dbg.DEBUG_MSG(string.Format("NetworkInterface::_onConnectStatus(), connect to {0} is success!", sock().RemoteEndPoint.ToString()));
 				_packetReceiver = new PacketReceiver(this);
 				_packetReceiver.startRecv();
 			}

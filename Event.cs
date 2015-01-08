@@ -133,13 +133,13 @@
 			{
 				lst = new List<Pair>();
 				lst.Add(pair);
-				Dbg.DEBUG_MSG("Event::register: event(" + eventname + ")!");
+				//Dbg.DEBUG_MSG("Event::register: event(" + eventname + ")!");
 				events.Add(eventname, lst);
 				Monitor.Exit(events);
 				return true;
 			}
 			
-			Dbg.DEBUG_MSG("Event::register: event(" + eventname + ")!");
+			//Dbg.DEBUG_MSG("Event::register: event(" + eventname + ")!");
 			lst.Add(pair);
 			Monitor.Exit(events);
 			return true;
@@ -170,7 +170,7 @@
 			{
 				if(obj == lst[i].obj && lst[i].funcname == funcname)
 				{
-					Dbg.DEBUG_MSG("Event::deregister: event(" + eventname + ":" + funcname + ")!");
+					//Dbg.DEBUG_MSG("Event::deregister: event(" + eventname + ":" + funcname + ")!");
 					lst.RemoveAt(i);
 					Monitor.Exit(events);
 					return true;
@@ -203,7 +203,7 @@ __RESTART_REMOVE:
 				{
 					if(obj == lst[i].obj)
 					{
-						Dbg.DEBUG_MSG("Event::deregister: event(" + e.Key + ":" + lst[i].funcname + ")!");
+						//Dbg.DEBUG_MSG("Event::deregister: event(" + e.Key + ":" + lst[i].funcname + ")!");
 						lst.RemoveAt(i);
 						goto __RESTART_REMOVE;
 					}

@@ -25,11 +25,6 @@ namespace KBEngine
 	        
 		void installEvents()
 		{
-			KBEngine.Event.registerOut("onImportClientMessages", this, "onImportClientMessages");
-			KBEngine.Event.registerOut("onImportServerErrorsDescr", this, "onImportServerErrorsDescr");
-			KBEngine.Event.registerOut("onImportClientEntityDef", this, "onImportClientEntityDef");
-			KBEngine.Event.registerOut("onVersionNotMatch", this, "onVersionNotMatch");
-			KBEngine.Event.registerOut("onScriptVersionNotMatch", this, "onScriptVersionNotMatch");
 		}
 		
 		public bool isGood()
@@ -50,25 +45,23 @@ namespace KBEngine
 		
 		public bool loadAll()
 		{
-			KBEngineApp.app.resetMessages();
-			
-			byte[] kbengine_digest = loadFile (_persistentDataPath, "kbengine.digest." + _getSuffixBase());
+			byte[] kbengine_digest = loadFile (_persistentDataPath, "kbengine.digest." + _getSuffixBase(), false);
 			if(kbengine_digest.Length <= 0)
 			{
 				clearMessageFiles();
 				return false;
 			}
-			
+
 			System.Text.ASCIIEncoding encoding = new System.Text.ASCIIEncoding();
 			_digest = encoding.GetString(kbengine_digest);
 			
-			byte[] loginapp_onImportClientMessages = loadFile (_persistentDataPath, "loginapp_clientMessages." + _getSuffix());
+			byte[] loginapp_onImportClientMessages = loadFile (_persistentDataPath, "loginapp_clientMessages." + _getSuffix(), false);
 
-			byte[] baseapp_onImportClientMessages = loadFile (_persistentDataPath, "baseapp_clientMessages." + _getSuffix());
+			byte[] baseapp_onImportClientMessages = loadFile (_persistentDataPath, "baseapp_clientMessages." + _getSuffix(), false);
 
-			byte[] onImportServerErrorsDescr = loadFile (_persistentDataPath, "serverErrorsDescr." + _getSuffix());
+			byte[] onImportServerErrorsDescr = loadFile (_persistentDataPath, "serverErrorsDescr." + _getSuffix(), false);
 
-			byte[] onImportClientEntityDef = loadFile (_persistentDataPath, "clientEntityDef." + _getSuffix());
+			byte[] onImportClientEntityDef = loadFile (_persistentDataPath, "clientEntityDef." + _getSuffix(), false);
 
 			if(loginapp_onImportClientMessages.Length > 0 && baseapp_onImportClientMessages.Length > 0)
 			{
@@ -137,9 +130,9 @@ namespace KBEngine
 				return;
 			}
 			
-			if(loadFile(_persistentDataPath, "kbengine.digest." + _getSuffixBase()).Length == 0)
+			if(loadFile(_persistentDataPath, "kbengine.digest." + _getSuffixBase(), false).Length == 0)
 			{
-				System.Text.ASCIIEncoding  encoding = new System.Text.ASCIIEncoding();
+				System.Text.ASCIIEncoding encoding = new System.Text.ASCIIEncoding();
 				createFile(_persistentDataPath, "kbengine.digest." + _getSuffixBase(), encoding.GetBytes(serverProtocolMD5 + serverEntitydefMD5));
 			}
 		}
@@ -164,7 +157,7 @@ namespace KBEngine
 			fs.Dispose ();
 		}  
 	   
-	   public byte[] loadFile(string path, string name)  
+	   public byte[] loadFile(string path, string name, bool printerr)  
 	   {  
 			FileStream fs;
 
@@ -173,8 +166,12 @@ namespace KBEngine
 			}
 			catch (Exception e)
 			{
-				Dbg.DEBUG_MSG("loadFile: " + path + "/" + name);
-				Dbg.DEBUG_MSG(e.ToString());
+				if(printerr)
+				{
+					Dbg.ERROR_MSG("loadFile: " + path + "/" + name);
+					Dbg.ERROR_MSG(e.ToString());
+				}
+				
 				return new byte[0];
 			}
 
@@ -189,7 +186,7 @@ namespace KBEngine
 	   
 	   public void deleteFile(string path, string name)  
 	   {  
-			Dbg.DEBUG_MSG("deleteFile: " + path + "/" + name);
+			//Dbg.DEBUG_MSG("deleteFile: " + path + "/" + name);
 			
 			try{
 	        	File.Delete(path + "/"+ name);  

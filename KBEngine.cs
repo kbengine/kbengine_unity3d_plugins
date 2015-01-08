@@ -387,6 +387,9 @@
 			
 			Dbg.ERROR_MSG("Client_onVersionNotMatch: verInfo=" + clientVersion + "(server: " + serverVersion + ")");
 			Event.fireAll("onVersionNotMatch", new object[]{clientVersion, serverVersion});
+			
+			if(_persistentInofs != null)
+				_persistentInofs.onVersionNotMatch(clientVersion, serverVersion);
 		}
 
 		/*
@@ -398,6 +401,9 @@
 			
 			Dbg.ERROR_MSG("Client_onScriptVersionNotMatch: verInfo=" + clientScriptVersion + "(server: " + serverScriptVersion + ")");
 			Event.fireAll("onScriptVersionNotMatch", new object[]{clientScriptVersion, serverScriptVersion});
+			
+			if(_persistentInofs != null)
+				_persistentInofs.onScriptVersionNotMatch(clientScriptVersion, serverScriptVersion);
 		}
 		
 		/*
@@ -416,8 +422,12 @@
 		{
 			byte[] datas = new byte[stream.wpos - stream.rpos];
 			Array.Copy(stream.data(), stream.rpos, datas, 0, stream.wpos - stream.rpos);
-			Event.fireAll("onImportServerErrorsDescr", new object[]{datas});
+			Event.fireOut("onImportServerErrorsDescr", new object[]{datas});
+			
 			onImportServerErrorsDescr (stream);
+			
+			if(_persistentInofs != null)
+				_persistentInofs.onImportServerErrorsDescr(datas);
 		}
 
 		/*
@@ -437,7 +447,7 @@
 				
 				serverErrs.Add(e.id, e);
 					
-				Dbg.DEBUG_MSG("Client_onImportServerErrorsDescr: id=" + e.id + ", name=" + e.name + ", descr=" + e.descr);
+				//Dbg.DEBUG_MSG("Client_onImportServerErrorsDescr: id=" + e.id + ", name=" + e.name + ", descr=" + e.descr);
 			}
 		}
 		
@@ -485,7 +495,7 @@
 			currserver = "loginapp";
 			currstate = "login";
 			
-			Dbg.DEBUG_MSG(string.Format("KBEngine::login_loginapp(): connect {0}:{1} is successfylly!", ip, port));
+			Dbg.DEBUG_MSG(string.Format("KBEngine::login_loginapp(): connect {0}:{1} is success!", ip, port));
 
 			hello();
 		}
@@ -497,7 +507,7 @@
 				var bundle = new Bundle();
 				bundle.newMessage(Message.messages["Loginapp_importClientMessages"]);
 				bundle.send(_networkInterface);
-				Dbg.DEBUG_MSG("KBEngine::onLogin_loginapp: start importClientMessages ...");
+				Dbg.DEBUG_MSG("KBEngine::onLogin_loginapp: send importClientMessages ...");
 				Event.fireAll("Loginapp_importClientMessages", new object[]{});
 			}
 			else
@@ -552,7 +562,7 @@
 				var bundle = new Bundle();
 				bundle.newMessage(Message.messages["Baseapp_importClientMessages"]);
 				bundle.send(_networkInterface);
-				Dbg.DEBUG_MSG("KBEngine::onLogin_baseapp: start importClientMessages ...");
+				Dbg.DEBUG_MSG("KBEngine::onLogin_baseapp: send importClientMessages ...");
 				Event.fireAll("Baseapp_importClientMessages", new object[]{});
 			}
 			else
@@ -592,64 +602,12 @@
 		}
 		
 		/*
-			自动完成协议导入的所有流程
-		*/
-		public void autoImportMessagesFromServer(bool isLoginapp)
-		{  
-			reset();
-			_networkInterface.connectTo(_args.ip, _args.port, onConnectTo_autoImportMessagesFromServer_callback, isLoginapp);
-		}
-
-		private void onConnectTo_autoImportMessagesFromServer_callback(string ip, int port, bool success, object isLoginapp)
-		{
-			if(!success)
-			{
-				Dbg.ERROR_MSG(string.Format("KBEngine::autoImportMessagesFromServer(): connect {0}:{1} is error!", ip, port));
-				return;
-			}
-			
-			if((bool)isLoginapp)
-			{
-				currserver = "loginapp";
-				currstate = "autoimport";
-				
-				if(!loginappMessageImported_)
-				{
-					var bundle = new Bundle();
-					bundle.newMessage(Message.messages["Loginapp_importClientMessages"]);
-					bundle.send(_networkInterface);
-					Dbg.DEBUG_MSG("KBEngine::autoImportMessagesFromServer: start importClientMessages ...");
-				}
-				else
-				{
-					onImportClientMessagesCompleted();
-				}
-			}
-			else{
-				currserver = "baseapp";
-				currstate = "autoimport";
-				
-				if(!baseappMessageImported_)
-				{
-					var bundle = new Bundle();
-					bundle.newMessage(Message.messages["Baseapp_importClientMessages"]);
-					bundle.send(_networkInterface);
-					Dbg.DEBUG_MSG("KBEngine::autoImportMessagesFromServer: start importClientMessages ...");
-				}
-				else
-				{
-					onImportClientMessagesCompleted();
-				}
-			}
-			
-			Dbg.DEBUG_MSG(string.Format("KBEngine::autoImportMessagesFromServer(): connect {0}:{1} is successfully!", _args.ip, _args.port));
-		}
-		
-		/*
 			从二进制流导入消息协议
 		*/
 		public bool importMessagesFromMemoryStream(byte[] loginapp_clientMessages, byte[] baseapp_clientMessages, byte[] entitydefMessages, byte[] serverErrorsDescr)
 		{
+			resetMessages();
+			
 			loadingLocalMessages_ = true;
 			MemoryStream stream = new MemoryStream();
 			stream.append(loginapp_clientMessages, (UInt32)0, (UInt32)loginapp_clientMessages.Length);
@@ -693,7 +651,7 @@
 			{
 				if(!isImportServerErrorsDescr_ && !loadingLocalMessages_)
 				{
-					Dbg.DEBUG_MSG("KBEngine::onImportClientMessagesCompleted(): start importServerErrorsDescr!");
+					Dbg.DEBUG_MSG("KBEngine::onImportClientMessagesCompleted(): send importServerErrorsDescr!");
 					isImportServerErrorsDescr_ = true;
 					Bundle bundle = new Bundle();
 					bundle.newMessage(Message.messages["Loginapp_importServerErrorsDescr"]);
@@ -726,7 +684,7 @@
 				
 				if(!entitydefImported_ && !loadingLocalMessages_)
 				{
-					Dbg.DEBUG_MSG("KBEngine::onImportClientMessagesCompleted: start importEntityDef ...");
+					Dbg.DEBUG_MSG("KBEngine::onImportClientMessagesCompleted: send importEntityDef(" + entitydefImported_ + ") ...");
 					Bundle bundle = new Bundle();
 					bundle.newMessage(Message.messages["Baseapp_importClientEntityDef"]);
 					bundle.send(_networkInterface);
@@ -748,8 +706,8 @@
 			string name = stream.readString();
 			string valname = stream.readString();
 			
-			if(canprint)
-				Dbg.DEBUG_MSG("KBEngine::Client_onImportClientEntityDef: importAlias(" + name + ":" + valname + ")!");
+			//if(canprint)
+			//	Dbg.DEBUG_MSG("KBEngine::Client_onImportClientEntityDef: importAlias(" + name + ":" + valname + ")!");
 			
 			if(valname == "FIXED_DICT")
 			{
@@ -790,9 +748,12 @@
 		{
 			byte[] datas = new byte[stream.wpos - stream.rpos];
 			Array.Copy (stream.data (), stream.rpos, datas, 0, stream.wpos - stream.rpos);
-			Event.fireAll ("onImportClientEntityDef", new object[]{datas});
+			Event.fireOut("onImportClientEntityDef", new object[]{datas});
 
 			onImportClientEntityDef (stream);
+			
+			if(_persistentInofs != null)
+				_persistentInofs.onImportClientEntityDef(datas);
 		}
 
 		public void onImportClientEntityDef(MemoryStream stream)
@@ -883,7 +844,7 @@
 						module.idpropertys[properUtype] = savedata;
 					}
 
-					Dbg.DEBUG_MSG("KBEngine::Client_onImportClientEntityDef: add(" + scriptmethod_name + "), property(" + name + "/" + properUtype + ").");
+					//Dbg.DEBUG_MSG("KBEngine::Client_onImportClientEntityDef: add(" + scriptmethod_name + "), property(" + name + "/" + properUtype + ").");
 				};
 				
 				while(methodsize > 0)
@@ -933,7 +894,7 @@
 						module.idmethods[methodUtype] = savedata;
 					}
 					
-					Dbg.DEBUG_MSG("KBEngine::Client_onImportClientEntityDef: add(" + scriptmethod_name + "), method(" + name + ").");
+					//Dbg.DEBUG_MSG("KBEngine::Client_onImportClientEntityDef: add(" + scriptmethod_name + "), method(" + name + ").");
 				};
 	
 				while(base_methodsize > 0)
@@ -961,7 +922,7 @@
 					module.base_methods[name] = savedata;
 					module.idbase_methods[methodUtype] = savedata;
 					
-					Dbg.DEBUG_MSG("KBEngine::Client_onImportClientEntityDef: add(" + scriptmethod_name + "), base_method(" + name + ").");
+					//Dbg.DEBUG_MSG("KBEngine::Client_onImportClientEntityDef: add(" + scriptmethod_name + "), base_method(" + name + ").");
 				};
 				
 				while(cell_methodsize > 0)
@@ -988,7 +949,7 @@
 				
 					module.cell_methods[name] = savedata;
 					module.idcell_methods[methodUtype] = savedata;
-					Dbg.DEBUG_MSG("KBEngine::Client_onImportClientEntityDef: add(" + scriptmethod_name + "), cell_method(" + name + ").");
+					//Dbg.DEBUG_MSG("KBEngine::Client_onImportClientEntityDef: add(" + scriptmethod_name + "), cell_method(" + name + ").");
 				};
 				
 				if(module.script == null)
@@ -1060,16 +1021,19 @@
 		{
 			byte[] datas = new byte[stream.wpos - stream.rpos];
 			Array.Copy (stream.data (), stream.rpos, datas, 0, stream.wpos - stream.rpos);
-			Event.fireAll ("onImportClientMessages", new object[]{currserver, datas});
+			Event.fireOut("onImportClientMessages", new object[]{currserver, datas});
 
 			onImportClientMessages (stream);
+			
+			if(_persistentInofs != null)
+				_persistentInofs.onImportClientMessages(currserver, datas);
 		}
 
 		public void onImportClientMessages(MemoryStream stream)
 		{
 			UInt16 msgcount = stream.readUint16();
 			
-			Dbg.DEBUG_MSG(string.Format("KBEngine::Client_onImportClientMessages: start({0})...", msgcount));
+			Dbg.DEBUG_MSG(string.Format("KBEngine::Client_onImportClientMessages: start currserver=" + currserver + "(msgsize={0})...", msgcount));
 			
 			while(msgcount > 0)
 			{
@@ -1098,12 +1062,13 @@
 					{
 						Dbg.WARNING_MSG(string.Format("KBEngine::onImportClientMessages[{0}]: interface({1}/{2}/{3}) no implement!", 
 							currserver, msgname, msgid, msglen));
+						
 						handler = null;
 					}
 					else
 					{
-						Dbg.DEBUG_MSG(string.Format("KBEngine::onImportClientMessages: imported({0}/{1}/{2}) successfully!", 
-							msgname, msgid, msglen));
+						//Dbg.DEBUG_MSG(string.Format("KBEngine::onImportClientMessages: imported({0}/{1}/{2}) successfully!", 
+						//	msgname, msgid, msglen));
 					}
 				}
 				
@@ -1111,9 +1076,9 @@
 				{
 					Message.messages[msgname] = new Message(msgid, msgname, msglen, argstype, argstypes, handler);
 					
-					if(!isClientMethod)
-						Dbg.DEBUG_MSG(string.Format("KBEngine::onImportClientMessages[{0}]: imported({1}/{2}/{3}) successfully!", 
-							currserver, msgname, msgid, msglen));
+					//if(!isClientMethod)
+					//	Dbg.DEBUG_MSG(string.Format("KBEngine::onImportClientMessages[{0}]: imported({1}/{2}/{3}) successfully!", 
+					//		currserver, msgname, msgid, msglen));
 					
 					if(isClientMethod)
 					{
@@ -1131,9 +1096,9 @@
 				{
 					Message msg = new Message(msgid, msgname, msglen, argstype, argstypes, handler);
 					
-					if(!isClientMethod)
-						Dbg.DEBUG_MSG(string.Format("KBEngine::onImportClientMessages[{0}]: imported({1}/{2}/{3}) successfully!", 
-							currserver, msgname, msgid, msglen));
+					//if(!isClientMethod)
+					//	Dbg.DEBUG_MSG(string.Format("KBEngine::onImportClientMessages[{0}]: imported({1}/{2}/{3}) successfully!", 
+					//		currserver, msgname, msgid, msglen));
 					
 					if(currserver == "loginapp")
 						Message.loginappMessages[msgid] = msg;
@@ -1156,7 +1121,7 @@
 				Bundle bundle = new Bundle();
 				bundle.newMessage(Message.messages["Loginapp_importClientMessages"]);
 				bundle.send(_networkInterface);
-				Dbg.DEBUG_MSG("KBEngine::onOpenLoginapp_resetpassword: start importClientMessages ...");
+				Dbg.DEBUG_MSG("KBEngine::onOpenLoginapp_resetpassword: send importClientMessages ...");
 			}
 			else
 			{
@@ -1200,7 +1165,7 @@
 				return;
 			}
 			
-			Dbg.DEBUG_MSG(string.Format("KBEngine::resetpassword_loginapp(): connect {0}:{1} is successfylly!", ip, port)); 
+			Dbg.DEBUG_MSG(string.Format("KBEngine::resetpassword_loginapp(): connect {0}:{1} is success!", ip, port)); 
 			onOpenLoginapp_resetpassword();
 		}
 		
@@ -1302,7 +1267,7 @@
 				Bundle bundle = new Bundle();
 				bundle.newMessage(Message.messages["Loginapp_importClientMessages"]);
 				bundle.send(_networkInterface);
-				Dbg.DEBUG_MSG("KBEngine::onOpenLoginapp_createAccount: start importClientMessages ...");
+				Dbg.DEBUG_MSG("KBEngine::onOpenLoginapp_createAccount: send importClientMessages ...");
 			}
 			else
 			{
@@ -1318,7 +1283,7 @@
 				return;
 			}
 			
-			Dbg.DEBUG_MSG(string.Format("KBEngine::createAccount_loginapp(): connect {0}:{1} is successfylly!", ip, port)); 
+			Dbg.DEBUG_MSG(string.Format("KBEngine::createAccount_loginapp(): connect {0}:{1} is success!", ip, port)); 
 			onOpenLoginapp_createAccount();
 		}
 		
