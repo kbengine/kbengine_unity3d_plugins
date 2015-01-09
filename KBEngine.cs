@@ -2452,7 +2452,7 @@
 			int i = 0;
 			while(!kbethread.over && i < 50)
 			{
-				Thread.Sleep(1);
+				Thread.Sleep(100);
 				i += 1;
 			}
 			
