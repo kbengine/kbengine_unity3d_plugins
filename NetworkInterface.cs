@@ -26,11 +26,17 @@
 		PacketReceiver _packetReceiver = null;
 		PacketSender _packetSender = null;
 		
-		// for connect
-		string _connectIP;
-		int _connectPort;
-		ConnectCallback _connectCB;
-		object _userData;
+		public class ConnectState
+		{
+			// for connect
+			public string connectIP = "";
+			public int connectPort = 0;
+			public ConnectCallback connectCB = null;
+			public object userData = null;
+			public Socket socket = null;
+			public NetworkInterface networkInterface = null;
+			public string error = "";
+		}
 		
         public NetworkInterface()
         {
@@ -46,11 +52,6 @@
 			_socket = null;
 			_packetReceiver = null;
 			_packetSender = null;
-			
-			_connectIP = "";
-			_connectPort = 0;
-			_connectCB = null;
-			_userData = null;
 		}
 		
 		public Socket sock()
@@ -68,45 +69,46 @@
 			return ((_socket != null) && (_socket.Connected == true));
 		}
 		
-		public void _onConnectStatus(string error)
+		public void _onConnectStatus(ConnectState state)
 		{
 			KBEngine.Event.deregisterIn(this);
 			
-			bool success = (error == "" && valid());
-			
+			bool success = (state.error == "" && valid());
 			if(success)
 			{
-				Dbg.DEBUG_MSG(string.Format("NetworkInterface::_onConnectStatus(), connect to {0} is success!", sock().RemoteEndPoint.ToString()));
+				Dbg.DEBUG_MSG(string.Format("NetworkInterface::_onConnectStatus(), connect to {0} is success!", state.socket.RemoteEndPoint.ToString()));
 				_packetReceiver = new PacketReceiver(this);
 				_packetReceiver.startRecv();
 			}
 			else
 			{
-				Dbg.ERROR_MSG(string.Format("NetworkInterface::_onConnectStatus(), connect is error! ip: {0}:{1}, err: {2}", _connectIP, _connectPort, error));
+				Dbg.ERROR_MSG(string.Format("NetworkInterface::_onConnectStatus(), connect is error! ip: {0}:{1}, err: {2}", state.connectIP, state.connectPort, state.error));
 			}
 			
 			Event.fireAll("onConnectStatus", new object[]{success});
 			
-			if (_connectCB != null)
-				_connectCB(_connectIP, _connectPort, success, _userData);
+			if (state.connectCB != null)
+				state.connectCB(state.connectIP, state.connectPort, success, state.userData);
 		}
 		
 		private static void connectCB(IAsyncResult ar)
 		{
+			ConnectState state = null;
+			
 			try 
 			{
 				// Retrieve the socket from the state object.
-				NetworkInterface networkInterface = (NetworkInterface) ar.AsyncState;
+				state = (ConnectState) ar.AsyncState;
 
 				// Complete the connection.
-				if(networkInterface.sock() != null)
-					networkInterface.sock().EndConnect(ar);
+				state.socket.EndConnect(ar);
 
-				Event.fireIn("_onConnectStatus", new object[]{""});
+				Event.fireIn("_onConnectStatus", new object[]{state});
 			} 
 			catch (Exception e) 
 			{
-				Event.fireIn("_onConnectStatus", new object[]{e.ToString()});
+				state.error = e.ToString();
+				Event.fireIn("_onConnectStatus", new object[]{state});
 			}
 		}
 	    
@@ -125,10 +127,13 @@
 			_socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp); 
 			_socket.SetSocketOption (System.Net.Sockets.SocketOptionLevel.Socket, SocketOptionName.ReceiveBuffer, KBEngineApp.app.getInitArgs().getRecvBufferSize() * 2);
 			
-			_connectIP = ip;
-			_connectPort = port;
-			_connectCB = callback;
-			_userData = userData;
+			ConnectState state = new ConnectState();
+			state.connectIP = ip;
+			state.connectPort = port;
+			state.connectCB = callback;
+			state.userData = userData;
+			state.socket = _socket;
+			state.networkInterface = this;
 			
 			Dbg.DEBUG_MSG("connect to " + ip + ":" + port + " ...");
 			
@@ -137,11 +142,12 @@
 			
 			try 
 			{ 
-				_socket.BeginConnect(new IPEndPoint(IPAddress.Parse(ip), port), new AsyncCallback(connectCB), this);
+				_socket.BeginConnect(new IPEndPoint(IPAddress.Parse(ip), port), new AsyncCallback(connectCB), state);
             } 
             catch (Exception e) 
             {
-				Event.fireIn("_onConnectStatus", new object[]{e.ToString()});
+            	state.error = e.ToString();
+				Event.fireIn("_onConnectStatus", new object[]{state});
             }
 		}
         
