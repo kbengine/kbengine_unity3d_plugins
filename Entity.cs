@@ -118,8 +118,14 @@
 				Dbg.ERROR_MSG(className + "::baseCall(" + methodname + "), currserver=!" + KBEngineApp.app.currserver);  
 				return;
 			}
+
+			Method method = null;
+			if(!EntityDef.moduledefs[className].base_methods.TryGetValue(methodname, out method))
+			{
+				Dbg.ERROR_MSG(className + "::baseCall(" + methodname + "), not found method!");  
+				return;
+			}
 			
-			Method method = EntityDef.moduledefs[className].base_methods[methodname];
 			UInt16 methodID = method.methodUtype;
 			
 			if(arguments.Length != method.args.Count)
@@ -156,7 +162,13 @@
 				return;
 			}
 			
-			Method method = EntityDef.moduledefs[className].cell_methods[methodname];
+			Method method = null;
+			if(!EntityDef.moduledefs[className].cell_methods.TryGetValue(methodname, out method))
+			{
+				Dbg.ERROR_MSG(className + "::cellCall(" + methodname + "), not found method!");  
+				return;
+			}
+			
 			UInt16 methodID = method.methodUtype;
 			
 			if(arguments.Length != method.args.Count)
