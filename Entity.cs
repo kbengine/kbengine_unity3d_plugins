@@ -29,6 +29,7 @@
 		public static Dictionary<string, Dictionary<string, Property>> alldefpropertys = 
 			new Dictionary<string, Dictionary<string, Property>>();
 		
+		// entityDef属性，服务端同步过来后存储在这里
 		private Dictionary<string, Property> defpropertys_ = 
 			new Dictionary<string, Property>();
 		
@@ -42,8 +43,7 @@
 		
 		public Entity()
 		{
-			Dictionary<string, Property> datas = alldefpropertys[GetType().Name];
-			foreach(Property e in datas.Values)
+			foreach(Property e in alldefpropertys[GetType().Name].Values)
 			{
 				Property newp = new Property();
 				newp.name = e.name;
@@ -257,7 +257,10 @@
 			Event.fireOut("set_position", new object[]{this});
 		}
 
-
+		public virtual void onUpdateVolatileData()
+		{
+		}
+		
 		public virtual void set_direction(object old)
 		{
 			Vector3 v = (Vector3)getDefinedPropterty("direction");

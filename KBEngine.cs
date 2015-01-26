@@ -422,7 +422,6 @@
 		{
 			byte[] datas = new byte[stream.wpos - stream.rpos];
 			Array.Copy(stream.data(), stream.rpos, datas, 0, stream.wpos - stream.rpos);
-			Event.fireOut("onImportServerErrorsDescr", new object[]{datas});
 			
 			onImportServerErrorsDescr (stream);
 			
@@ -748,7 +747,6 @@
 		{
 			byte[] datas = new byte[stream.wpos - stream.rpos];
 			Array.Copy (stream.data (), stream.rpos, datas, 0, stream.wpos - stream.rpos);
-			Event.fireOut("onImportClientEntityDef", new object[]{datas});
 
 			onImportClientEntityDef (stream);
 			
@@ -1021,7 +1019,6 @@
 		{
 			byte[] datas = new byte[stream.wpos - stream.rpos];
 			Array.Copy (stream.data (), stream.rpos, datas, 0, stream.wpos - stream.rpos);
-			Event.fireOut("onImportClientMessages", new object[]{currserver, datas});
 
 			onImportClientMessages (stream);
 			
@@ -1292,8 +1289,6 @@
 		*/
 		public void onServerDigest()
 		{
-			Event.fireOut("onServerDigest", new object[]{currserver, serverProtocolMD5, serverEntitydefMD5});
-			
 			if(_persistentInofs != null)
 				_persistentInofs.onServerDigest(currserver, serverProtocolMD5, serverEntitydefMD5);
 		}
@@ -2300,9 +2295,11 @@
 				entity.direction.z = KBEMath.int82angle((SByte)yaw, false) * 360 / ((float)System.Math.PI * 2);
 			}
 			
+			bool done = false;
 			if(changeDirection == true)
 			{
 				Event.fireOut("set_direction", new object[]{entity});
+				done = true;
 			}
 			
 			if(!KBEMath.almostEqual(x + y + z, 0f, 0.000001f))
@@ -2310,8 +2307,12 @@
 				Vector3 pos = new Vector3(x + _entityServerPos.x, y + _entityServerPos.y, z + _entityServerPos.z);
 				
 				entity.position = pos;
+				done = true;
 				Event.fireOut("update_position", new object[]{entity});
 			}
+			
+			if(done)
+				entity.onUpdateVolatileData();
 		}
 		
 		/*
