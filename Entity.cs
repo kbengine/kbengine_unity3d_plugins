@@ -197,32 +197,52 @@
 			cellMailbox.postMail(null);
 		}
 	
+		public void enterWorld()
+		{
+			Dbg.DEBUG_MSG(className + "::enterWorld(" + getDefinedPropterty("uid") + "): " + id); 
+			inWorld = true;
+			onEnterWorld();
+			Event.fireOut("onEnterWorld", new object[]{this});
+		}
+		
 		public virtual void onEnterWorld()
 		{
-			Dbg.DEBUG_MSG(className + "::onEnterWorld(" + getDefinedPropterty("uid") + "): " + id); 
-			inWorld = true;
-			Event.fireOut("onEnterWorld", new object[]{this});
+		}
+
+		public void leaveWorld()
+		{
+			Dbg.DEBUG_MSG(className + "::leaveWorld: " + id); 
+			inWorld = false;
+			onLeaveWorld();
+			Event.fireOut("onLeaveWorld", new object[]{this});
 		}
 		
 		public virtual void onLeaveWorld()
 		{
-			Dbg.DEBUG_MSG(className + "::onLeaveWorld: " + id); 
-			inWorld = false;
-			Event.fireOut("onLeaveWorld", new object[]{this});
 		}
 
-		public virtual void onEnterSpace()
+		public virtual void enterSpace()
 		{
-			Dbg.DEBUG_MSG(className + "::onEnterSpace(" + getDefinedPropterty("uid") + "): " + id); 
+			Dbg.DEBUG_MSG(className + "::enterSpace(" + getDefinedPropterty("uid") + "): " + id); 
 			inWorld = true;
+			onEnterSpace();
 			Event.fireOut("onEnterSpace", new object[]{this});
 		}
 		
+		public virtual void onEnterSpace()
+		{
+		}
+		
+		public virtual void leaveSpace()
+		{
+			Dbg.DEBUG_MSG(className + "::leaveSpace: " + id); 
+			inWorld = false;
+			onLeaveSpace();
+			Event.fireOut("onLeaveSpace", new object[]{this});
+		}
+
 		public virtual void onLeaveSpace()
 		{
-			Dbg.DEBUG_MSG(className + "::onLeaveSpace: " + id); 
-			inWorld = false;
-			Event.fireOut("onLeaveSpace", new object[]{this});
 		}
 		
 		public virtual void set_position(object old)

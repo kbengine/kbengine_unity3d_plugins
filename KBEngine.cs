@@ -1635,7 +1635,7 @@
 				
 				entity.isOnGound = isOnGound > 0;
 				entity.__init__();
-				entity.onEnterWorld();
+				entity.enterWorld();
 				
 				Event.fireOut("set_direction", new object[]{entity});
 				Event.fireOut("set_position", new object[]{entity});
@@ -1686,7 +1686,7 @@
 			}
 			
 			if(entity.inWorld)
-				entity.onLeaveWorld();
+				entity.leaveWorld();
 			
 			if(entity_id == eid)
 			{
@@ -1723,7 +1723,7 @@
 			
 			entity.isOnGound = isOnGound > 0;
 			_entityServerPos = entity.position;
-			entity.onEnterSpace();
+			entity.enterSpace();
 		}
 		
 		/*
@@ -1739,7 +1739,7 @@
 				return;
 			}
 			
-			entity.onLeaveSpace();
+			entity.leaveSpace();
 			clearSpace(false);
 		}
 	
@@ -1844,7 +1844,7 @@
 						continue;
 					
 					if(dic.Value.inWorld)
-						dic.Value.onLeaveWorld();
+						dic.Value.leaveWorld();
 					
 				    dic.Value.onDestroy();
 				}  
@@ -1857,7 +1857,7 @@
 				foreach (KeyValuePair<Int32, Entity> dic in entities)  
 				{ 
 					if(dic.Value.inWorld)
-						dic.Value.onLeaveWorld();
+						dic.Value.leaveWorld();
 
 				    dic.Value.onDestroy();
 				}  
@@ -1933,7 +1933,7 @@
 			}
 			
 			if(entity.inWorld)
-				entity.onLeaveWorld();
+				entity.leaveWorld();
 			
 			entities.Remove(eid);
 			entity.onDestroy();
