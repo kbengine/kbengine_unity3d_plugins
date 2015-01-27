@@ -1889,6 +1889,8 @@
 			
 			if(key == "_mapping")
 				addSpaceGeometryMapping(spaceID, value);
+			
+			Event.fireOut("onSetSpaceData", new object[]{spaceID, key, value});
 		}
 
 		/*
@@ -1898,6 +1900,7 @@
 		{
 			Dbg.DEBUG_MSG("KBEngine::Client_delSpaceData: spaceID(" + spaceID + "), key(" + key + ")");
 			_spacedatas.Remove(key);
+			Event.fireOut("onDelSpaceData", new object[]{spaceID, key});
 		}
 		
 		public string getSpaceData(string key)
