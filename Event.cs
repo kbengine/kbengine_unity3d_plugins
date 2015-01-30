@@ -73,6 +73,22 @@
 			return _isPauseOut;
 		}
 
+		public static void monitor_Enter(object obj)
+		{
+			if(KBEngineApp.app == null || KBEngineApp.app.getInitArgs().isMultiThreads == false)
+				return;
+			
+			Monitor.Enter(obj);
+		}
+
+		public static void monitor_Exit(object obj)
+		{
+			if(KBEngineApp.app == null || KBEngineApp.app.getInitArgs().isMultiThreads == false)
+				return;
+			
+			Monitor.Exit(obj);
+		}
+		
 		public static bool hasRegisterOut(string eventname)
 		{
 			return _hasRegister(events_out, eventname);
@@ -87,9 +103,9 @@
 		{
 			bool has = false;
 			
-			Monitor.Enter(events);
+			monitor_Enter(events);
 			has = events.ContainsKey(eventname);
-			Monitor.Exit(events);
+			monitor_Exit(events);
 			
 			return has;
 		}
@@ -128,20 +144,20 @@
 				return false;
 			}
 			
-			Monitor.Enter(events);
+			monitor_Enter(events);
 			if(!events.TryGetValue(eventname, out lst))
 			{
 				lst = new List<Pair>();
 				lst.Add(pair);
 				//Dbg.DEBUG_MSG("Event::register: event(" + eventname + ")!");
 				events.Add(eventname, lst);
-				Monitor.Exit(events);
+				monitor_Exit(events);
 				return true;
 			}
 			
 			//Dbg.DEBUG_MSG("Event::register: event(" + eventname + ")!");
 			lst.Add(pair);
-			Monitor.Exit(events);
+			monitor_Exit(events);
 			return true;
 		}
 
@@ -157,12 +173,12 @@
 		
 		private static bool deregister(Dictionary<string, List<Pair>> events, string eventname, object obj, string funcname)
 		{
-			Monitor.Enter(events);
+			monitor_Enter(events);
 			List<Pair> lst = null;
 			
 			if(!events.TryGetValue(eventname, out lst))
 			{
-				Monitor.Exit(events);
+				monitor_Exit(events);
 				return false;
 			}
 			
@@ -172,12 +188,12 @@
 				{
 					//Dbg.DEBUG_MSG("Event::deregister: event(" + eventname + ":" + funcname + ")!");
 					lst.RemoveAt(i);
-					Monitor.Exit(events);
+					monitor_Exit(events);
 					return true;
 				}
 			}
 			
-			Monitor.Exit(events);
+			monitor_Exit(events);
 			return false;
 		}
 
@@ -193,7 +209,7 @@
 		
 		private static bool deregister(Dictionary<string, List<Pair>> events, object obj)
 		{
-			Monitor.Enter(events);
+			monitor_Enter(events);
 			
 			foreach(KeyValuePair<string, List<Pair>> e in events)
 			{
@@ -210,7 +226,7 @@ __RESTART_REMOVE:
 				}
 			}
 			
-			Monitor.Exit(events);
+			monitor_Exit(events);
 			return true;
 		}
 
@@ -244,7 +260,7 @@ __RESTART_REMOVE:
 		
 		private static void fire_(Dictionary<string, List<Pair>> events, LinkedList<EventObj> firedEvents, string eventname, object[] args)
 		{
-			Monitor.Enter(events);
+			monitor_Enter(events);
 			List<Pair> lst = null;
 			
 			if(!events.TryGetValue(eventname, out lst))
@@ -254,7 +270,7 @@ __RESTART_REMOVE:
 				else
 					Dbg.WARNING_MSG("Event::fireOut: event(" + eventname + ") not found!");
 				
-				Monitor.Exit(events);
+				monitor_Exit(events);
 				return;
 			}
 			
@@ -266,12 +282,12 @@ __RESTART_REMOVE:
 				firedEvents.AddLast(eobj);
 			}
 			
-			Monitor.Exit(events);
+			monitor_Exit(events);
 		}
 		
 		public static void processOutEvents()
 		{
-			Monitor.Enter(events_out);
+			monitor_Enter(events_out);
 
 			if(firedEvents_out.Count > 0)
 			{
@@ -283,7 +299,7 @@ __RESTART_REMOVE:
 				firedEvents_out.Clear();
 			}
 
-			Monitor.Exit(events_out);
+			monitor_Exit(events_out);
 
 			while (doingEvents_out.Count > 0 && !_isPauseOut) 
 			{
@@ -311,7 +327,7 @@ __RESTART_REMOVE:
 		
 		public static void processInEvents()
 		{
-			Monitor.Enter(events_in);
+			monitor_Enter(events_in);
 
 			if(firedEvents_in.Count > 0)
 			{
@@ -323,7 +339,7 @@ __RESTART_REMOVE:
 				firedEvents_in.Clear();
 			}
 
-			Monitor.Exit(events_in);
+			monitor_Exit(events_in);
 
 			while (doingEvents_in.Count > 0) 
 			{
