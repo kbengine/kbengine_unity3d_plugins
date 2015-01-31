@@ -201,7 +201,15 @@
 		{
 			Dbg.DEBUG_MSG(className + "::enterWorld(" + getDefinedPropterty("uid") + "): " + id); 
 			inWorld = true;
-			onEnterWorld();
+			
+			try{
+				onEnterWorld();
+			}
+			catch (Exception e)
+			{
+				Dbg.ERROR_MSG(className + "::onEnterWorld: error=" + e.ToString());
+			}
+
 			Event.fireOut("onEnterWorld", new object[]{this});
 		}
 		
@@ -213,7 +221,15 @@
 		{
 			Dbg.DEBUG_MSG(className + "::leaveWorld: " + id); 
 			inWorld = false;
-			onLeaveWorld();
+			
+			try{
+				onLeaveWorld();
+			}
+			catch (Exception e)
+			{
+				Dbg.ERROR_MSG(className + "::onLeaveWorld: error=" + e.ToString());
+			}
+
 			Event.fireOut("onLeaveWorld", new object[]{this});
 		}
 		
@@ -225,7 +241,15 @@
 		{
 			Dbg.DEBUG_MSG(className + "::enterSpace(" + getDefinedPropterty("uid") + "): " + id); 
 			inWorld = true;
-			onEnterSpace();
+			
+			try{
+				onEnterSpace();
+			}
+			catch (Exception e)
+			{
+				Dbg.ERROR_MSG(className + "::onEnterSpace: error=" + e.ToString());
+			}
+			
 			Event.fireOut("onEnterSpace", new object[]{this});
 		}
 		
@@ -237,7 +261,15 @@
 		{
 			Dbg.DEBUG_MSG(className + "::leaveSpace: " + id); 
 			inWorld = false;
-			onLeaveSpace();
+			
+			try{
+				onLeaveSpace();
+			}
+			catch (Exception e)
+			{
+				Dbg.ERROR_MSG(className + "::onLeaveSpace: error=" + e.ToString());
+			}
+			
 			Event.fireOut("onLeaveSpace", new object[]{this});
 		}
 
