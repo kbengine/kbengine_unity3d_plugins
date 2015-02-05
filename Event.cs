@@ -50,9 +50,16 @@
 
 		public static void clearFiredEvents()
 		{
+			monitor_Enter(events_out);
 			firedEvents_out.Clear();
+			monitor_Exit(events_out);
+			
 			doingEvents_out.Clear();
+			
+			monitor_Enter(events_in);
 			firedEvents_in.Clear();
+			monitor_Exit(events_in);
+			
 			doingEvents_in.Clear();
 			
 			_isPauseOut = false;
