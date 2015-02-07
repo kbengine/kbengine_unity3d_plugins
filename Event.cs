@@ -25,17 +25,17 @@
 			public object[] args;
 		};
 		
-    	public static Dictionary<string, List<Pair>> events_out = new Dictionary<string, List<Pair>>();
+    	static Dictionary<string, List<Pair>> events_out = new Dictionary<string, List<Pair>>();
 		
-		public static LinkedList<EventObj> firedEvents_out = new LinkedList<EventObj>();
-		private static LinkedList<EventObj> doingEvents_out = new LinkedList<EventObj>();
+		static LinkedList<EventObj> firedEvents_out = new LinkedList<EventObj>();
+		static LinkedList<EventObj> doingEvents_out = new LinkedList<EventObj>();
 		
-    	public static Dictionary<string, List<Pair>> events_in = new Dictionary<string, List<Pair>>();
+    	static Dictionary<string, List<Pair>> events_in = new Dictionary<string, List<Pair>>();
 		
-		public static LinkedList<EventObj> firedEvents_in = new LinkedList<EventObj>();
-		private static LinkedList<EventObj> doingEvents_in = new LinkedList<EventObj>();
+		static LinkedList<EventObj> firedEvents_in = new LinkedList<EventObj>();
+		static LinkedList<EventObj> doingEvents_in = new LinkedList<EventObj>();
 
-		private static bool _isPauseOut = false;
+		static bool _isPauseOut = false;
 	
 		public Event()
 		{
