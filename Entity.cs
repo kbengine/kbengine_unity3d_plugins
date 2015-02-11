@@ -111,7 +111,7 @@
 		{
 		}
 
-		public void baseCall(string methodname, object[] arguments)
+		public void baseCall(string methodname, params object[] arguments)
 		{			
 			if(KBEngineApp.app.currserver == "loginapp")
 			{
@@ -154,7 +154,7 @@
 			baseMailbox.postMail(null);
 		}
 		
-		public void cellCall(string methodname, object[] arguments)
+		public void cellCall(string methodname, params object[] arguments)
 		{
 			if(KBEngineApp.app.currserver == "loginapp")
 			{
