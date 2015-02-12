@@ -1591,7 +1591,7 @@
 				isOnGound = stream.readInt8();
 			
 			string entityType = EntityDef.idmoduledefs[uentityType].name;
-			Dbg.DEBUG_MSG("KBEngine::Client_onEntityEnterWorld: " + entityType + "(" + eid + "), spaceID(" + KBEngineApp.app.spaceID + ")!");
+			// Dbg.DEBUG_MSG("KBEngine::Client_onEntityEnterWorld: " + entityType + "(" + eid + "), spaceID(" + KBEngineApp.app.spaceID + ")!");
 			
 			Entity entity = null;
 			

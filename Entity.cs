@@ -199,7 +199,7 @@
 	
 		public void enterWorld()
 		{
-			Dbg.DEBUG_MSG(className + "::enterWorld(" + getDefinedPropterty("uid") + "): " + id); 
+			// Dbg.DEBUG_MSG(className + "::enterWorld(" + getDefinedPropterty("uid") + "): " + id); 
 			inWorld = true;
 			
 			try{
@@ -219,7 +219,7 @@
 
 		public void leaveWorld()
 		{
-			Dbg.DEBUG_MSG(className + "::leaveWorld: " + id); 
+			// Dbg.DEBUG_MSG(className + "::leaveWorld: " + id); 
 			inWorld = false;
 			
 			try{
@@ -239,7 +239,7 @@
 
 		public virtual void enterSpace()
 		{
-			Dbg.DEBUG_MSG(className + "::enterSpace(" + getDefinedPropterty("uid") + "): " + id); 
+			// Dbg.DEBUG_MSG(className + "::enterSpace(" + getDefinedPropterty("uid") + "): " + id); 
 			inWorld = true;
 			
 			try{
@@ -259,7 +259,7 @@
 		
 		public virtual void leaveSpace()
 		{
-			Dbg.DEBUG_MSG(className + "::leaveSpace: " + id); 
+			// Dbg.DEBUG_MSG(className + "::leaveSpace: " + id); 
 			inWorld = false;
 			
 			try{
@@ -281,7 +281,7 @@
 		{
 			Vector3 v = (Vector3)getDefinedPropterty("position");
 			position = v;
-			Dbg.DEBUG_MSG(className + "::set_position: " + old + " => " + v); 
+			// Dbg.DEBUG_MSG(className + "::set_position: " + old + " => " + v); 
 			
 			if(isPlayer())
 				KBEngineApp.app.entityServerPos(position);
@@ -303,7 +303,7 @@
 			
 			direction = v;
 			
-			Dbg.DEBUG_MSG(className + "::set_direction: " + old + " => " + v); 
+			// Dbg.DEBUG_MSG(className + "::set_direction: " + old + " => " + v); 
 			Event.fireOut("set_direction", new object[]{this});
 		}
     }
