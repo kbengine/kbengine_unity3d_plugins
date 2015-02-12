@@ -39,8 +39,8 @@
 		public bool isMultiThreads = false;
 		
 		// 只在多线程模式启用
-		// 主循环tick间隔
-		public int HZ_TICK = 100;
+		// 主循环频率
+		public int HZ_TICK = 10;
 		
 		public int getRecvBufferSize()
 		{

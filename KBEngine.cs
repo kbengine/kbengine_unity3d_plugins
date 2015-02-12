@@ -2374,8 +2374,8 @@
 		private Thread _t = null;
 		public KBEThread kbethread = null;
 
-		// 主循环tick间隔
-		public static int HZ_TICK = 100;
+		// 主循环频率
+		public static int HZ_TICK = 10;
 		
 		// 插件是否退出
 		private bool _isbreak = false;
@@ -2439,7 +2439,7 @@
 		{
 			TimeSpan span = DateTime.Now - _lasttime; 
 			
-			int diff = HZ_TICK - span.Milliseconds;
+			int diff = (int)(1000.0 / HZ_TICK - span.Milliseconds);
 
 			if(diff < 0)
 				diff = 0;
