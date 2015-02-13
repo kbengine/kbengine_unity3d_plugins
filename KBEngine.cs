@@ -2375,7 +2375,7 @@
 		public KBEThread kbethread = null;
 
 		// 主循环频率
-		public static int thread_Update_HZ = 10;
+		public static int threadUpdateHZ = 10;
 		
 		// 插件是否退出
 		private bool _isbreak = false;
@@ -2391,7 +2391,7 @@
 		{
 			base.initialize(args);
 			
-			KBEngineAppThread.thread_Update_HZ = args.thread_Update_HZ;
+			KBEngineAppThread.threadUpdateHZ = args.threadUpdateHZ;
 			
 			kbethread = new KBEThread(this);
 			_t = new Thread(new ThreadStart(kbethread.run));
@@ -2439,7 +2439,7 @@
 		{
 			TimeSpan span = DateTime.Now - _lasttime; 
 			
-			int diff = (int)(1000.0 / thread_Update_HZ - span.Milliseconds);
+			int diff = (int)(1000.0 / threadUpdateHZ - span.Milliseconds);
 
 			if(diff < 0)
 				diff = 0;
