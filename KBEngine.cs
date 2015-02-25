@@ -1355,15 +1355,16 @@
 		public void Client_onCreatedProxies(UInt64 rndUUID, Int32 eid, string entityType)
 		{
 			Dbg.DEBUG_MSG("KBEngine::Client_onCreatedProxies: eid(" + eid + "), entityType(" + entityType + ")!");
-			entity_uuid = rndUUID;
-			entity_id = eid;
-			entity_type = entityType;
 			
 			if(this.entities.ContainsKey(eid))
 			{
 				// Dbg.WARNING_MSG("KBEngine::Client_onCreatedProxies: eid(" + eid + ") has exist!");
 				Client_onEntityDestroyed(eid);
 			}
+
+			entity_uuid = rndUUID;
+			entity_id = eid;
+			entity_type = entityType;
 			
 			ScriptModule module = null;
 			if(!EntityDef.moduledefs.TryGetValue(entityType, out module))
