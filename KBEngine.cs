@@ -265,14 +265,14 @@
 		*/
 		public virtual void process()
 		{
-			// 处理网络
-			_networkInterface.process();
-			
 			// 处理外层抛入的事件
 			Event.processInEvents();
 			
 			// 向服务端发送心跳以及同步角色信息到服务端
 			sendTick();
+			
+			// 处理网络
+			_networkInterface.process();
 		}
 		
 		/*
