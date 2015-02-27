@@ -188,8 +188,9 @@
         
         public void process()
         {
-        	if(!valid())
-        		return;
+        	// 避免close后一些消息没有得到处理，将这里屏蔽
+        	// if(!valid())
+        	//	return;
         	
         	if(_packetReceiver != null)
         		_packetReceiver.process();
