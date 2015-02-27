@@ -174,6 +174,7 @@
 			Event.registerIn("createAccount", this, "createAccount");
 			Event.registerIn("login", this, "login");
 			Event.registerIn("relogin_baseapp", this, "relogin_baseapp");
+			Event.registerIn("_closeNetwork", this, "_closeNetwork");
 		}
 	
 		public KBEngineArgs getInitArgs()
@@ -265,14 +266,14 @@
 		*/
 		public virtual void process()
 		{
+			// 处理网络
+			_networkInterface.process();
+			
 			// 处理外层抛入的事件
 			Event.processInEvents();
 			
 			// 向服务端发送心跳以及同步角色信息到服务端
 			sendTick();
-			
-			// 处理网络
-			_networkInterface.process();
 		}
 		
 		/*
@@ -287,6 +288,11 @@
 			return null;
 		}
 
+		public void _closeNetwork(NetworkInterface networkInterface)
+		{
+			networkInterface.close();
+		}
+		
 		/*
 			向服务端发送心跳以及同步角色信息到服务端
 		*/

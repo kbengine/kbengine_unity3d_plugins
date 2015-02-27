@@ -118,7 +118,7 @@
 			catch (Exception e) 
 			{
 				Dbg.ERROR_MSG("PacketSender::startSend(): is err: " + e.ToString());
-				_networkInterface.close();
+				Event.fireIn("_closeNetwork", new object[]{_networkInterface});
 			}
 		}
 		
@@ -155,7 +155,7 @@
 			catch (Exception e) 
 			{
 				Dbg.ERROR_MSG(string.Format("PacketSender::_processSent(): is error({0})!", e.ToString()));
-				state.networkInterface().close();
+				Event.fireIn("_closeNetwork", new object[]{state.networkInterface()});
 				Interlocked.Exchange(ref state._sending, 0);
 			}
 		}

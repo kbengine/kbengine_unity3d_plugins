@@ -119,7 +119,7 @@
 			catch (Exception e) 
 			{
 				Dbg.ERROR_MSG("PacketReceiver::startRecv(): call ReceiveAsync() is err: " + e.ToString());
-				_networkInterface.close();
+				Event.fireIn("_closeNetwork", new object[]{_networkInterface});
 			}
 		}
 		
@@ -151,7 +151,7 @@
 		        	if (bytesRead == 0) 
 		        	{
 		        		Dbg.WARNING_MSG(string.Format("PacketReceiver::_processRecved(): disconnect!"));
-		        		state.networkInterface().close();
+		        		Event.fireIn("_closeNetwork", new object[]{state.networkInterface()});
 		        		return;
 		        	}
 		        	else
@@ -163,7 +163,7 @@
 			catch (Exception e) 
 			{
 				Dbg.ERROR_MSG(string.Format("PacketReceiver::_processRecved(): is error({0})!", e.ToString()));
-				state.networkInterface().close();
+				Event.fireIn("_closeNetwork", new object[]{state.networkInterface()});
 			}
 		}
 	}
