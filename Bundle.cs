@@ -17,6 +17,7 @@
 		public int numMessage = 0;
 		public int messageLength = 0;
 		public Message msgtype = null;
+		private int _curMsgStreamIndex = 0;
 		
 		public Bundle()
 		{
@@ -36,6 +37,8 @@
 				writeUint16(0);
 				messageLength = 0;
 			}
+
+			_curMsgStreamIndex = 0;
 		}
 		
 		public void writeMsgLength()
@@ -43,22 +46,13 @@
 			if(msgtype.msglen != -1)
 				return;
 
-			if(stream.length() >= messageLength)
+			MemoryStream stream = this.stream;
+			if(_curMsgStreamIndex > 0)
 			{
-				int idx = (int)stream.length() - messageLength - 2;
-				stream.data()[idx] = (Byte)(messageLength & 0xff);
-				stream.data()[idx + 1] = (Byte)(messageLength >> 8 & 0xff);
+				stream = streamList[streamList.Count - _curMsgStreamIndex];
 			}
-			else
-			{
-				int size = messageLength - (int)stream.length();
-				byte[] data = streamList[numMessage - 1].data();
-				
-				int idx = data.Length - size - 2;
-				
-				data[idx] = (Byte)(messageLength & 0xff);
-				data[idx + 1] = (Byte)(messageLength >> 8 & 0xff);
-			}
+			stream.data()[2] = (Byte)(messageLength & 0xff);
+			stream.data()[3] = (Byte)(messageLength >> 8 & 0xff);
 		}
 		
 		public void fini(bool issend)
@@ -66,8 +60,9 @@
 			if(numMessage > 0)
 			{
 				writeMsgLength();
-				if(stream != null)
-					streamList.Add(stream);
+
+				streamList.Add(stream);
+				stream = new MemoryStream();
 			}
 			
 			if(issend)
@@ -75,6 +70,8 @@
 				numMessage = 0;
 				msgtype = null;
 			}
+
+			_curMsgStreamIndex = 0;
 		}
 		
 		public void send(NetworkInterface networkInterface)
@@ -95,7 +92,7 @@
 			}
 			
 			streamList.Clear();
-			stream = new MemoryStream();
+			stream.clear();
 		}
 		
 		public void checkStream(int v)
@@ -104,6 +101,7 @@
 			{
 				streamList.Add(stream);
 				stream = new MemoryStream();
+				++ _curMsgStreamIndex;
 			}
 	
 			messageLength += v;
