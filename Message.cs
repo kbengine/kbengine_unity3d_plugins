@@ -17,7 +17,7 @@
 		public string name;
 		public Int16 msglen = -1;
 		public System.Reflection.MethodInfo handler = null;
-		public System.Reflection.MethodInfo[] argtypes = null;
+		public KBEDATATYPE_BASE[] argtypes = null;
 		public sbyte argsType = 0;
 			
 		public static Dictionary<MessageID, Message> loginappMessages = new Dictionary<MessageID, Message>();
@@ -77,13 +77,12 @@
 			
 			// 对该消息的所有参数绑定反序列化方法，改方法能够将二进制流转化为参数需要的值
 			// 在服务端下发消息数据时会用到
-			argtypes = new System.Reflection.MethodInfo[msgargtypes.Count];
+			argtypes = new KBEDATATYPE_BASE[msgargtypes.Count];
 			for(int i=0; i<msgargtypes.Count; i++)
 			{
-				argtypes[i] = StreamRWBinder.bindReader(msgargtypes[i]);
-				if(argtypes[i] == null)
+				if(!EntityDef.iddatatypes.TryGetValue(msgargtypes[i], out argtypes[i]))
 				{
-					Dbg.ERROR_MSG("Message::Message(): bindReader(" + msgargtypes[i] + ") is error!");
+					Dbg.ERROR_MSG("Message::Message(): argtype(" + msgargtypes[i] + ") is not found!");
 				}
 			}
 			
@@ -103,7 +102,7 @@
 			
 			for(int i=0; i<argtypes.Length; i++)
 			{
-				result[i] = argtypes[i].Invoke(msgstream, new object[0]);
+				result[i] = argtypes[i].createFromStream(msgstream);
 			}
 			
 			return result;

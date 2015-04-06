@@ -16,50 +16,6 @@
 	{
 		public static float KBE_FLT_MAX = float.MaxValue;
 		
-		public static Type GetSystemTypeByString(string type)
-	    {
-	        switch (type.ToLower())
-	        {
-	            case "bool":
-	                return Type.GetType("System.Boolean", true, true);
-	            case "byte":
-	                return Type.GetType("System.Byte", true, true);
-	            case "sbyte":
-	                return Type.GetType("System.SByte", true, true);
-	            case "char":
-	                return Type.GetType("System.Char", true, true);
-	            case "decimal":
-	                return Type.GetType("System.Decimal", true, true);
-	            case "double":
-	                return Type.GetType("System.Double", true, true);
-	            case "float":
-	                return Type.GetType("System.Single", true, true);
-	            case "int":
-	                return Type.GetType("System.Int32", true, true);
-	            case "uint":
-	                return Type.GetType("System.UInt32", true, true);
-	            case "long":
-	                return Type.GetType("System.Int64", true, true);
-	            case "ulong":
-	                return Type.GetType("System.UInt64", true, true);
-	            case "object":
-	                return Type.GetType("System.Object", true, true);
-	            case "short":
-	                return Type.GetType("System.Int16", true, true);
-	            case "ushort":
-	                return Type.GetType("System.UInt16", true, true);
-	            case "string":
-	                return Type.GetType("System.String", true, true);
-	            case "date":
-	            case "datetime":
-	                return Type.GetType("System.DateTime", true, true);
-	            case "guid":
-	                return Type.GetType("System.Guid", true, true);
-	            default:
-	                return Type.GetType(type, true, true);
-	        }
-	    }
-	    
 		public virtual void bind()
 		{
 		}
@@ -76,6 +32,11 @@
 		public virtual object parseDefaultValStr(string v)
 		{
 			return null;
+		}
+		
+		public virtual bool isSameType(object v)
+		{
+			return v == null;
 		}
 	}
 	
@@ -97,6 +58,11 @@
 			SByte.TryParse(v, out ret);
 			return ret;
 		}
+		
+		public override bool isSameType(object v)
+		{
+			return v != null && v.GetType() == typeof(SByte);
+		}
 	}
 	
 	public class KBEDATATYPE_INT16 : KBEDATATYPE_BASE
@@ -116,6 +82,11 @@
 			Int16 ret = 0;
 			Int16.TryParse(v, out ret);
 			return ret;
+		}
+		
+		public override bool isSameType(object v)
+		{
+			return v != null && v.GetType() == typeof(Int16);
 		}
 	}
 	
@@ -137,6 +108,11 @@
 			Int32.TryParse(v, out ret);
 			return ret;
 		}
+		
+		public override bool isSameType(object v)
+		{
+			return v != null && v.GetType() == typeof(Int32);
+		}
 	}
 	
 	public class KBEDATATYPE_INT64 : KBEDATATYPE_BASE
@@ -156,6 +132,11 @@
 			Int64 ret = 0;
 			Int64.TryParse(v, out ret);
 			return ret;
+		}
+		
+		public override bool isSameType(object v)
+		{
+			return v != null && v.GetType() == typeof(Int64);
 		}
 	}
 	
@@ -177,6 +158,11 @@
 			Byte.TryParse(v, out ret);
 			return ret;
 		}
+		
+		public override bool isSameType(object v)
+		{
+			return v != null && v.GetType() == typeof(Byte);
+		}
 	}
 	
 	public class KBEDATATYPE_UINT16 : KBEDATATYPE_BASE
@@ -196,6 +182,11 @@
 			UInt16 ret = 0;
 			UInt16.TryParse(v, out ret);
 			return ret;
+		}
+		
+		public override bool isSameType(object v)
+		{
+			return v != null && v.GetType() == typeof(UInt16);
 		}
 	}
 	
@@ -217,6 +208,11 @@
 			UInt32.TryParse(v, out ret);
 			return ret;
 		}
+		
+		public override bool isSameType(object v)
+		{
+			return v != null && v.GetType() == typeof(UInt32);
+		}
 	}
 	
 	public class KBEDATATYPE_UINT64 : KBEDATATYPE_BASE
@@ -236,6 +232,11 @@
 			UInt64 ret = 0;
 			UInt64.TryParse(v, out ret);
 			return ret;
+		}
+		
+		public override bool isSameType(object v)
+		{
+			return v != null && v.GetType() == typeof(UInt64);
 		}
 	}
 	
@@ -257,6 +258,11 @@
 			float.TryParse(v, out ret);
 			return ret;
 		}
+		
+		public override bool isSameType(object v)
+		{
+			return v != null && v.GetType() == typeof(float);
+		}
 	}
 	
 	public class KBEDATATYPE_DOUBLE : KBEDATATYPE_BASE
@@ -277,6 +283,11 @@
 			double.TryParse(v, out ret);
 			return ret;
 		}
+		
+		public override bool isSameType(object v)
+		{
+			return v != null && v.GetType() == typeof(double);
+		}
 	}
 	
 	public class KBEDATATYPE_STRING : KBEDATATYPE_BASE
@@ -294,6 +305,11 @@
 		public override object parseDefaultValStr(string v)
 		{
 			return v;
+		}
+		
+		public override bool isSameType(object v)
+		{
+			return v != null && v.GetType() == typeof(string);
 		}
 	}
 	
@@ -321,6 +337,11 @@
 		{
 			return new Vector2(0.0f, 0.0f);
 		}
+		
+		public override bool isSameType(object v)
+		{
+			return v != null && v.GetType() == typeof(Vector2);
+		}
 	}
 	
 	public class KBEDATATYPE_VECTOR3 : KBEDATATYPE_BASE
@@ -347,6 +368,11 @@
 		public override object parseDefaultValStr(string v)
 		{
 			return new Vector3(0.0f, 0.0f, 0.0f);
+		}
+		
+		public override bool isSameType(object v)
+		{
+			return v != null && v.GetType() == typeof(Vector3);
 		}
 	}
 	
@@ -376,6 +402,11 @@
 		{
 			return new Vector4(0.0f, 0.0f, 0.0f, 0.0f);
 		}
+		
+		public override bool isSameType(object v)
+		{
+			return v != null && v.GetType() == typeof(Vector4);
+		}
 	}
 	
 	public class KBEDATATYPE_PYTHON : KBEDATATYPE_BASE
@@ -393,6 +424,11 @@
 		public override object parseDefaultValStr(string v)
 		{
 			return new byte[0];
+		}
+		
+		public override bool isSameType(object v)
+		{
+			return v != null && v.GetType() == typeof(byte[]);
 		}
 	}
 	
@@ -412,6 +448,11 @@
 		{
 			return v;
 		}
+		
+		public override bool isSameType(object v)
+		{
+			return v != null && v.GetType() == typeof(string);
+		}
 	}
 	
 	public class KBEDATATYPE_MAILBOX : KBEDATATYPE_BASE
@@ -430,6 +471,11 @@
 		{
 			return new byte[0];
 		}
+		
+		public override bool isSameType(object v)
+		{
+			return v != null && v.GetType() == typeof(byte[]);
+		}
 	}
 	
 	public class KBEDATATYPE_BLOB : KBEDATATYPE_BASE
@@ -447,6 +493,11 @@
 		public override object parseDefaultValStr(string v)
 		{
 			return new byte[0];
+		}
+		
+		public override bool isSameType(object v)
+		{
+			return v != null && v.GetType() == typeof(byte[]);
 		}
 	}
 	
@@ -489,6 +540,30 @@
 		public override object parseDefaultValStr(string v)
 		{
 			return new byte[0];
+		}
+		
+		public override bool isSameType(object v)
+		{
+			if(type.GetType() != typeof(KBEDATATYPE_BASE))
+			{
+				Dbg.ERROR_MSG(string.Format("KBEDATATYPE_ARRAY::isSameType: has not bind!"));
+				return false;
+			}
+			
+			if(v == null || v.GetType() != typeof(List<object>))
+			{
+				return false;
+			}
+			
+			for(int i=0; i<((List<object>)v).Count; i++)
+			{
+				if(!((KBEDATATYPE_BASE)type).isSameType(((List<object>)v)[i]))
+				{
+					return false;
+				}
+			}
+			
+			return true;
 		}
 	}
 	
@@ -542,6 +617,32 @@
 			}
 			
 			return datas;
+		}
+		
+		public override bool isSameType(object v)
+		{
+			if(v == null || v.GetType() != typeof(Dictionary<string, object>))
+			{
+				return false;
+			}
+			
+			foreach(KeyValuePair<string, object> item in dicttype)
+			{
+				object value;
+				if(((Dictionary<string, object>)v).TryGetValue(item.Key, out value))
+				{
+					if(!((KBEDATATYPE_BASE)item.Value).isSameType(value))
+					{
+						return false;
+					}
+				}
+				else
+				{
+					return false;
+				}
+			}
+			
+			return true;
 		}
 	}
 } 
