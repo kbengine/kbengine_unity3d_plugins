@@ -141,7 +141,14 @@
 			{
 				for(var i=0; i<method.args.Count; i++)
 				{
-					method.args[i].addToStream(baseMailbox.bundle, arguments[i]);
+					if(method.args[i].isSameType(arguments[i]))
+					{
+						method.args[i].addToStream(baseMailbox.bundle, arguments[i]);
+					}
+					else
+					{
+						throw new Exception("type error");
+					}
 				}
 			}
 			catch(Exception e)
@@ -184,7 +191,14 @@
 			{
 				for(var i=0; i<method.args.Count; i++)
 				{
-					method.args[i].addToStream(cellMailbox.bundle, arguments[i]);
+					if(method.args[i].isSameType(arguments[i]))
+					{
+						method.args[i].addToStream(cellMailbox.bundle, arguments[i]);
+					}
+					else
+					{
+						throw new Exception("type error");
+					}
 				}
 			}
 			catch(Exception e)
