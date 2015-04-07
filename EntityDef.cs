@@ -170,8 +170,12 @@
 			iddatatypes[17] = datatypes["VECTOR4"];
 			
 			datatype2id["FIXED_DICT"] = 18;
+			// 这里不需要绑定，FIXED_DICT需要根据不同类型实例化动态得到id
+			//iddatatypes[18] = datatypes["FIXED_DICT"];
 			
 			datatype2id["ARRAY"] = 19;
+			// 这里不需要绑定，ARRAY需要根据不同类型实例化动态得到id
+			//iddatatypes[19] = datatypes["ARRAY"];
 		}
     }
     
