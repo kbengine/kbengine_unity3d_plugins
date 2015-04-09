@@ -459,10 +459,12 @@
 		/*
 			登录到服务端，必须登录完成loginapp与网关(baseapp)，登录流程才算完毕
 		*/
-		public void login(string username, string password)
+		public void login(string username, string password, byte[] datas)
 		{
 			KBEngineApp.app.username = username;
 			KBEngineApp.app.password = password;
+			KBEngineApp.app._clientdatas = datas;
+			
 			KBEngineApp.app.login_loginapp(true);
 		}
 		
@@ -482,7 +484,7 @@
 				Bundle bundle = new Bundle();
 				bundle.newMessage(Message.messages["Loginapp_login"]);
 				bundle.writeInt8((sbyte)_args.clientType); // clientType
-				bundle.writeBlob(new byte[0]);
+				bundle.writeBlob(KBEngineApp.app._clientdatas);
 				bundle.writeString(username);
 				bundle.writeString(password);
 				bundle.send(_networkInterface);
@@ -1231,10 +1233,12 @@
 			Dbg.DEBUG_MSG("KBEngine::Client_onReqAccountNewPasswordCB: " + username + " is successfully!");
 		}
 
-		public void createAccount(string username, string password)
+		public void createAccount(string username, string password, byte[] datas)
 		{
 			KBEngineApp.app.username = username;
 			KBEngineApp.app.password = password;
+			KBEngineApp.app._clientdatas = datas;
+			
 			KBEngineApp.app.createAccount_loginapp(true);
 		}
 
@@ -1254,7 +1258,7 @@
 				bundle.newMessage(Message.messages["Loginapp_reqCreateAccount"]);
 				bundle.writeString(username);
 				bundle.writeString(password);
-				bundle.writeBlob(new byte[0]);
+				bundle.writeBlob(KBEngineApp.app._clientdatas);
 				bundle.send(_networkInterface);
 			}
 		}
