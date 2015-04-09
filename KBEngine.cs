@@ -78,6 +78,9 @@
 		private byte[] _serverdatas = new byte[0];
 		private byte[] _clientdatas = new byte[0];
 		
+		// 通信协议加密，blowfish协议
+		private byte[] _encryptedKey = new byte[0];
+		
 		// 服务端与客户端的版本号以及协议MD5
 		public string serverVersion = "";
 		public string clientVersion = "0.4.0";
@@ -352,7 +355,7 @@
 			
 			bundle.writeString(clientVersion);
 			bundle.writeString(clientScriptVersion);
-			bundle.writeBlob(new byte[0]);
+			bundle.writeBlob(_encryptedKey);
 			bundle.send(_networkInterface);
 		}
 
