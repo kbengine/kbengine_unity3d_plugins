@@ -231,7 +231,6 @@
 			currserver = "";
 			currstate = "";
 			_serverdatas = new byte[0];
-			_clientdatas = new byte[0];
 			serverVersion = "";
 			serverScriptVersion = "";
 			
