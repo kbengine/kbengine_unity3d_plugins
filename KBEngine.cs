@@ -352,7 +352,7 @@
 			
 			bundle.writeString(clientVersion);
 			bundle.writeString(clientScriptVersion);
-			bundle.writeBlob(_clientdatas);
+			bundle.writeBlob(new byte[0]);
 			bundle.send(_networkInterface);
 		}
 
