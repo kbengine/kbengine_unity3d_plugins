@@ -1375,11 +1375,7 @@
 			}
 
 			MemoryStream entityMessage = null;
-			if(!_bufferedCreateEntityMessage.TryGetValue(eid, out entityMessage))
-			{
-				Dbg.ERROR_MSG("KBEngine::Client_onCreatedProxies: entity(" + eid + ") not found!");
-				return;
-			}
+			_bufferedCreateEntityMessage.TryGetValue(eid, out entityMessage);
 				
 			entity_uuid = rndUUID;
 			entity_id = eid;
@@ -1406,8 +1402,11 @@
 
 			entities[eid] = entity;
 			
-			Client_onUpdatePropertys(entityMessage);
-			_bufferedCreateEntityMessage.Remove(eid);
+			if(entityMessage != null)
+			{
+				Client_onUpdatePropertys(entityMessage);
+				_bufferedCreateEntityMessage.Remove(eid);
+			}
 			
 			entity.__init__();
 		}
