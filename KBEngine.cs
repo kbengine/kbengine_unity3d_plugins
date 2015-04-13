@@ -1374,6 +1374,13 @@
 				Client_onEntityDestroyed(eid);
 			}
 
+			MemoryStream entityMessage = null;
+			if(!_bufferedCreateEntityMessage.TryGetValue(eid, out entityMessage))
+			{
+				Dbg.ERROR_MSG("KBEngine::Client_onCreatedProxies: entity(" + eid + ") not found!");
+				return;
+			}
+				
 			entity_uuid = rndUUID;
 			entity_id = eid;
 			entity_type = entityType;
@@ -1396,8 +1403,11 @@
 			entity.baseMailbox.id = eid;
 			entity.baseMailbox.className = entityType;
 			entity.baseMailbox.type = Mailbox.MAILBOX_TYPE.MAILBOX_TYPE_BASE;
-			
+
 			entities[eid] = entity;
+			
+			Client_onUpdatePropertys(entityMessage);
+			_bufferedCreateEntityMessage.Remove(eid);
 			
 			entity.__init__();
 		}
@@ -1516,6 +1526,7 @@
 				{
 					setmethod.Invoke(entity, new object[]{oldval});
 				}
+				
 			}
 		}
 
@@ -1619,7 +1630,7 @@
 				ScriptModule module = null;
 				if(!EntityDef.moduledefs.TryGetValue(entityType, out module))
 				{
-					Dbg.ERROR_MSG("KBEngine::Client_onCreatedProxies: not found module(" + entityType + ")!");
+					Dbg.ERROR_MSG("KBEngine::Client_onEntityEnterWorld: not found module(" + entityType + ")!");
 				}
 				
 				Type runclass = module.script;
