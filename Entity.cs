@@ -26,9 +26,6 @@
 		
 		public bool inWorld = false;
 		
-		public static Dictionary<string, Dictionary<string, Property>> alldefpropertys = 
-			new Dictionary<string, Dictionary<string, Property>>();
-		
 		// entityDef属性，服务端同步过来后存储在这里
 		private Dictionary<string, Property> defpropertys_ = 
 			new Dictionary<string, Property>();
@@ -38,12 +35,11 @@
 		
 		public static void clear()
 		{
-			alldefpropertys.Clear();
 		}
 		
 		public Entity()
 		{
-			foreach(Property e in alldefpropertys[GetType().Name].Values)
+			foreach(Property e in EntityDef.moduledefs[GetType().Name].propertys.Values)
 			{
 				Property newp = new Property();
 				newp.name = e.name;

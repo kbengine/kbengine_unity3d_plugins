@@ -799,10 +799,7 @@
 				ScriptModule module = new ScriptModule(scriptmethod_name);
 				EntityDef.moduledefs[scriptmethod_name] = module;
 				EntityDef.idmoduledefs[scriptUtype] = module;
-				
-				Dictionary<string, Property> defpropertys = new Dictionary<string, Property>();
-				Entity.alldefpropertys.Add(scriptmethod_name, defpropertys);
-				
+
 				Type Class = module.script;
 				
 				while(propertysize > 0)
@@ -964,26 +961,7 @@
 				{
 					Dbg.ERROR_MSG("KBEngine::Client_onImportClientEntityDef: module(" + scriptmethod_name + ") not found!");
 				}
-					
-				foreach(string name in module.propertys.Keys)
-				{
-					Property infos = module.propertys[name];
-					
-					Property newp = new Property();
-					newp.name = infos.name;
-					newp.properUtype = infos.properUtype;
-					newp.aliasID = infos.aliasID;
-					newp.utype = infos.utype;
-					newp.val = infos.utype.parseDefaultValStr(infos.defaultValStr);
-					newp.setmethod = infos.setmethod;
-					
-					defpropertys.Add(infos.name, newp);
-					if(module.script != null && module.script.GetMember(name) == null)
-					{
-						Dbg.ERROR_MSG(scriptmethod_name + "(" + module.script + "):: property(" + name + ") no defined!");
-					}
-				};
-	
+
 				foreach(string name in module.methods.Keys)
 				{
 					// Method infos = module.methods[name];
