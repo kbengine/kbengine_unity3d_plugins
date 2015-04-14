@@ -830,11 +830,12 @@
 					
 					Property savedata = new Property();
 					savedata.name = name;
+					savedata.utype = utype;
 					savedata.properUtype = properUtype;
 					savedata.aliasID = ialiasID;
 					savedata.defaultValStr = defaultValStr;
-					savedata.utype = utype;
 					savedata.setmethod = setmethod;
+					savedata.val = savedata.utype.parseDefaultValStr(savedata.defaultValStr);
 					
 					module.propertys[name] = savedata;
 					

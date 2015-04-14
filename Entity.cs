@@ -43,10 +43,12 @@
 			{
 				Property newp = new Property();
 				newp.name = e.name;
-				newp.properUtype = e.properUtype;
 				newp.utype = e.utype;
-				newp.val = e.val;
+				newp.properUtype = e.properUtype;
+				newp.aliasID = e.aliasID;
+				newp.defaultValStr = e.defaultValStr;
 				newp.setmethod = e.setmethod;
+				newp.val = newp.utype.parseDefaultValStr(newp.defaultValStr);
 				defpropertys_.Add(e.name, newp);
 				iddefpropertys_.Add(e.properUtype, newp);
 			}
