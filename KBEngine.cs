@@ -1817,9 +1817,9 @@
 				bundle.writeFloat(position.y);
 				bundle.writeFloat(position.z);
 
-				bundle.writeFloat((float)((double)direction.z / 360 * 6.283185307179586));
-				bundle.writeFloat((float)((double)direction.y / 360 * 6.283185307179586));
 				bundle.writeFloat((float)((double)direction.x / 360 * 6.283185307179586));
+				bundle.writeFloat((float)((double)direction.y / 360 * 6.283185307179586));
+				bundle.writeFloat((float)((double)direction.z / 360 * 6.283185307179586));
 				bundle.writeUint8((Byte)(playerEntity.isOnGound == true ? 1 : 0));
 				bundle.writeUint32(spaceID);
 				bundle.send(_networkInterface);
