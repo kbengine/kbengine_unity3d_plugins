@@ -78,6 +78,9 @@
 		private byte[] _serverdatas = new byte[0];
 		private byte[] _clientdatas = new byte[0];
 		
+		// 通信协议加密，blowfish协议
+		private byte[] _encryptedKey = new byte[0];
+		
 		// 服务端与客户端的版本号以及协议MD5
 		public string serverVersion = "";
 		public string clientVersion = "0.4.0";
@@ -231,7 +234,6 @@
 			currserver = "";
 			currstate = "";
 			_serverdatas = new byte[0];
-			_clientdatas = new byte[0];
 			serverVersion = "";
 			serverScriptVersion = "";
 			
@@ -353,7 +355,7 @@
 			
 			bundle.writeString(clientVersion);
 			bundle.writeString(clientScriptVersion);
-			bundle.writeBlob(_clientdatas);
+			bundle.writeBlob(_encryptedKey);
 			bundle.send(_networkInterface);
 		}
 
@@ -459,10 +461,12 @@
 		/*
 			登录到服务端，必须登录完成loginapp与网关(baseapp)，登录流程才算完毕
 		*/
-		public void login(string username, string password)
+		public void login(string username, string password, byte[] datas)
 		{
 			KBEngineApp.app.username = username;
 			KBEngineApp.app.password = password;
+			KBEngineApp.app._clientdatas = datas;
+			
 			KBEngineApp.app.login_loginapp(true);
 		}
 		
@@ -482,7 +486,7 @@
 				Bundle bundle = new Bundle();
 				bundle.newMessage(Message.messages["Loginapp_login"]);
 				bundle.writeInt8((sbyte)_args.clientType); // clientType
-				bundle.writeBlob(new byte[0]);
+				bundle.writeBlob(KBEngineApp.app._clientdatas);
 				bundle.writeString(username);
 				bundle.writeString(password);
 				bundle.send(_networkInterface);
@@ -1231,10 +1235,12 @@
 			Dbg.DEBUG_MSG("KBEngine::Client_onReqAccountNewPasswordCB: " + username + " is successfully!");
 		}
 
-		public void createAccount(string username, string password)
+		public void createAccount(string username, string password, byte[] datas)
 		{
 			KBEngineApp.app.username = username;
 			KBEngineApp.app.password = password;
+			KBEngineApp.app._clientdatas = datas;
+			
 			KBEngineApp.app.createAccount_loginapp(true);
 		}
 
@@ -1254,7 +1260,7 @@
 				bundle.newMessage(Message.messages["Loginapp_reqCreateAccount"]);
 				bundle.writeString(username);
 				bundle.writeString(password);
-				bundle.writeBlob(new byte[0]);
+				bundle.writeBlob(KBEngineApp.app._clientdatas);
 				bundle.send(_networkInterface);
 			}
 		}
@@ -1368,6 +1374,9 @@
 				Client_onEntityDestroyed(eid);
 			}
 
+			MemoryStream entityMessage = null;
+			_bufferedCreateEntityMessage.TryGetValue(eid, out entityMessage);
+				
 			entity_uuid = rndUUID;
 			entity_id = eid;
 			entity_type = entityType;
@@ -1390,8 +1399,14 @@
 			entity.baseMailbox.id = eid;
 			entity.baseMailbox.className = entityType;
 			entity.baseMailbox.type = Mailbox.MAILBOX_TYPE.MAILBOX_TYPE_BASE;
-			
+
 			entities[eid] = entity;
+			
+			if(entityMessage != null)
+			{
+				Client_onUpdatePropertys(entityMessage);
+				_bufferedCreateEntityMessage.Remove(eid);
+			}
 			
 			entity.__init__();
 		}
@@ -1614,7 +1629,7 @@
 				ScriptModule module = null;
 				if(!EntityDef.moduledefs.TryGetValue(entityType, out module))
 				{
-					Dbg.ERROR_MSG("KBEngine::Client_onCreatedProxies: not found module(" + entityType + ")!");
+					Dbg.ERROR_MSG("KBEngine::Client_onEntityEnterWorld: not found module(" + entityType + ")!");
 				}
 				
 				Type runclass = module.script;
@@ -1802,9 +1817,9 @@
 				bundle.writeFloat(position.y);
 				bundle.writeFloat(position.z);
 
-				bundle.writeFloat((float)((double)direction.z / 360 * 6.283185307179586));
-				bundle.writeFloat((float)((double)direction.y / 360 * 6.283185307179586));
 				bundle.writeFloat((float)((double)direction.x / 360 * 6.283185307179586));
+				bundle.writeFloat((float)((double)direction.y / 360 * 6.283185307179586));
+				bundle.writeFloat((float)((double)direction.z / 360 * 6.283185307179586));
 				bundle.writeUint8((Byte)(playerEntity.isOnGound == true ? 1 : 0));
 				bundle.writeUint32(spaceID);
 				bundle.send(_networkInterface);
@@ -1991,9 +2006,9 @@
 			entity.position.y = stream.readFloat();
 			entity.position.z = stream.readFloat();
 			
-			entity.direction.z = KBEMath.int82angle((SByte)stream.readFloat(), false) * 360 / ((float)System.Math.PI * 2);
-			entity.direction.y = KBEMath.int82angle((SByte)stream.readFloat(), false) * 360 / ((float)System.Math.PI * 2);
 			entity.direction.x = KBEMath.int82angle((SByte)stream.readFloat(), false) * 360 / ((float)System.Math.PI * 2);
+			entity.direction.y = KBEMath.int82angle((SByte)stream.readFloat(), false) * 360 / ((float)System.Math.PI * 2);
+			entity.direction.z = KBEMath.int82angle((SByte)stream.readFloat(), false) * 360 / ((float)System.Math.PI * 2);
 			
 			Vector3 position = (Vector3)entity.getDefinedPropterty("position");
 			Vector3 direction = (Vector3)entity.getDefinedPropterty("direction");
