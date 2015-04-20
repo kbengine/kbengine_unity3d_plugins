@@ -22,7 +22,8 @@
 		        v is char || v is decimal || v is float ||
 		        v is double || v is Int16 || v is Int64 ||
 		        v is UInt16 || v is UInt64;
-		}		
+		}
+		
 		public static float KBE_FLT_MAX = float.MaxValue;
 		
 		public virtual void bind()
