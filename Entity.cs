@@ -145,13 +145,13 @@
 					}
 					else
 					{
-						throw new Exception("type error");
+						throw new Exception("arg" + i + ": " + method.args[i].ToString());
 					}
 				}
 			}
 			catch(Exception e)
 			{
-				Dbg.ERROR_MSG(className + "::baseCall(" + methodname + "): args is error(" + e.Message + ")!");  
+				Dbg.ERROR_MSG(className + "::baseCall(method=" + methodname + "): args is error(" + e.Message + ")!");  
 				baseMailbox.bundle = null;
 				return;
 			}
@@ -195,7 +195,7 @@
 					}
 					else
 					{
-						throw new Exception("type error");
+						throw new Exception("arg" + i + ": " + method.args[i].ToString());
 					}
 				}
 			}

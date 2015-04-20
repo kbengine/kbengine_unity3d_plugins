@@ -11,9 +11,18 @@
 		entitydef所支持的基本数据类型
 		改模块中的类抽象出了所有的支持类型并提供了这些类型的数据序列化成二进制数据与反序列化操作（主要用于网络通讯的打包与解包）
 	*/
-
 	public class KBEDATATYPE_BASE
 	{
+		public static bool isNumeric(object v)
+		{
+		    return v is sbyte || v is byte ||
+		        v is short || v is ushort ||
+		        v is int || v is uint ||
+		        v is long || v is ulong ||
+		        v is char || v is decimal || v is float ||
+		        v is double || v is Int16 || v is Int64 ||
+		        v is UInt16 || v is UInt64;
+		}		
 		public static float KBE_FLT_MAX = float.MaxValue;
 		
 		public virtual void bind()
@@ -61,7 +70,11 @@
 		
 		public override bool isSameType(object v)
 		{
-			return v != null && v.GetType() == typeof(SByte);
+			if (!KBEDATATYPE_BASE.isNumeric (v))
+				return false;
+
+			decimal v1 = Convert.ToDecimal (v);
+			return v1 >= sbyte.MinValue && v1 <= sbyte.MaxValue;
 		}
 	}
 	
@@ -86,7 +99,11 @@
 		
 		public override bool isSameType(object v)
 		{
-			return v != null && v.GetType() == typeof(Int16);
+			if (!KBEDATATYPE_BASE.isNumeric (v))
+				return false;
+
+			decimal v1 = Convert.ToDecimal (v);
+			return v1 >= Int16.MinValue && v1 <= Int16.MaxValue;
 		}
 	}
 	
@@ -111,7 +128,11 @@
 		
 		public override bool isSameType(object v)
 		{
-			return v != null && v.GetType() == typeof(Int32);
+			if (!KBEDATATYPE_BASE.isNumeric (v))
+				return false;
+
+			decimal v1 = Convert.ToDecimal (v);
+			return v1 >= Int32.MinValue && v1 <= Int32.MaxValue;
 		}
 	}
 	
@@ -136,7 +157,11 @@
 		
 		public override bool isSameType(object v)
 		{
-			return v != null && v.GetType() == typeof(Int64);
+			if (!KBEDATATYPE_BASE.isNumeric (v))
+				return false;
+
+			decimal v1 = Convert.ToDecimal (v);
+			return v1 >= Int64.MinValue && v1 <= Int64.MaxValue;
 		}
 	}
 	
@@ -161,7 +186,11 @@
 		
 		public override bool isSameType(object v)
 		{
-			return v != null && v.GetType() == typeof(Byte);
+			if (!KBEDATATYPE_BASE.isNumeric (v))
+				return false;
+
+			decimal v1 = Convert.ToDecimal (v);
+			return v1 >= Byte.MinValue && v1 <= Byte.MaxValue;
 		}
 	}
 	
@@ -186,7 +215,11 @@
 		
 		public override bool isSameType(object v)
 		{
-			return v != null && v.GetType() == typeof(UInt16);
+			if (!KBEDATATYPE_BASE.isNumeric (v))
+				return false;
+
+			decimal v1 = Convert.ToDecimal (v);
+			return v1 >= UInt16.MinValue && v1 <= UInt16.MaxValue;
 		}
 	}
 	
@@ -211,7 +244,11 @@
 		
 		public override bool isSameType(object v)
 		{
-			return v != null && v.GetType() == typeof(UInt32);
+			if (!KBEDATATYPE_BASE.isNumeric (v))
+				return false;
+
+			decimal v1 = Convert.ToDecimal (v);
+			return v1 >= UInt32.MinValue && v1 <= UInt32.MaxValue;
 		}
 	}
 	
@@ -236,7 +273,11 @@
 		
 		public override bool isSameType(object v)
 		{
-			return v != null && v.GetType() == typeof(UInt64);
+			if (!KBEDATATYPE_BASE.isNumeric (v))
+				return false;
+
+			decimal v1 = Convert.ToDecimal (v);
+			return v1 >= UInt64.MinValue && v1 <= UInt64.MaxValue;
 		}
 	}
 	
@@ -261,7 +302,12 @@
 		
 		public override bool isSameType(object v)
 		{
-			return v != null && v.GetType() == typeof(float);
+			if(v is float)
+				return (float)v >= float.MinValue && (float)v <= float.MaxValue;
+			else if(v is double)
+				return (double)v >= float.MinValue && (double)v <= float.MaxValue;
+			
+			return false;
 		}
 	}
 	
@@ -286,7 +332,12 @@
 		
 		public override bool isSameType(object v)
 		{
-			return v != null && v.GetType() == typeof(double);
+			if(v is float)
+				return (float)v >= double.MinValue && (float)v <= double.MaxValue;
+			else if(v is double)
+				return (double)v >= double.MinValue && (double)v <= double.MaxValue;
+			
+			return false;
 		}
 	}
 	
@@ -503,15 +554,15 @@
 	
 	public class KBEDATATYPE_ARRAY : KBEDATATYPE_BASE
 	{
-		public object type;
+		public object vtype;
 		
 		public override void bind()
 		{
-			if(type.GetType() == typeof(KBEDATATYPE_BASE).GetType())
-				((KBEDATATYPE_BASE)type).bind();
+			if(vtype.GetType ().BaseType.ToString() == "KBEngine.KBEDATATYPE_BASE")
+				((KBEDATATYPE_BASE)vtype).bind();
 			else
-				if(EntityDef.iddatatypes.ContainsKey((UInt16)type))
-					type = EntityDef.iddatatypes[(UInt16)type];
+				if(EntityDef.iddatatypes.ContainsKey((UInt16)vtype))
+					vtype = EntityDef.iddatatypes[(UInt16)vtype];
 		}
 		
 		public override object createFromStream(MemoryStream stream)
@@ -522,7 +573,7 @@
 			while(size > 0)
 			{
 				size--;
-				datas.Add(((KBEDATATYPE_BASE)type).createFromStream(stream));
+				datas.Add(((KBEDATATYPE_BASE)vtype).createFromStream(stream));
 			};
 			
 			return datas;
@@ -533,7 +584,7 @@
 			stream.writeUint32((UInt32)((List<object>)v).Count);
 			for(int i=0; i<((List<object>)v).Count; i++)
 			{
-				((KBEDATATYPE_BASE)type).addToStream(stream, ((List<object>)v)[i]);
+				((KBEDATATYPE_BASE)vtype).addToStream(stream, ((List<object>)v)[i]);
 			}
 		}
 		
@@ -544,12 +595,12 @@
 		
 		public override bool isSameType(object v)
 		{
-			if(type.GetType() != typeof(KBEDATATYPE_BASE))
+			if(vtype.GetType ().BaseType.ToString() != "KBEngine.KBEDATATYPE_BASE")
 			{
 				Dbg.ERROR_MSG(string.Format("KBEDATATYPE_ARRAY::isSameType: has not bind!"));
 				return false;
 			}
-			
+
 			if(v == null || v.GetType() != typeof(List<object>))
 			{
 				return false;
@@ -557,7 +608,7 @@
 			
 			for(int i=0; i<((List<object>)v).Count; i++)
 			{
-				if(!((KBEDATATYPE_BASE)type).isSameType(((List<object>)v)[i]))
+				if(!((KBEDATATYPE_BASE)vtype).isSameType(((List<object>)v)[i]))
 				{
 					return false;
 				}
@@ -581,7 +632,7 @@
 			{
 				object type = dicttype[itemkey];
 				
-				if(type.GetType() == typeof(KBEDATATYPE_BASE).GetType())
+				if(type.GetType ().BaseType.ToString() == "KBEngine.KBEDATATYPE_BASE")
 					((KBEDATATYPE_BASE)type).bind();
 				else
 					if(EntityDef.iddatatypes.ContainsKey((UInt16)type))
@@ -622,10 +673,8 @@
 		public override bool isSameType(object v)
 		{
 			if(v == null || v.GetType() != typeof(Dictionary<string, object>))
-			{
 				return false;
-			}
-			
+						
 			foreach(KeyValuePair<string, object> item in dicttype)
 			{
 				object value;

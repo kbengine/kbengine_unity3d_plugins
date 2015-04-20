@@ -739,7 +739,7 @@
 			{
 				UInt16 uitemtype = stream.readUint16();
 				KBEDATATYPE_ARRAY datatype = new KBEDATATYPE_ARRAY();
-				datatype.type = uitemtype;
+				datatype.vtype = uitemtype;
 				EntityDef.datatypes[name] = datatype;
 			}
 			else
