@@ -324,8 +324,7 @@ __RESTART_REMOVE:
 				}
 	            catch (Exception e)
 	            {
-	            	Dbg.ERROR_MSG(e.ToString());
-	            	Dbg.ERROR_MSG("Event::processOutEvents: event=" + eobj.info.funcname);
+	            	Dbg.ERROR_MSG("Event::processOutEvents: event=" + eobj.info.funcname + "\n" + e.ToString());
 	            }
             
 				doingEvents_out.RemoveFirst();
@@ -361,12 +360,10 @@ __RESTART_REMOVE:
 				try
 				{
 					eobj.info.method.Invoke (eobj.info.obj, eobj.args);
-
 				}
 	            catch (Exception e)
 	            {
-	            	Dbg.ERROR_MSG(e.ToString());
-	            	Dbg.ERROR_MSG("Event::processInEvents: event=" + eobj.info.funcname);
+	            	Dbg.ERROR_MSG("Event::processInEvents: event=" + eobj.info.funcname + "\n" + e.ToString());
 	            }
 	            
 				doingEvents_in.RemoveFirst();
