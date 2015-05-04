@@ -56,8 +56,11 @@
 			if(Interlocked.CompareExchange(ref _sending, 1, 0) == 0)
 			{
 				startSend = true;
-				_wpos = 0;
-				_spos = 0;
+				if(_wpos == _spos)
+				{
+					_wpos = 0;
+					_spos = 0;
+				}
 			}
 
 			int t_spos = Interlocked.Add(ref _spos, 0);
@@ -91,7 +94,6 @@
 			}
 
 			Interlocked.Add(ref _wpos, datas.Length);
-			Interlocked.Exchange(ref _sending, 1);
 
 			if(startSend)
 			{
