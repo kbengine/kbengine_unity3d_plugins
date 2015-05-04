@@ -51,7 +51,7 @@
 		{
 			if(datas.Length <= 0)
 				return true;
-			
+
 			bool startSend = false;
 			if(Interlocked.CompareExchange(ref _sending, 1, 0) == 0)
 			{
@@ -59,7 +59,7 @@
 				_wpos = 0;
 				_spos = 0;
 			}
-			
+
 			int t_spos = Interlocked.Add(ref _spos, 0);
 			int space = 0;
 			int tt_wpos = _wpos % _buffer.Length;
@@ -69,7 +69,7 @@
 				space = _buffer.Length - tt_wpos + tt_spos - 1;
 			else
 				space = tt_spos - tt_wpos - 1;
-			
+
 			if (datas.Length > space)
 			{
 				Dbg.ERROR_MSG("PacketSender::send(): no space, Please adjust 'SEND_BUFFER_MAX'! data(" + datas.Length 
@@ -77,7 +77,7 @@
 				
 				return false;
 			}
-			
+
 			int expect_total = tt_wpos + datas.Length;
 			if(expect_total <= _buffer.Length)
 			{
@@ -89,14 +89,15 @@
 				Array.Copy(datas, 0, _buffer, tt_wpos, remain);
 				Array.Copy(datas, remain, _buffer, 0, expect_total - _buffer.Length);
 			}
-			
+
 			Interlocked.Add(ref _wpos, datas.Length);
+			Interlocked.Exchange(ref _sending, 1);
 
 			if(startSend)
 			{
 				_startSend();
 			}
-			
+
 			return true;
 		}
 		
