@@ -1633,8 +1633,8 @@
 				entity.__init__();
 				entity.enterWorld();
 				
-				entity.set_direction(entity.direction);
-				entity.set_position(entity.position);
+				entity.set_direction(entity.getDefinedPropterty("direction"));
+				entity.set_position(entity.getDefinedPropterty("position"));
 			}
 			else
 			{
