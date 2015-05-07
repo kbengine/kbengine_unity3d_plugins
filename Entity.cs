@@ -182,7 +182,7 @@
 				return;
 			}
 			
-			if(inWorld == false || cellMailbox == null)
+			if(cellMailbox == null)
 			{
 				Dbg.ERROR_MSG(className + "::cellCall(" + methodname + "): no cell!");  
 				return;
