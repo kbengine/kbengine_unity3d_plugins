@@ -2002,6 +2002,9 @@
 			direction.y = entity.direction.y;
 			direction.z = entity.direction.z;
 			
+			entity.setDefinedPropterty("position", position);
+			entity.setDefinedPropterty("direction", direction);
+			
 			_entityLastLocalPos = entity.position;
 			_entityLastLocalDir = entity.direction;
 			
