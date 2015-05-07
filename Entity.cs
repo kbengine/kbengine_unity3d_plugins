@@ -182,6 +182,12 @@
 				return;
 			}
 
+			if(inWorld == false || cellMailbox === null)
+			{
+				Dbg.ERROR_MSG(className + "::cellCall(" + methodname + "): no cell!");  
+				return;
+			}
+			
 			cellMailbox.newMail();
 			cellMailbox.bundle.writeUint16(methodID);
 				
