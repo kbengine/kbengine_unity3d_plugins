@@ -181,8 +181,8 @@
 				Dbg.ERROR_MSG(className + "::cellCall(" + methodname + "): args(" + (arguments.Length) + "!= " + method.args.Count + ") size is error!");  
 				return;
 			}
-
-			if(inWorld == false || cellMailbox === null)
+			
+			if(inWorld == false || cellMailbox == null)
 			{
 				Dbg.ERROR_MSG(className + "::cellCall(" + methodname + "): no cell!");  
 				return;
@@ -299,7 +299,7 @@
 		{
 			Vector3 v = (Vector3)getDefinedPropterty("position");
 			position = v;
-			// Dbg.DEBUG_MSG(className + "::set_position: " + old + " => " + v); 
+			//Dbg.DEBUG_MSG(className + "::set_position: " + old + " => " + v); 
 			
 			if(isPlayer())
 				KBEngineApp.app.entityServerPos(position);
@@ -321,7 +321,7 @@
 			
 			direction = v;
 			
-			// Dbg.DEBUG_MSG(className + "::set_direction: " + old + " => " + v); 
+			//Dbg.DEBUG_MSG(className + "::set_direction: " + old + " => " + v); 
 			Event.fireOut("set_direction", new object[]{this});
 		}
     }

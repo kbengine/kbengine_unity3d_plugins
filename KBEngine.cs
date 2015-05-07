@@ -1633,8 +1633,8 @@
 				entity.__init__();
 				entity.enterWorld();
 				
-				Event.fireOut("set_direction", new object[]{entity});
-				Event.fireOut("set_position", new object[]{entity});
+				entity.set_direction(entity.direction);
+				entity.set_position(entity.position);
 			}
 			else
 			{
@@ -1991,6 +1991,8 @@
 			
 			Vector3 position = (Vector3)entity.getDefinedPropterty("position");
 			Vector3 direction = (Vector3)entity.getDefinedPropterty("direction");
+			Vector3 old_position = new Vector3(position.x, position.y, position.z);
+			Vector3 old_direction = new Vector3(direction.x, direction.y, direction.z);
 			
 			position.x = entity.position.x;
 			position.y = entity.position.y;
@@ -2002,8 +2004,9 @@
 			
 			_entityLastLocalPos = entity.position;
 			_entityLastLocalDir = entity.direction;
-			Event.fireOut("set_direction", new object[]{entity});
-			Event.fireOut("set_position", new object[]{entity});
+			
+			entity.set_direction(old_direction);
+			entity.set_position(old_position);
 		}
 		
 		public void Client_onUpdateData_ypr(MemoryStream stream)
