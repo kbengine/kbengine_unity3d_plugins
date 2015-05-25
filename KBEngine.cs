@@ -1653,7 +1653,7 @@
 					
 					_entityServerPos = entity.position;
 					entity.isOnGound = isOnGound > 0;
-					entity.onEnterWorld();
+					entity.enterWorld();
 				}
 			}
 		}
