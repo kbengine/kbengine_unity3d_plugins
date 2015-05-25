@@ -304,7 +304,8 @@
 			if(isPlayer())
 				KBEngineApp.app.entityServerPos(position);
 			
-			Event.fireOut("set_position", new object[]{this});
+			if(inWorld)
+				Event.fireOut("set_position", new object[]{this});
 		}
 
 		public virtual void onUpdateVolatileData()
@@ -322,7 +323,9 @@
 			direction = v;
 			
 			//Dbg.DEBUG_MSG(className + "::set_direction: " + old + " => " + v); 
-			Event.fireOut("set_direction", new object[]{this});
+			
+			if(inWorld)
+				Event.fireOut("set_direction", new object[]{this});
 		}
     }
     

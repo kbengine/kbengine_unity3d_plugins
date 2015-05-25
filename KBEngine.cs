@@ -83,7 +83,7 @@
 		
 		// 服务端与客户端的版本号以及协议MD5
 		public string serverVersion = "";
-		public string clientVersion = "0.6.0";
+		public string clientVersion = "0.6.1";
 		public string serverScriptVersion = "";
 		public string clientScriptVersion = "0.1.0";
 		public string serverProtocolMD5 = "";
@@ -807,6 +807,7 @@
 					propertysize--;
 					
 					UInt16 properUtype = stream.readUint16();
+					UInt32 properFlags = stream.readUint32();
 					Int16 ialiasID = stream.readInt16();
 					string name = stream.readString();
 					string defaultValStr = stream.readString();
@@ -1502,7 +1503,8 @@
 				entity.setDefinedProptertyByUType(utype, val);
 				if(setmethod != null)
 				{
-					setmethod.Invoke(entity, new object[]{oldval});
+					if(propertydata.isBase() || entity.inWorld)
+						setmethod.Invoke(entity, new object[]{oldval});
 				}
 			}
 		}
@@ -1629,11 +1631,11 @@
 				_bufferedCreateEntityMessage.Remove(eid);
 				
 				entity.isOnGound = isOnGound > 0;
-				entity.__init__();
-				entity.enterWorld();
-				
 				entity.set_direction(entity.getDefinedPropterty("direction"));
 				entity.set_position(entity.getDefinedPropterty("position"));
+								
+				entity.__init__();
+				entity.enterWorld();
 			}
 			else
 			{
@@ -1651,6 +1653,9 @@
 					entity.cellMailbox.className = entityType;
 					entity.cellMailbox.type = Mailbox.MAILBOX_TYPE.MAILBOX_TYPE_CELL;
 					
+					entity.set_direction(entity.getDefinedPropterty("direction"));
+					entity.set_position(entity.getDefinedPropterty("position"));					
+
 					_entityServerPos = entity.position;
 					entity.isOnGound = isOnGound > 0;
 					entity.enterWorld();
