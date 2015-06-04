@@ -598,7 +598,8 @@
 		{
 			if(vtype.GetType ().BaseType.ToString() != "KBEngine.KBEDATATYPE_BASE")
 			{
-				Dbg.ERROR_MSG(string.Format("KBEDATATYPE_ARRAY::isSameType: has not bind!"));
+				Dbg.ERROR_MSG(string.Format("KBEDATATYPE_ARRAY::isSameType: has not bind! baseType={0}", 
+					vtype.GetType ().BaseType.ToString()));
 				return false;
 			}
 
