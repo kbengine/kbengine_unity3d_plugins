@@ -1708,6 +1708,7 @@
 		public void Client_onEntityEnterSpace(MemoryStream stream)
 		{
 			Int32 eid = stream.readInt32();
+			spaceID = stream.readUint32();
 			
 			sbyte isOnGound = 1;
 			
