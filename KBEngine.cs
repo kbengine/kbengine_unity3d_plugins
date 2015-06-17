@@ -833,6 +833,7 @@
 					savedata.name = name;
 					savedata.utype = utype;
 					savedata.properUtype = properUtype;
+					savedata.properFlags = properFlags;
 					savedata.aliasID = ialiasID;
 					savedata.defaultValStr = defaultValStr;
 					savedata.setmethod = setmethod;
