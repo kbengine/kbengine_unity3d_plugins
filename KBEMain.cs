@@ -13,6 +13,7 @@ public class KBEMain : MonoBehaviour
 	public KBEngineApp gameapp = null;
 	
 	// 在unity3d界面中可见选项
+	public DEBUGLEVEL debugLevel = DEBUGLEVEL.DEBUG;
 	public bool isMultiThreads = true;
 	public string ip = "127.0.0.1";
 	public int port = 20013;
@@ -43,7 +44,9 @@ public class KBEMain : MonoBehaviour
 	public virtual void initKBEngine()
 	{
 		// 如果此处发生错误，请查看 Assets\Scripts\kbe_scripts\if_Entity_error_use______git_submodule_update_____kbengine_plugins_______open_this_file_and_I_will_tell_you.cs
-		
+
+		Dbg.debugLevel = debugLevel;
+
 		KBEngineArgs args = new KBEngineArgs();
 		
 		args.ip = ip;
@@ -72,7 +75,10 @@ public class KBEMain : MonoBehaviour
 	void OnDestroy()
 	{
 		MonoBehaviour.print("clientapp::OnDestroy(): begin");
-		KBEngineApp.app.destroy();
+        if (KBEngineApp.app != null)
+        {
+            KBEngineApp.app.destroy();
+        }
 		MonoBehaviour.print("clientapp::OnDestroy(): end");
 	}
 	

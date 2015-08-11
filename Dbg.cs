@@ -6,8 +6,20 @@ using System.Collections.Generic;
 
 namespace KBEngine
 {
+	public enum DEBUGLEVEL : int
+	{
+		DEBUG = 0,
+		INFO,
+		WARNING,
+		ERROR,
+
+		NOLOG,  // 放在最后面，使用这个时表示不输出任何日志（!!!慎用!!!）
+	}
+
 	public class Dbg 
 	{
+		static public DEBUGLEVEL debugLevel = DEBUGLEVEL.DEBUG;
+
 #if UNITY_EDITOR
 		static Dictionary<string, Profile> _profiles = new Dictionary<string, Profile>();
 #endif
@@ -19,22 +31,26 @@ namespace KBEngine
 
 		public static void INFO_MSG(object s)
 		{
-			Debug.Log(getHead() + s);
+			if (DEBUGLEVEL.INFO >= debugLevel)
+				Debug.Log(getHead() + s);
 		}
 
 		public static void DEBUG_MSG(object s)
 		{
-			Debug.Log(getHead() + s);
+			if (DEBUGLEVEL.DEBUG >= debugLevel)
+				Debug.Log(getHead() + s);
 		}
 
 		public static void WARNING_MSG(object s)
 		{
-			Debug.LogWarning(getHead() + s);
+			if (DEBUGLEVEL.WARNING >= debugLevel)
+				Debug.LogWarning(getHead() + s);
 		}
 
 		public static void ERROR_MSG(object s)
 		{
-			Debug.LogError(getHead() + s);
+			if (DEBUGLEVEL.ERROR >= debugLevel)
+				Debug.LogError(getHead() + s);
 		}
 
 		public static void profileStart(string name)
