@@ -1991,9 +1991,9 @@
 			entity.position.y = stream.readFloat();
 			entity.position.z = stream.readFloat();
 			
-			entity.direction.x = KBEMath.int82angle((SByte)stream.readFloat(), false) * 360 / ((float)System.Math.PI * 2);
-			entity.direction.y = KBEMath.int82angle((SByte)stream.readFloat(), false) * 360 / ((float)System.Math.PI * 2);
-			entity.direction.z = KBEMath.int82angle((SByte)stream.readFloat(), false) * 360 / ((float)System.Math.PI * 2);
+			entity.direction.x = stream.readFloat();
+			entity.direction.y = stream.readFloat();
+			entity.direction.z = stream.readFloat();
 			
 			Vector3 position = (Vector3)entity.getDefinedPropterty("position");
 			Vector3 direction = (Vector3)entity.getDefinedPropterty("direction");
