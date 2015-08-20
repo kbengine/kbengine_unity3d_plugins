@@ -82,7 +82,7 @@
 
 		public static void monitor_Enter(object obj)
 		{
-			if(KBEngineApp.app == null || KBEngineApp.app.getInitArgs().isMultiThreads == false)
+			if(KBEngineApp.app == null)
 				return;
 			
 			Monitor.Enter(obj);
@@ -90,7 +90,7 @@
 
 		public static void monitor_Exit(object obj)
 		{
-			if(KBEngineApp.app == null || KBEngineApp.app.getInitArgs().isMultiThreads == false)
+			if(KBEngineApp.app == null)
 				return;
 			
 			Monitor.Exit(obj);
