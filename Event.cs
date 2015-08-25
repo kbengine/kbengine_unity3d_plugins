@@ -327,7 +327,8 @@ __RESTART_REMOVE:
 	            	Dbg.ERROR_MSG("Event::processOutEvents: event=" + eobj.info.funcname + "\n" + e.ToString());
 	            }
             
-				doingEvents_out.RemoveFirst();
+				if(doingEvents_out.Count > 0)
+					doingEvents_out.RemoveFirst();
 			}
 		}
 		
@@ -366,7 +367,8 @@ __RESTART_REMOVE:
 	            	Dbg.ERROR_MSG("Event::processInEvents: event=" + eobj.info.funcname + "\n" + e.ToString());
 	            }
 	            
-				doingEvents_in.RemoveFirst();
+				if(doingEvents_in.Count > 0)
+					doingEvents_in.RemoveFirst();
 			}
 		}
 	
