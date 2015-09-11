@@ -562,8 +562,8 @@
 			if(vtype.GetType ().BaseType.ToString() == "KBEngine.KBEDATATYPE_BASE")
 				((KBEDATATYPE_BASE)vtype).bind();
 			else
-				if(EntityDef.iddatatypes.ContainsKey((UInt16)vtype))
-					vtype = EntityDef.iddatatypes[(UInt16)vtype];
+				if(EntityDef.id2datatypes.ContainsKey((UInt16)vtype))
+					vtype = EntityDef.id2datatypes[(UInt16)vtype];
 		}
 		
 		public override object createFromStream(MemoryStream stream)
@@ -637,8 +637,8 @@
 				if(type.GetType ().BaseType.ToString() == "KBEngine.KBEDATATYPE_BASE")
 					((KBEDATATYPE_BASE)type).bind();
 				else
-					if(EntityDef.iddatatypes.ContainsKey((UInt16)type))
-						dicttype[itemkey] = EntityDef.iddatatypes[(UInt16)type];
+					if(EntityDef.id2datatypes.ContainsKey((UInt16)type))
+						dicttype[itemkey] = EntityDef.id2datatypes[(UInt16)type];
 			}
 		}
 		

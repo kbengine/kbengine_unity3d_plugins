@@ -80,7 +80,7 @@
 			argtypes = new KBEDATATYPE_BASE[msgargtypes.Count];
 			for(int i=0; i<msgargtypes.Count; i++)
 			{
-				if(!EntityDef.iddatatypes.TryGetValue(msgargtypes[i], out argtypes[i]))
+				if(!EntityDef.id2datatypes.TryGetValue(msgargtypes[i], out argtypes[i]))
 				{
 					Dbg.ERROR_MSG("Message::Message(): argtype(" + msgargtypes[i] + ") is not found!");
 				}

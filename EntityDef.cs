@@ -11,10 +11,10 @@
 	*/
     public class EntityDef
     {
+		// 所有的数据类型
 		public static Dictionary<string, Int32> datatype2id = new Dictionary<string, Int32>();
-		
 		public static Dictionary<string, KBEDATATYPE_BASE> datatypes = new Dictionary<string, KBEDATATYPE_BASE>();
-		public static Dictionary<UInt16, KBEDATATYPE_BASE> iddatatypes = new Dictionary<UInt16, KBEDATATYPE_BASE>();
+		public static Dictionary<UInt16, KBEDATATYPE_BASE> id2datatypes = new Dictionary<UInt16, KBEDATATYPE_BASE>();
 		
 		public static Dictionary<string, Int32> entityclass = new Dictionary<string, Int32>();
 		
@@ -25,7 +25,7 @@
 		{
 			datatype2id.Clear();
 			datatypes.Clear();
-			iddatatypes.Clear();
+			id2datatypes.Clear();
 			entityclass.Clear();
 			moduledefs.Clear();
 			idmoduledefs.Clear();
@@ -73,7 +73,7 @@
 			datatype2id["STRING"] = 1;
 			datatype2id["STD::STRING"] = 1;
 
-			iddatatypes[1] = datatypes["STRING"];
+			id2datatypes[1] = datatypes["STRING"];
 			
 			datatype2id["UINT8"] = 2;
 			datatype2id["BOOL"] = 2;
@@ -82,7 +82,7 @@
 			datatype2id["DETAIL_TYPE"] = 2;
 			datatype2id["MAIL_TYPE"] = 2;
 
-			iddatatypes[2] = datatypes["UINT8"];
+			id2datatypes[2] = datatypes["UINT8"];
 			
 			datatype2id["UINT16"] = 3;
 			datatype2id["UNSIGNED SHORT"] = 3;
@@ -93,7 +93,7 @@
 			datatype2id["ENTITY_SCRIPT_UID"] = 3;
 			datatype2id["DATATYPE_UID"] = 3;
 
-			iddatatypes[3] = datatypes["UINT16"];
+			id2datatypes[3] = datatypes["UINT16"];
 			
 			datatype2id["UINT32"] = 4;
 			datatype2id["UINT"] = 4;
@@ -103,23 +103,23 @@
 			datatype2id["GAME_TIME"] = 4;
 			datatype2id["TIMER_ID"] = 4;
 
-			iddatatypes[4] = datatypes["UINT32"];
+			id2datatypes[4] = datatypes["UINT32"];
 			
 			datatype2id["UINT64"] = 5;
 			datatype2id["DBID"] = 5;
 			datatype2id["COMPONENT_ID"] = 5;
 
-			iddatatypes[5] = datatypes["UINT64"];
+			id2datatypes[5] = datatypes["UINT64"];
 			
 			datatype2id["INT8"] = 6;
 			datatype2id["COMPONENT_ORDER"] = 6;
 
-			iddatatypes[6] = datatypes["INT8"];
+			id2datatypes[6] = datatypes["INT8"];
 			
 			datatype2id["INT16"] = 7;
 			datatype2id["SHORT"] = 7;
 
-			iddatatypes[7] = datatypes["INT16"];
+			id2datatypes[7] = datatypes["INT16"];
 			
 			datatype2id["INT32"] = 8;
 			datatype2id["INT"] = 8;
@@ -127,11 +127,11 @@
 			datatype2id["CALLBACK_ID"] = 8;
 			datatype2id["COMPONENT_TYPE"] = 8;
 
-			iddatatypes[8] = datatypes["INT32"];
+			id2datatypes[8] = datatypes["INT32"];
 			
 			datatype2id["INT64"] = 9;
 
-			iddatatypes[9] = datatypes["INT64"];
+			id2datatypes[9] = datatypes["INT64"];
 			
 			datatype2id["PYTHON"] = 10;
 			datatype2id["PY_DICT"] = 10;
@@ -139,43 +139,43 @@
 			datatype2id["PY_LIST"] = 10;
 			datatype2id["MAILBOX"] = 10;
 
-			iddatatypes[10] = datatypes["PYTHON"];
+			id2datatypes[10] = datatypes["PYTHON"];
 			
 			datatype2id["BLOB"] = 11;
 
-			iddatatypes[11] = datatypes["BLOB"];
+			id2datatypes[11] = datatypes["BLOB"];
 			
 			datatype2id["UNICODE"] = 12;
 
-			iddatatypes[12] = datatypes["UNICODE"];
+			id2datatypes[12] = datatypes["UNICODE"];
 			
 			datatype2id["FLOAT"] = 13;
 
-			iddatatypes[13] = datatypes["FLOAT"];
+			id2datatypes[13] = datatypes["FLOAT"];
 			
 			datatype2id["DOUBLE"] = 14;
 
-			iddatatypes[14] = datatypes["DOUBLE"];
+			id2datatypes[14] = datatypes["DOUBLE"];
 			
 			datatype2id["VECTOR2"] = 15;
 
-			iddatatypes[15] = datatypes["VECTOR2"];
+			id2datatypes[15] = datatypes["VECTOR2"];
 			
 			datatype2id["VECTOR3"] = 16;
 
-			iddatatypes[16] = datatypes["VECTOR3"];
+			id2datatypes[16] = datatypes["VECTOR3"];
 			
 			datatype2id["VECTOR4"] = 17;
 
-			iddatatypes[17] = datatypes["VECTOR4"];
+			id2datatypes[17] = datatypes["VECTOR4"];
 			
 			datatype2id["FIXED_DICT"] = 18;
 			// 这里不需要绑定，FIXED_DICT需要根据不同类型实例化动态得到id
-			//iddatatypes[18] = datatypes["FIXED_DICT"];
+			//id2datatypes[18] = datatypes["FIXED_DICT"];
 			
 			datatype2id["ARRAY"] = 19;
 			// 这里不需要绑定，ARRAY需要根据不同类型实例化动态得到id
-			//iddatatypes[19] = datatypes["ARRAY"];
+			//id2datatypes[19] = datatypes["ARRAY"];
 		}
     }
     

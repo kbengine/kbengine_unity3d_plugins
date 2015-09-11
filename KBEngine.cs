@@ -709,16 +709,36 @@
 		/*
 			从二进制流创建entitydef支持的数据类型
 		*/
+		public void createDataTypeFromStreams(MemoryStream stream, bool canprint)
+		{
+			UInt16 aliassize = stream.readUint16();
+			Dbg.DEBUG_MSG("KBEngine::createDataTypeFromStreams: importAlias(size=" + aliassize + ")!");
+			
+			while(aliassize > 0)
+			{
+				aliassize--;
+				createDataTypeFromStream(stream, canprint);
+			};
+		
+			foreach(string datatype in EntityDef.datatypes.Keys)
+			{
+				if(EntityDef.datatypes[datatype] != null)
+				{
+					EntityDef.datatypes[datatype].bind();
+				}
+			}			
+		}
+			
 		public void createDataTypeFromStream(MemoryStream stream, bool canprint)
 		{
 			UInt16 utype = stream.readUint16();
 			string name = stream.readString();
 			string valname = stream.readString();
 			
-			//if(canprint)
-			//	Dbg.DEBUG_MSG("KBEngine::Client_onImportClientEntityDef: importAlias(" + name + ":" + valname + ")!");
+			if(canprint)
+				Dbg.DEBUG_MSG("KBEngine::Client_onImportClientEntityDef: importAlias(" + name + ":" + valname + ":" + utype + ")!");
 			
-			if(valname == "FIXED_DICT")
+			if(name == "FIXED_DICT")
 			{
 				KBEDATATYPE_FIXED_DICT datatype = new KBEDATATYPE_FIXED_DICT();
 				Byte keysize = stream.readUint8();
@@ -733,24 +753,26 @@
 					datatype.dicttype[keyname] = keyutype;
 				};
 				
-				EntityDef.datatypes[name] = datatype;
+				EntityDef.datatypes[valname] = datatype;
 			}
-			else if(valname == "ARRAY")
+			else if(name == "ARRAY")
 			{
 				UInt16 uitemtype = stream.readUint16();
 				KBEDATATYPE_ARRAY datatype = new KBEDATATYPE_ARRAY();
 				datatype.vtype = uitemtype;
-				EntityDef.datatypes[name] = datatype;
+				EntityDef.datatypes[valname] = datatype;
 			}
 			else
 			{
 				KBEDATATYPE_BASE val = null;
-				EntityDef.datatypes.TryGetValue(valname, out val);
-				EntityDef.datatypes[name] = val;
+				EntityDef.datatypes.TryGetValue(name, out val);
+				EntityDef.datatypes[valname] = val;
 			}
 	
-			EntityDef.iddatatypes[utype] = EntityDef.datatypes[name];
-			EntityDef.datatype2id[name] = EntityDef.datatype2id[valname];
+			EntityDef.id2datatypes[utype] = EntityDef.datatypes[valname];
+			
+			// 将用户自定义的类型补充到映射表中
+			EntityDef.datatype2id[valname] = utype;
 		}
 
 		public void Client_onImportClientEntityDef(MemoryStream stream)
@@ -766,22 +788,8 @@
 
 		public void onImportClientEntityDef(MemoryStream stream)
 		{
-			UInt16 aliassize = stream.readUint16();
-			Dbg.DEBUG_MSG("KBEngine::Client_onImportClientEntityDef: importAlias(size=" + aliassize + ")!");
-			
-			while(aliassize > 0)
-			{
-				aliassize--;
-				createDataTypeFromStream(stream, true);
-			};
-		
-			foreach(string datatype in EntityDef.datatypes.Keys)
-			{
-				if(EntityDef.datatypes[datatype] != null)
-				{
-					EntityDef.datatypes[datatype].bind();
-				}
-			}
+			createDataTypeFromStreams(stream, true);
+
 			
 			while(stream.length() > 0)
 			{
@@ -811,7 +819,7 @@
 					Int16 ialiasID = stream.readInt16();
 					string name = stream.readString();
 					string defaultValStr = stream.readString();
-					KBEDATATYPE_BASE utype = EntityDef.iddatatypes[stream.readUint16()];
+					KBEDATATYPE_BASE utype = EntityDef.id2datatypes[stream.readUint16()];
 					
 					System.Reflection.MethodInfo setmethod = null;
 					
@@ -868,7 +876,7 @@
 					while(argssize > 0)
 					{
 						argssize--;
-						args.Add(EntityDef.iddatatypes[stream.readUint16()]);
+						args.Add(EntityDef.id2datatypes[stream.readUint16()]);
 					};
 					
 					Method savedata = new Method();
@@ -918,7 +926,7 @@
 					while(argssize > 0)
 					{
 						argssize--;
-						args.Add(EntityDef.iddatatypes[stream.readUint16()]);
+						args.Add(EntityDef.id2datatypes[stream.readUint16()]);
 					};
 					
 					Method savedata = new Method();
@@ -946,7 +954,7 @@
 					while(argssize > 0)
 					{
 						argssize--;
-						args.Add(EntityDef.iddatatypes[stream.readUint16()]);
+						args.Add(EntityDef.id2datatypes[stream.readUint16()]);
 					};
 					
 					Method savedata = new Method();
