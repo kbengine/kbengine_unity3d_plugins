@@ -735,6 +735,15 @@
 			string name = stream.readString();
 			string valname = stream.readString();
 			
+			/* 有一些匿名类型，我们需要提供一个唯一名称放到datatypes中
+				如：
+				<onRemoveAvatar>
+					<Arg>	ARRAY <of> INT8 </of>		</Arg>
+				</onRemoveAvatar>				
+			*/
+			if(valname.Length == 0)
+				valname = "Null_" + utype;
+			
 			if(canprint)
 				Dbg.DEBUG_MSG("KBEngine::Client_onImportClientEntityDef: importAlias(" + name + ":" + valname + ":" + utype + ")!");
 			
