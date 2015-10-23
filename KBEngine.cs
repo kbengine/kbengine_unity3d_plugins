@@ -178,6 +178,7 @@
 			Event.registerIn("login", this, "login");
 			Event.registerIn("relogin_baseapp", this, "relogin_baseapp");
 			Event.registerIn("_closeNetwork", this, "_closeNetwork");
+			Event.registerIn("reset_password", this, "reset_password");
 		}
 	
 		public KBEngineArgs getInitArgs()
