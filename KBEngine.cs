@@ -37,20 +37,23 @@
 			// Mobile(Phone, Pad)
 			CLIENT_TYPE_MOBILE				= 1,
 
-			// Windows/Linux/Mac Application program
-			// Contains the Python-scripts, entitydefs parsing and check entitydefs-MD5, Native
-			CLIENT_TYPE_PC					= 2,
+			// Windows Application program
+			CLIENT_TYPE_WIN					= 2,
 
+			// Linux Application program
+			CLIENT_TYPE_LINUX				= 3,
+				
+			// Mac Application program
+			CLIENT_TYPE_MAC					= 4,
+				
 			// Web，HTML5，Flash
-			// not contain Python-scripts and entitydefs analysis, can be imported protocol from network
-			CLIENT_TYPE_BROWSER				= 3,
+			CLIENT_TYPE_BROWSER				= 5,
 
-			// bots(Contains the Python-scripts, entitydefs parsing and check entitydefs-MD5, Native)
-			CLIENT_TYPE_BOTS				= 4,
+			// bots
+			CLIENT_TYPE_BOTS				= 6,
 
 			// Mini-Client
-			// Allowing does not contain Python-scripts and entitydefs analysis, can be imported protocol from network
-			CLIENT_TYPE_MINI				= 5,
+			CLIENT_TYPE_MINI				= 7,
 		};
 		
         public string username = "kbengine";
@@ -176,9 +179,9 @@
 		{
 			Event.registerIn("createAccount", this, "createAccount");
 			Event.registerIn("login", this, "login");
-			Event.registerIn("relogin_baseapp", this, "relogin_baseapp");
+			Event.registerIn("reLoginBaseapp", this, "reLoginBaseapp");
 			Event.registerIn("_closeNetwork", this, "_closeNetwork");
-			Event.registerIn("reset_password", this, "reset_password");
+			Event.registerIn("resetPassword", this, "resetPassword");
 		}
 	
 		public KBEngineArgs getInitArgs()
@@ -486,7 +489,7 @@
 				Dbg.DEBUG_MSG("KBEngine::login_loginapp(): send login! username=" + username);
 				Bundle bundle = new Bundle();
 				bundle.newMessage(Message.messages["Loginapp_login"]);
-				bundle.writeInt8((sbyte)_args.clientType); // clientType
+				bundle.writeInt8((sbyte)_args.clientType);
 				bundle.writeBlob(KBEngineApp.app._clientdatas);
 				bundle.writeString(username);
 				bundle.writeString(password);
@@ -533,7 +536,7 @@
 		{  
 			if(noconnect)
 			{
-				Event.fireAll("login_baseapp", new object[]{});
+				Event.fireAll("onLoginBaseapp", new object[]{});
 				
 				_networkInterface.reset();
 				_networkInterface = new NetworkInterface();
@@ -542,7 +545,7 @@
 			else
 			{
 				Bundle bundle = new Bundle();
-				bundle.newMessage(Message.messages["Baseapp_loginGateway"]);
+				bundle.newMessage(Message.messages["Baseapp_loginBaseapp"]);
 				bundle.writeString(username);
 				bundle.writeString(password);
 				bundle.send(_networkInterface);
@@ -585,9 +588,9 @@
 			重登录到网关(baseapp)
 			一些移动类应用容易掉线，可以使用该功能快速的重新与服务端建立通信
 		*/
-		public void relogin_baseapp()
+		public void reLoginBaseapp()
 		{  
-			Event.fireAll("onRelogin_baseapp", new object[]{});
+			Event.fireAll("onReLoginBaseapp", new object[]{});
 			_networkInterface.connectTo(baseappIP, baseappPort, onReConnectTo_baseapp_callback, null);
 		}
 
@@ -595,7 +598,7 @@
 		{
 			if(!success)
 			{
-				Dbg.ERROR_MSG(string.Format("KBEngine::relogin_baseapp(): connect {0}:{1} is error!", ip, port));
+				Dbg.ERROR_MSG(string.Format("KBEngine::reLoginBaseapp(): connect {0}:{1} is error!", ip, port));
 				return;
 			}
 			
@@ -603,7 +606,7 @@
 			Dbg.DEBUG_MSG(string.Format("KBEngine::relogin_baseapp(): connect {0}:{1} is successfully!", ip, port));
 
 			Bundle bundle = new Bundle();
-			bundle.newMessage(Message.messages["Baseapp_reLoginGateway"]);
+			bundle.newMessage(Message.messages["Baseapp_reLoginBaseapp"]);
 			bundle.writeString(username);
 			bundle.writeString(password);
 			bundle.writeUint64(entity_uuid);
@@ -1138,7 +1141,7 @@
 		/*
 			重置密码, 通过loginapp
 		*/
-		public void reset_password(string username)
+		public void resetPassword(string username)
 		{
 			KBEngineApp.app.username = username;
 			resetpassword_loginapp(true);
@@ -1335,29 +1338,29 @@
 		/*
 			登录baseapp失败了
 		*/
-		public void Client_onLoginGatewayFailed(UInt16 failedcode)
+		public void Client_onLoginBaseappFailed(UInt16 failedcode)
 		{
-			Dbg.ERROR_MSG("KBEngine::Client_onLoginGatewayFailed: failedcode(" + failedcode + ")!");
-			Event.fireAll("onLoginGatewayFailed", new object[]{failedcode});
+			Dbg.ERROR_MSG("KBEngine::Client_onLoginBaseappFailed: failedcode(" + failedcode + ")!");
+			Event.fireAll("onLoginBaseappFailed", new object[]{failedcode});
 		}
 
 		/*
 			重登录baseapp失败了
 		*/
-		public void Client_onReLoginGatewayFailed(UInt16 failedcode)
+		public void Client_onReLoginBaseappFailed(UInt16 failedcode)
 		{
-			Dbg.ERROR_MSG("KBEngine::Client_onReLoginGatewayFailed: failedcode(" + failedcode + ")!");
-			Event.fireAll("onReLoginGatewayFailed", new object[]{failedcode});
+			Dbg.ERROR_MSG("KBEngine::Client_onReLoginBaseappFailed: failedcode(" + failedcode + ")!");
+			Event.fireAll("onReLoginBaseappFailed", new object[]{failedcode});
 		}
 		
 		/*
 			登录baseapp成功了
 		*/
-		public void Client_onReLoginGatewaySuccessfully(MemoryStream stream)
+		public void Client_onReLoginBaseappSuccessfully(MemoryStream stream)
 		{
 			entity_uuid = stream.readUint64();
-			Dbg.DEBUG_MSG("KBEngine::Client_onReLoginGatewaySuccessfully: name(" + username + ")!");
-			Event.fireAll("onReLoginGatewaySuccessfully", new object[]{});
+			Dbg.DEBUG_MSG("KBEngine::Client_onReLoginBaseappSuccessfully: name(" + username + ")!");
+			Event.fireAll("onReLoginBaseappSuccessfully", new object[]{});
 		}
 
 		/*
@@ -2342,7 +2345,7 @@
 				
 				entity.position = pos;
 				done = true;
-				Event.fireOut("update_position", new object[]{entity});
+				Event.fireOut("updatePosition", new object[]{entity});
 			}
 			
 			if(done)
