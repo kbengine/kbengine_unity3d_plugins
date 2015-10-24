@@ -521,7 +521,7 @@
 				bundle.newMessage(Message.messages["Loginapp_importClientMessages"]);
 				bundle.send(_networkInterface);
 				Dbg.DEBUG_MSG("KBEngine::onLogin_loginapp: send importClientMessages ...");
-				Event.fireAll("Loginapp_importClientMessages", new object[]{});
+				Event.fireOut("Loginapp_importClientMessages", new object[]{});
 			}
 			else
 			{
@@ -536,7 +536,7 @@
 		{  
 			if(noconnect)
 			{
-				Event.fireAll("onLoginBaseapp", new object[]{});
+				Event.fireOut("onLoginBaseapp", new object[]{});
 				
 				_networkInterface.reset();
 				_networkInterface = new NetworkInterface();
@@ -576,7 +576,7 @@
 				bundle.newMessage(Message.messages["Baseapp_importClientMessages"]);
 				bundle.send(_networkInterface);
 				Dbg.DEBUG_MSG("KBEngine::onLogin_baseapp: send importClientMessages ...");
-				Event.fireAll("Baseapp_importClientMessages", new object[]{});
+				Event.fireOut("Baseapp_importClientMessages", new object[]{});
 			}
 			else
 			{
@@ -701,7 +701,7 @@
 					Bundle bundle = new Bundle();
 					bundle.newMessage(Message.messages["Baseapp_importClientEntityDef"]);
 					bundle.send(_networkInterface);
-					Event.fireAll("Baseapp_importClientEntityDef", new object[]{});
+					Event.fireOut("Baseapp_importClientEntityDef", new object[]{});
 				}
 				else
 				{
