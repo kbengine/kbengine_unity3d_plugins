@@ -180,10 +180,12 @@
 			Event.registerIn("createAccount", this, "createAccount");
 			Event.registerIn("login", this, "login");
 			Event.registerIn("reLoginBaseapp", this, "reLoginBaseapp");
-			Event.registerIn("_closeNetwork", this, "_closeNetwork");
 			Event.registerIn("resetPassword", this, "resetPassword");
 			Event.registerIn("bindAccountEmail", this, "bindAccountEmail");
 			Event.registerIn("newPassword", this, "newPassword");
+			
+			// 内部事件
+			Event.registerIn("_closeNetwork", this, "_closeNetwork");
 		}
 
 		public KBEngineArgs getInitArgs()
