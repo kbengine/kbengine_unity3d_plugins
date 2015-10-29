@@ -296,4 +296,13 @@ KBE-Plugin fire-in events(Unity => KBE):
 				Request server binding account Email.
 
 			Event-datas: 
-				string: accountName
+				string: emailAddress
+
+	newPassword
+			Description: 
+				Request to set up a new password for the account.
+				Note: account must be online
+
+			Event-datas: 
+				string: old_password
+				string: new_password

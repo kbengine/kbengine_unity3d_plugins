@@ -183,6 +183,7 @@
 			Event.registerIn("_closeNetwork", this, "_closeNetwork");
 			Event.registerIn("resetPassword", this, "resetPassword");
 			Event.registerIn("bindAccountEmail", this, "bindAccountEmail");
+			Event.registerIn("newPassword", this, "newPassword");
 		}
 
 		public KBEngineArgs getInitArgs()
@@ -1217,13 +1218,13 @@
 		/*
 			设置新密码，通过baseapp， 必须玩家登录在线操作所以是baseapp。
 		*/
-		public void new_password(string oldpassword, string newpassword)
+		public void newPassword(string old_password, string new_password)
 		{
 			Bundle bundle = new Bundle();
 			bundle.newMessage(Message.messages["Baseapp_reqAccountNewPassword"]);
 			bundle.writeInt32(entity_id);
-			bundle.writeString(oldpassword);
-			bundle.writeString(newpassword);
+			bundle.writeString(old_password);
+			bundle.writeString(new_password);
 			bundle.send(_networkInterface);
 		}
 
