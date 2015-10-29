@@ -302,6 +302,7 @@ KBE-Plugin fire-in events(Unity => KBE):
 	bindAccountEmail
 			Description: 
 				Request server binding account Email.
+				Note: account must be online
 
 			Event-datas: 
 				string: emailAddress
