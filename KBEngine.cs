@@ -182,8 +182,9 @@
 			Event.registerIn("reLoginBaseapp", this, "reLoginBaseapp");
 			Event.registerIn("_closeNetwork", this, "_closeNetwork");
 			Event.registerIn("resetPassword", this, "resetPassword");
+			Event.registerIn("bindAccountEmail", this, "bindAccountEmail");
 		}
-	
+
 		public KBEngineArgs getInitArgs()
 		{
 			return _args;
@@ -1192,13 +1193,13 @@
 		/*
 			绑定Email，通过baseapp
 		*/
-		public void bind_email(string emailaddress)
+		public void bindAccountEmail(string emailAddress)
 		{  
 			Bundle bundle = new Bundle();
 			bundle.newMessage(Message.messages["Baseapp_reqAccountBindEmail"]);
 			bundle.writeInt32(entity_id);
 			bundle.writeString(password);
-			bundle.writeString(emailaddress);
+			bundle.writeString(emailAddress);
 			bundle.send(_networkInterface);
 		}
 

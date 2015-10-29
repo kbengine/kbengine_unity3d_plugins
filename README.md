@@ -289,3 +289,11 @@ KBE-Plugin fire-in events(Unity => KBE):
 
 			Event-datas: 
 				string: accountName
+
+
+	bindAccountEmail
+			Description: 
+				Request server binding account Email.
+
+			Event-datas: 
+				string: accountName
