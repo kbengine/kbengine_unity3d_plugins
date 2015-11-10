@@ -1963,7 +1963,12 @@
 			}
 			
 			if(entity.inWorld)
+			{
+				if(entity_id == eid)
+					clearSpace(false);
+				
 				entity.leaveWorld();
+			}
 			
 			entities.Remove(eid);
 			entity.onDestroy();
