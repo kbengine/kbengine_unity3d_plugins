@@ -742,7 +742,7 @@
 			UInt16 utype = stream.readUint16();
 			string name = stream.readString();
 			string valname = stream.readString();
-			
+
 			/* 有一些匿名类型，我们需要提供一个唯一名称放到datatypes中
 				如：
 				<onRemoveAvatar>
@@ -1434,6 +1434,9 @@
 		*/
 		public Int32 getAoiEntityIDFromStream(MemoryStream stream)
 		{
+			if (!_args.useAliasEntityID)
+				return stream.readInt32();
+
 			Int32 id = 0;
 			if(_entityIDAliasIDList.Count > 255)
 			{
