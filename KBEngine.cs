@@ -2422,6 +2422,8 @@
 
 		// 主循环频率
 		public static int threadUpdateHZ = 10;
+		// 主循环周期ms 优化去掉循环中做除法
+		private static float threadUpdatePeriod = 1000f/threadUpdateHZ;
 		
 		// 插件是否退出
 		private bool _isbreak = false;
@@ -2438,6 +2440,7 @@
 			base.initialize(args);
 			
 			KBEngineAppThread.threadUpdateHZ = args.threadUpdateHZ;
+			threadUpdatePeriod = 1000f/threadUpdateHZ;
 			
 			kbethread = new KBEThread(this);
 			_t = new Thread(new ThreadStart(kbethread.run));
@@ -2485,7 +2488,7 @@
 		{
 			TimeSpan span = DateTime.Now - _lasttime; 
 			
-			int diff = (int)(1000.0 / threadUpdateHZ - span.Milliseconds);
+			int diff = (int)(threadUpdatePeriod - span.Milliseconds);
 
 			if(diff < 0)
 				diff = 0;
