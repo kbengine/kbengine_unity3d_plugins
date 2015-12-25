@@ -1415,6 +1415,8 @@
 			}
 			
 			entity.__init__();
+			entity.inited = true;
+			entity.notifyPropertysSetMethods();
 		}
 		
 		public Entity findEntity(Int32 entityID)
@@ -1532,7 +1534,7 @@
 				entity.setDefinedProptertyByUType(utype, val);
 				if(setmethod != null)
 				{
-					if(propertydata.isBase() || entity.inWorld)
+					if((propertydata.isBase() && entity.inited) || entity.inWorld)
 						setmethod.Invoke(entity, new object[]{oldval});
 				}
 			}
@@ -1664,7 +1666,9 @@
 				entity.set_position(entity.getDefinedPropterty("position"));
 								
 				entity.__init__();
+				entity.inited = true;
 				entity.enterWorld();
+				entity.notifyPropertysSetMethods();
 			}
 			else
 			{
