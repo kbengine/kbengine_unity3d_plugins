@@ -126,11 +126,26 @@
 				
 				if(setmethod != null)
 				{
-					if((prop.isBase() && inited) || inWorld)
+					if(prop.isBase())
 					{
-						//Dbg.DEBUG_MSG(className + "::notifyPropertysSetMethods(" + prop.name + ")");  
-						setmethod.Invoke(this, new object[]{oldval});
+						if(inited)
+						{
+							//Dbg.DEBUG_MSG(className + "::notifyPropertysSetBasePropertyMethods(" + prop.name + ")"); 
+							setmethod.Invoke(this, new object[]{oldval});
+						}
 					}
+					else
+					{
+						if(inWorld)
+						{
+							//Dbg.DEBUG_MSG(className + "::notifyPropertysSetCellPropertyMethods(" + prop.name + ")"); 
+							setmethod.Invoke(this, new object[]{oldval});
+						}
+					}
+				}
+				else
+				{
+					//Dbg.DEBUG_MSG(className + "::notifyPropertysSetCellPropertyMethods(" + prop.name + ") not found set_*"); 
 				}
 			}
 		}

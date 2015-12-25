@@ -1534,8 +1534,16 @@
 				entity.setDefinedProptertyByUType(utype, val);
 				if(setmethod != null)
 				{
-					if((propertydata.isBase() && entity.inited) || entity.inWorld)
-						setmethod.Invoke(entity, new object[]{oldval});
+					if(propertydata.isBase())
+					{
+						if(entity.inited)
+							setmethod.Invoke(entity, new object[]{oldval});
+					}
+					else
+					{
+						if(entity.inWorld)
+							setmethod.Invoke(entity, new object[]{oldval});
+					}
 				}
 			}
 		}
@@ -1667,6 +1675,7 @@
 								
 				entity.__init__();
 				entity.inited = true;
+				entity.inWorld = true;
 				entity.enterWorld();
 				entity.notifyPropertysSetMethods();
 			}
@@ -1691,7 +1700,9 @@
 
 					_entityServerPos = entity.position;
 					entity.isOnGround = isOnGround > 0;
+					entity.inWorld = true;
 					entity.enterWorld();
+					entity.notifyPropertysSetMethods();
 				}
 			}
 		}
