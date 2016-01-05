@@ -80,6 +80,7 @@ public class KBEMain : MonoBehaviour
         if (KBEngineApp.app != null)
         {
             KBEngineApp.app.destroy();
+            KBEngineApp.app = null;
         }
 		MonoBehaviour.print("clientapp::OnDestroy(): end");
 	}
