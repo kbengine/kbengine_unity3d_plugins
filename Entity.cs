@@ -128,7 +128,7 @@
 				{
 					if(prop.isBase())
 					{
-						if(inited)
+						if(inited && !inWorld)
 						{
 							//Dbg.DEBUG_MSG(className + "::notifyPropertysSetBasePropertyMethods(" + prop.name + ")"); 
 							setmethod.Invoke(this, new object[]{oldval});
