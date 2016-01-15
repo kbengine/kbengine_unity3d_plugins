@@ -29,18 +29,18 @@
 		
 		// __init__调用之后设置为true
 		public bool inited = false;
-		
+        
 		// entityDef属性，服务端同步过来后存储在这里
 		private Dictionary<string, Property> defpropertys_ = 
 			new Dictionary<string, Property>();
-		
+
 		private Dictionary<UInt16, Property> iddefpropertys_ = 
 			new Dictionary<UInt16, Property>();
-		
+
 		public static void clear()
 		{
 		}
-		
+
 		public Entity()
 		{
 			foreach(Property e in EntityDef.moduledefs[GetType().Name].propertys.Values)
@@ -117,7 +117,7 @@
 		{
 		}
 		
-		public void notifyPropertysSetMethods()
+		public virtual void callPropertysSetMethods()
 		{
 			foreach(Property prop in iddefpropertys_.Values)
 			{
@@ -130,7 +130,7 @@
 					{
 						if(inited && !inWorld)
 						{
-							//Dbg.DEBUG_MSG(className + "::notifyPropertysSetBasePropertyMethods(" + prop.name + ")"); 
+							//Dbg.DEBUG_MSG(className + "::callPropertysSetMethods(" + prop.name + ")"); 
 							setmethod.Invoke(this, new object[]{oldval});
 						}
 					}
@@ -138,14 +138,14 @@
 					{
 						if(inWorld)
 						{
-							//Dbg.DEBUG_MSG(className + "::notifyPropertysSetCellPropertyMethods(" + prop.name + ")"); 
+							//Dbg.DEBUG_MSG(className + "::callPropertysSetMethods(" + prop.name + ")"); 
 							setmethod.Invoke(this, new object[]{oldval});
 						}
 					}
 				}
 				else
 				{
-					//Dbg.DEBUG_MSG(className + "::notifyPropertysSetCellPropertyMethods(" + prop.name + ") not found set_*"); 
+					//Dbg.DEBUG_MSG(className + "::callPropertysSetMethods(" + prop.name + ") not found set_*"); 
 				}
 			}
 		}

@@ -1416,7 +1416,9 @@
 			
 			entity.__init__();
 			entity.inited = true;
-			entity.notifyPropertysSetMethods();
+			
+			if(_args.isOnInitCallPropertysSetMethods)
+				entity.callPropertysSetMethods();
 		}
 		
 		public Entity findEntity(Int32 entityID)
@@ -1677,7 +1679,9 @@
 				entity.inited = true;
 				entity.inWorld = true;
 				entity.enterWorld();
-				entity.notifyPropertysSetMethods();
+				
+				if(_args.isOnInitCallPropertysSetMethods)
+					entity.callPropertysSetMethods();
 			}
 			else
 			{
@@ -1702,7 +1706,9 @@
 					entity.isOnGround = isOnGround > 0;
 					entity.inWorld = true;
 					entity.enterWorld();
-					entity.notifyPropertysSetMethods();
+
+					if(_args.isOnInitCallPropertysSetMethods)
+						entity.callPropertysSetMethods();
 				}
 			}
 		}
