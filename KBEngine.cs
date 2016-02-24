@@ -1528,12 +1528,12 @@
 				System.Reflection.MethodInfo setmethod = propertydata.setmethod;
 
 				object val = propertydata.utype.createFromStream(stream);
-				object oldval = entity.getDefinedProptertyByUType(utype);
+				object oldval = entity.getDefinedPropertyByUType(utype);
 
 				 // Dbg.DEBUG_MSG("KBEngine::Client_onUpdatePropertys: " + entity.className + "(id=" + eid  + " " + 
 				 // propertydata.name + "=" + val + "), hasSetMethod=" + setmethod + "!");
 			
-				entity.setDefinedProptertyByUType(utype, val);
+				entity.setDefinedPropertyByUType(utype, val);
 				if(setmethod != null)
 				{
 					if(propertydata.isBase())
@@ -1672,8 +1672,8 @@
 				_bufferedCreateEntityMessage.Remove(eid);
 				
 				entity.isOnGround = isOnGround > 0;
-				entity.set_direction(entity.getDefinedPropterty("direction"));
-				entity.set_position(entity.getDefinedPropterty("position"));
+				entity.set_direction(entity.getDefinedProperty("direction"));
+				entity.set_position(entity.getDefinedProperty("position"));
 								
 				entity.__init__();
 				entity.inited = true;
@@ -1699,8 +1699,8 @@
 					entity.cellMailbox.className = entityType;
 					entity.cellMailbox.type = Mailbox.MAILBOX_TYPE.MAILBOX_TYPE_CELL;
 					
-					entity.set_direction(entity.getDefinedPropterty("direction"));
-					entity.set_position(entity.getDefinedPropterty("position"));					
+					entity.set_direction(entity.getDefinedProperty("direction"));
+					entity.set_position(entity.getDefinedProperty("position"));					
 
 					_entityServerPos = entity.position;
 					entity.isOnGround = isOnGround > 0;
@@ -2049,8 +2049,8 @@
 			entity.direction.y = stream.readFloat();
 			entity.direction.z = stream.readFloat();
 			
-			Vector3 position = (Vector3)entity.getDefinedPropterty("position");
-			Vector3 direction = (Vector3)entity.getDefinedPropterty("direction");
+			Vector3 position = (Vector3)entity.getDefinedProperty("position");
+			Vector3 direction = (Vector3)entity.getDefinedProperty("direction");
 			Vector3 old_position = new Vector3(position.x, position.y, position.z);
 			Vector3 old_direction = new Vector3(direction.x, direction.y, direction.z);
 			
@@ -2062,8 +2062,8 @@
 			direction.y = entity.direction.y;
 			direction.z = entity.direction.z;
 			
-			entity.setDefinedPropterty("position", position);
-			entity.setDefinedPropterty("direction", direction);
+			entity.setDefinedProperty("position", position);
+			entity.setDefinedProperty("direction", direction);
 			
 			_entityLastLocalPos = entity.position;
 			_entityLastLocalDir = entity.direction;

@@ -67,7 +67,7 @@
 			return id == KBEngineApp.app.entity_id;
 		}
 		
-		public void addDefinedPropterty(string name, object v)
+		public void addDefinedProperty(string name, object v)
 		{
 			Property newp = new Property();
 			newp.name = name;
@@ -76,8 +76,8 @@
 			newp.setmethod = null;
 			defpropertys_.Add(name, newp);
 		}
-		
-		public object getDefinedPropterty(string name)
+
+		public object getDefinedProperty(string name)
 		{
 			Property obj = null;
 			if(!defpropertys_.TryGetValue(name, out obj))
@@ -88,12 +88,12 @@
 			return defpropertys_[name].val;
 		}
 		
-		public void setDefinedPropterty(string name, object val)
+		public void setDefinedProperty(string name, object val)
 		{
 			defpropertys_[name].val = val;
 		}
 		
-		public object getDefinedProptertyByUType(UInt16 utype)
+		public object getDefinedPropertyByUType(UInt16 utype)
 		{
 			Property obj = null;
 			if(!iddefpropertys_.TryGetValue(utype, out obj))
@@ -104,7 +104,7 @@
 			return iddefpropertys_[utype].val;
 		}
 		
-		public void setDefinedProptertyByUType(UInt16 utype, object val)
+		public void setDefinedPropertyByUType(UInt16 utype, object val)
 		{
 			iddefpropertys_[utype].val = val;
 		}
@@ -121,7 +121,7 @@
 		{
 			foreach(Property prop in iddefpropertys_.Values)
 			{
-				object oldval = getDefinedProptertyByUType(prop.properUtype);
+				object oldval = getDefinedPropertyByUType(prop.properUtype);
 				System.Reflection.MethodInfo setmethod = prop.setmethod;
 				
 				if(setmethod != null)
@@ -258,7 +258,7 @@
 	
 		public void enterWorld()
 		{
-			// Dbg.DEBUG_MSG(className + "::enterWorld(" + getDefinedPropterty("uid") + "): " + id); 
+			// Dbg.DEBUG_MSG(className + "::enterWorld(" + getDefinedProperty("uid") + "): " + id); 
 			inWorld = true;
 			
 			try{
@@ -298,7 +298,7 @@
 
 		public virtual void enterSpace()
 		{
-			// Dbg.DEBUG_MSG(className + "::enterSpace(" + getDefinedPropterty("uid") + "): " + id); 
+			// Dbg.DEBUG_MSG(className + "::enterSpace(" + getDefinedProperty("uid") + "): " + id); 
 			inWorld = true;
 			
 			try{
@@ -338,7 +338,7 @@
 		
 		public virtual void set_position(object old)
 		{
-			Vector3 v = (Vector3)getDefinedPropterty("position");
+			Vector3 v = (Vector3)getDefinedProperty("position");
 			position = v;
 			//Dbg.DEBUG_MSG(className + "::set_position: " + old + " => " + v); 
 			
@@ -355,7 +355,7 @@
 		
 		public virtual void set_direction(object old)
 		{
-			Vector3 v = (Vector3)getDefinedPropterty("direction");
+			Vector3 v = (Vector3)getDefinedProperty("direction");
 			
 			v.x = v.x * 360 / ((float)System.Math.PI * 2);
 			v.y = v.y * 360 / ((float)System.Math.PI * 2);
