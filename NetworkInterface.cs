@@ -126,7 +126,9 @@
 			// Security.PrefetchSocketPolicy(ip, 843);
 			_socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp); 
 			_socket.SetSocketOption (System.Net.Sockets.SocketOptionLevel.Socket, SocketOptionName.ReceiveBuffer, KBEngineApp.app.getInitArgs().getRecvBufferSize() * 2);
-			
+			_socket.SetSocketOption(System.Net.Sockets.SocketOptionLevel.Socket, SocketOptionName.SendBuffer, KBEngineApp.app.getInitArgs().getSendBufferSize() * 2);  
+ 			_socket.NoDelay = true;  
+
 			ConnectState state = new ConnectState();
 			state.connectIP = ip;
 			state.connectPort = port;
