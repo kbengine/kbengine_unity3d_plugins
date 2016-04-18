@@ -1995,17 +1995,17 @@
 		/*
 			服务端更新玩家的基础位置， 客户端以这个基础位置加上便宜值计算出玩家周围实体的坐标
 		*/
-		public void Client_onUpdateBasePos(MemoryStream stream)
+		public void Client_onUpdateBasePos(float x, float y, float z)
 		{
-			_entityServerPos.x = stream.readFloat();
-			_entityServerPos.y = stream.readFloat();
-			_entityServerPos.z = stream.readFloat();
+			_entityServerPos.x = x;
+			_entityServerPos.y = y;
+			_entityServerPos.z = z;
 		}
 		
-		public void Client_onUpdateBasePosXZ(MemoryStream stream)
+		public void Client_onUpdateBasePosXZ(float x, float z)
 		{
-			_entityServerPos.x = stream.readFloat();
-			_entityServerPos.z = stream.readFloat();
+			_entityServerPos.x = x;
+			_entityServerPos.z = z;
 		}
 		
 		public void Client_onUpdateData(MemoryStream stream)
