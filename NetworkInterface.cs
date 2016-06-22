@@ -22,7 +22,7 @@
     	public const int TCP_PACKET_MAX = 1460;
     	public delegate void ConnectCallback(string ip, int port, bool success, object userData);
     	
-        Socket _socket = null;
+        protected Socket _socket = null;
 		PacketReceiver _packetReceiver = null;
 		PacketSender _packetSender = null;
 		
@@ -47,6 +47,7 @@
 		{
 			if(valid())
 			{
+				Dbg.DEBUG_MSG(string.Format("NetworkInterface::reset(), close socket from '{0}'", _socket.RemoteEndPoint.ToString()));
          	   _socket.Close(0);
 			}
 			_socket = null;
@@ -125,10 +126,10 @@
 
 			// Security.PrefetchSocketPolicy(ip, 843);
 			_socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp); 
-			_socket.SetSocketOption (System.Net.Sockets.SocketOptionLevel.Socket, SocketOptionName.ReceiveBuffer, KBEngineApp.app.getInitArgs().getRecvBufferSize() * 2);
-			_socket.SetSocketOption(System.Net.Sockets.SocketOptionLevel.Socket, SocketOptionName.SendBuffer, KBEngineApp.app.getInitArgs().getSendBufferSize() * 2);  
- 			_socket.NoDelay = true;  
-
+			_socket.SetSocketOption(System.Net.Sockets.SocketOptionLevel.Socket, SocketOptionName.ReceiveBuffer, KBEngineApp.app.getInitArgs().getRecvBufferSize() * 2);
+			_socket.SetSocketOption(System.Net.Sockets.SocketOptionLevel.Socket, SocketOptionName.SendBuffer, KBEngineApp.app.getInitArgs().getSendBufferSize() * 2);
+			_socket.NoDelay = true;
+			
 			ConnectState state = new ConnectState();
 			state.connectIP = ip;
 			state.connectPort = port;

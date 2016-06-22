@@ -10,9 +10,9 @@
 		由于每个数据包都有最大上限， 向Bundle中写入大量数据将会在内部产生多个MemoryStream
 		在send时会全部发送出去
 	*/
-    public class Bundle 
+	public class Bundle : ObjectPool<Bundle>
     {
-    	public MemoryStream stream = new MemoryStream();
+		public MemoryStream stream = MemoryStream.createObject();
 		public List<MemoryStream> streamList = new List<MemoryStream>();
 		public int numMessage = 0;
 		public int messageLength = 0;
@@ -62,7 +62,7 @@
 				writeMsgLength();
 
 				streamList.Add(stream);
-				stream = new MemoryStream();
+				stream = MemoryStream.createObject();
 			}
 			
 			if(issend)
@@ -90,9 +90,21 @@
 			{
 				Dbg.ERROR_MSG("Bundle::send: networkInterface invalid!");  
 			}
-			
+
+			// 把不用的MemoryStream放回缓冲池，以减少垃圾回收的消耗
+			for (int i = 0; i < streamList.Count; ++i)
+			{
+				streamList[i].reclaimObject();
+			}
 			streamList.Clear();
 			stream.clear();
+
+			// 我们认为，发送完成，就视为这个bundle不再使用了，
+			// 所以我们会把它放回对象池，以减少垃圾回收带来的消耗，
+			// 如果需要继续使用，应该重新Bundle.createObject()，
+			// 如果外面不重新createObject()而直接使用，就可能会出现莫名的问题，
+			// 仅以此备注，警示使用者。
+			Bundle.reclaimObject(this);
 		}
 		
 		public void checkStream(int v)
@@ -100,7 +112,7 @@
 			if(v > stream.space())
 			{
 				streamList.Add(stream);
-				stream = new MemoryStream();
+				stream = MemoryStream.createObject();
 				++ _curMsgStreamIndex;
 			}
 	

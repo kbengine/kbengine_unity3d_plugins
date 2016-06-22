@@ -15,7 +15,7 @@ namespace KBEngine
 	{
 		private static LinkedList<T> _objects = new LinkedList<T>();
 
-		public static T getObject()
+		public static T createObject()
 		{
 			lock (_objects)
 			{
@@ -32,7 +32,7 @@ namespace KBEngine
 			}
 		}
 
-		public static void putObject(T item)
+		public static void reclaimObject(T item)
 		{
 			lock (_objects)
 			{

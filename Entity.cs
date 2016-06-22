@@ -11,6 +11,11 @@
 	*/
     public class Entity 
     {
+		// 当前玩家最后一次同步到服务端的位置与朝向
+		// 这两个属性是给引擎KBEngine.cs用的，别的地方不要修改
+		public Vector3 _entityLastLocalPos = new Vector3(0f, 0f, 0f);
+		public Vector3 _entityLastLocalDir = new Vector3(0f, 0f, 0f);
+		
     	public Int32 id = 0;
 		public string className = "";
 		public Vector3 position = new Vector3(0.0f, 0.0f, 0.0f);
@@ -26,6 +31,12 @@
 		
 		// enterworld之后设置为true
 		public bool inWorld = false;
+
+		/// <summary>
+		/// 对于玩家自身来说，它表示是否自己被其它玩家控制了；
+		/// 对于其它entity来说，表示我本机是否控制了这个entity
+		/// </summary>
+		public bool isControlled = false;
 		
 		// __init__调用之后设置为true
 		public bool inited = false;
@@ -367,6 +378,19 @@
 			
 			if(inWorld)
 				Event.fireOut("set_direction", new object[]{this});
+		}
+
+		/// <summary>
+		/// This callback method is called when the local entity control by the client has been enabled or disabled. 
+		/// See the Entity.controlledBy() method in the CellApp server code for more infomation.
+		/// </summary>
+		/// <param name="isControlled">
+		/// 对于玩家自身来说，它表示是否自己被其它玩家控制了；
+		/// 对于其它entity来说，表示我本机是否控制了这个entity
+		/// </param>
+		public virtual void onControlled(bool isControlled_)
+		{
+		
 		}
     }
     

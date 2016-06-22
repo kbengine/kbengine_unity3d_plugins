@@ -13,7 +13,7 @@
 		二进制数据流模块
 		能够将一些基本类型序列化(writeXXX)成二进制流同时也提供了反序列化(readXXX)等操作
 	*/
-    public class MemoryStream 
+	public class MemoryStream : ObjectPool<MemoryStream>
     {
     	public const int BUFFER_MAX = 1460 * 4;
     	
@@ -36,7 +36,16 @@
 		    public Int32 iv;
 		}
 
-    	public byte[] data()
+		/// <summary>
+		/// 把自己放回缓冲池
+		/// </summary>
+		public void reclaimObject()
+		{
+			clear();
+			reclaimObject(this);
+		}
+		
+		public byte[] data()
     	{
     		return datas_;
     	}

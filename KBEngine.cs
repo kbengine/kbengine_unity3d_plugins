@@ -100,10 +100,10 @@
 		public UInt64 entity_uuid = 0;
 		public Int32 entity_id = 0;
 		public string entity_type = "";
+
+		private List<Entity> _controlledEntities = new List<Entity>();
 		
-		// 当前玩家最后一次同步到服务端的位置与朝向与服务端最后一次同步过来的位置
-		private Vector3 _entityLastLocalPos = new Vector3(0f, 0f, 0f);
-		private Vector3 _entityLastLocalDir = new Vector3(0f, 0f, 0f);
+		// 当前服务端最后一次同步过来的玩家位置
 		private Vector3 _entityServerPos = new Vector3(0f, 0f, 0f);
 		
 		// space的数据，具体看API手册关于spaceData
@@ -308,7 +308,7 @@
 		*/
 		public void sendTick()
 		{
-			if(!_networkInterface.valid())
+			if(_networkInterface == null || !_networkInterface.valid())
 				return;
 
 			if(!loginappMessageImported_ && !baseappMessageImported_)
@@ -331,7 +331,7 @@
 				{
 					if(Loginapp_onClientActiveTickMsg != null)
 					{
-						Bundle bundle = new Bundle();
+						Bundle bundle = Bundle.createObject();
 						bundle.newMessage(Message.messages["Loginapp_onClientActiveTick"]);
 						bundle.send(_networkInterface);
 					}
@@ -340,7 +340,7 @@
 				{
 					if(Baseapp_onClientActiveTickMsg != null)
 					{
-						Bundle bundle = new Bundle();
+						Bundle bundle = Bundle.createObject();
 						bundle.newMessage(Message.messages["Baseapp_onClientActiveTick"]);
 						bundle.send(_networkInterface);
 					}
@@ -355,7 +355,7 @@
 		*/
 		public void hello()
 		{
-			Bundle bundle = new Bundle();
+			Bundle bundle = Bundle.createObject();
 			if(currserver == "loginapp")
 				bundle.newMessage(Message.messages["Loginapp_hello"]);
 			else
@@ -491,7 +491,7 @@
 			else
 			{
 				Dbg.DEBUG_MSG("KBEngine::login_loginapp(): send login! username=" + username);
-				Bundle bundle = new Bundle();
+				Bundle bundle = Bundle.createObject();
 				bundle.newMessage(Message.messages["Loginapp_login"]);
 				bundle.writeInt8((sbyte)_args.clientType);
 				bundle.writeBlob(KBEngineApp.app._clientdatas);
@@ -521,7 +521,7 @@
 		{
 			if(!loginappMessageImported_)
 			{
-				var bundle = new Bundle();
+				var bundle = Bundle.createObject();
 				bundle.newMessage(Message.messages["Loginapp_importClientMessages"]);
 				bundle.send(_networkInterface);
 				Dbg.DEBUG_MSG("KBEngine::onLogin_loginapp: send importClientMessages ...");
@@ -548,7 +548,7 @@
 			}
 			else
 			{
-				Bundle bundle = new Bundle();
+				Bundle bundle = Bundle.createObject();
 				bundle.newMessage(Message.messages["Baseapp_loginBaseapp"]);
 				bundle.writeString(username);
 				bundle.writeString(password);
@@ -576,7 +576,7 @@
 		{
 			if(!baseappMessageImported_)
 			{
-				var bundle = new Bundle();
+				var bundle = Bundle.createObject();
 				bundle.newMessage(Message.messages["Baseapp_importClientMessages"]);
 				bundle.send(_networkInterface);
 				Dbg.DEBUG_MSG("KBEngine::onLogin_baseapp: send importClientMessages ...");
@@ -609,7 +609,7 @@
 			
 			Dbg.DEBUG_MSG(string.Format("KBEngine::relogin_baseapp(): connect {0}:{1} is successfully!", ip, port));
 
-			Bundle bundle = new Bundle();
+			Bundle bundle = Bundle.createObject();
 			bundle.newMessage(Message.messages["Baseapp_reLoginBaseapp"]);
 			bundle.writeString(username);
 			bundle.writeString(password);
@@ -626,24 +626,28 @@
 			resetMessages();
 			
 			loadingLocalMessages_ = true;
-			MemoryStream stream = new MemoryStream();
+			MemoryStream stream = MemoryStream.createObject();
 			stream.append(loginapp_clientMessages, (UInt32)0, (UInt32)loginapp_clientMessages.Length);
 			currserver = "loginapp";
 			onImportClientMessages(stream);
+			stream.reclaimObject();
 
-			stream = new MemoryStream();
+			stream = MemoryStream.createObject();
 			stream.append(baseapp_clientMessages, (UInt32)0, (UInt32)baseapp_clientMessages.Length);
 			currserver = "baseapp";
 			onImportClientMessages(stream);
 			currserver = "loginapp";
+			stream.reclaimObject();
 
-			stream = new MemoryStream();
+			stream = MemoryStream.createObject();
 			stream.append(serverErrorsDescr, (UInt32)0, (UInt32)serverErrorsDescr.Length);
 			onImportServerErrorsDescr(stream);
-				
-			stream = new MemoryStream();
+			stream.reclaimObject();
+
+			stream = MemoryStream.createObject();
 			stream.append(entitydefMessages, (UInt32)0, (UInt32)entitydefMessages.Length);
 			onImportClientEntityDef(stream);
+			stream.reclaimObject();
 
 			loadingLocalMessages_ = false;
 			loginappMessageImported_ = true;
@@ -670,7 +674,7 @@
 				{
 					Dbg.DEBUG_MSG("KBEngine::onImportClientMessagesCompleted(): send importServerErrorsDescr!");
 					isImportServerErrorsDescr_ = true;
-					Bundle bundle = new Bundle();
+					Bundle bundle = Bundle.createObject();
 					bundle.newMessage(Message.messages["Loginapp_importServerErrorsDescr"]);
 					bundle.send(_networkInterface);
 				}
@@ -702,7 +706,7 @@
 				if(!entitydefImported_ && !loadingLocalMessages_)
 				{
 					Dbg.DEBUG_MSG("KBEngine::onImportClientMessagesCompleted: send importEntityDef(" + entitydefImported_ + ") ...");
-					Bundle bundle = new Bundle();
+					Bundle bundle = Bundle.createObject();
 					bundle.newMessage(Message.messages["Baseapp_importClientEntityDef"]);
 					bundle.send(_networkInterface);
 					Event.fireOut("Baseapp_importClientEntityDef", new object[]{});
@@ -1131,7 +1135,7 @@
 			
 			if(!loginappMessageImported_)
 			{
-				Bundle bundle = new Bundle();
+				Bundle bundle = Bundle.createObject();
 				bundle.newMessage(Message.messages["Loginapp_importClientMessages"]);
 				bundle.send(_networkInterface);
 				Dbg.DEBUG_MSG("KBEngine::onOpenLoginapp_resetpassword: send importClientMessages ...");
@@ -1163,7 +1167,7 @@
 			}
 			else
 			{
-				Bundle bundle = new Bundle();
+				Bundle bundle = Bundle.createObject();
 				bundle.newMessage(Message.messages["Loginapp_reqAccountResetPassword"]);
 				bundle.writeString(username);
 				bundle.send(_networkInterface);
@@ -1197,8 +1201,8 @@
 			绑定Email，通过baseapp
 		*/
 		public void bindAccountEmail(string emailAddress)
-		{  
-			Bundle bundle = new Bundle();
+		{
+			Bundle bundle = Bundle.createObject();
 			bundle.newMessage(Message.messages["Baseapp_reqAccountBindEmail"]);
 			bundle.writeInt32(entity_id);
 			bundle.writeString(password);
@@ -1222,7 +1226,7 @@
 		*/
 		public void newPassword(string old_password, string new_password)
 		{
-			Bundle bundle = new Bundle();
+			Bundle bundle = Bundle.createObject();
 			bundle.newMessage(Message.messages["Baseapp_reqAccountNewPassword"]);
 			bundle.writeInt32(entity_id);
 			bundle.writeString(old_password);
@@ -1262,7 +1266,7 @@
 			}
 			else
 			{
-				Bundle bundle = new Bundle();
+				Bundle bundle = Bundle.createObject();
 				bundle.newMessage(Message.messages["Loginapp_reqCreateAccount"]);
 				bundle.writeString(username);
 				bundle.writeString(password);
@@ -1279,7 +1283,7 @@
 			
 			if(!loginappMessageImported_)
 			{
-				Bundle bundle = new Bundle();
+				Bundle bundle = Bundle.createObject();
 				bundle.newMessage(Message.messages["Loginapp_importClientMessages"]);
 				bundle.send(_networkInterface);
 				Dbg.DEBUG_MSG("KBEngine::onOpenLoginapp_createAccount: send importClientMessages ...");
@@ -1412,6 +1416,7 @@
 			{
 				Client_onUpdatePropertys(entityMessage);
 				_bufferedCreateEntityMessage.Remove(eid);
+				entityMessage.reclaimObject();
 			}
 			
 			entity.__init__();
@@ -1492,8 +1497,8 @@
 					Dbg.ERROR_MSG("KBEngine::Client_onUpdatePropertys: entity(" + eid + ") not found!");
 					return;
 				}
-				
-				MemoryStream stream1 = new MemoryStream();
+
+				MemoryStream stream1 = MemoryStream.createObject();
 				stream1.wpos = stream.wpos;
 				stream1.rpos = stream.rpos - 4;
 				Array.Copy(stream.data(), stream1.data(), stream.data().Length);
@@ -1664,6 +1669,7 @@
 				
 				Client_onUpdatePropertys(entityMessage);
 				_bufferedCreateEntityMessage.Remove(eid);
+				entityMessage.reclaimObject();
 				
 				entity.isOnGround = isOnGround > 0;
 				entity.set_direction(entity.getDefinedProperty("direction"));
@@ -1739,6 +1745,7 @@
 			}
 			else
 			{
+				_controlledEntities.Remove(entity);
 				entities.Remove(eid);
 				entity.onDestroy();
 				_entityIDAliasIDList.Remove(eid);
@@ -1808,6 +1815,45 @@
 		}
 
 		/*
+			告诉客户端：你当前负责（或取消）控制谁的位移同步
+		*/
+		public void Client_onControlEntity(Int32 eid, sbyte isControlled)
+		{
+			Entity entity = null;
+
+			if (!entities.TryGetValue(eid, out entity))
+			{
+				Dbg.ERROR_MSG("KBEngine::Client_onControlEntity: entity(" + eid + ") not found!");
+				return;
+			}
+
+			var isCont = isControlled != 0;
+			if (isCont)
+			{
+				// 如果被控制者是玩家自己，那表示玩家自己被其它人控制了
+				// 所以玩家自己不应该进入这个被控制列表
+				if (player().id != entity.id)
+					_controlledEntities.Add(entity);
+			}
+			else
+			{
+				_controlledEntities.Remove(entity);
+			}
+			
+			entity.isControlled = isCont;
+			
+			try
+			{
+				entity.onControlled(isCont);
+			}
+			catch (Exception e)
+			{
+				Dbg.ERROR_MSG(string.Format("KBEngine::Client_onControlEntity: entity id = '{0}', is controlled = '{1}', error = '{1}'", eid, isCont, e));
+			}
+
+		}
+
+		/*
 			更新当前玩家的位置与朝向到服务端， 可以通过开关_syncPlayer关闭这个机制
 		*/
 		public void updatePlayerToServer()
@@ -1831,15 +1877,15 @@
 			Vector3 position = playerEntity.position;
 			Vector3 direction = playerEntity.direction;
 			
-			bool posHasChanged = Vector3.Distance(_entityLastLocalPos, position) > 0.001f;
-			bool dirHasChanged = Vector3.Distance(_entityLastLocalDir, direction) > 0.001f;
+			bool posHasChanged = Vector3.Distance(playerEntity._entityLastLocalPos, position) > 0.001f;
+			bool dirHasChanged = Vector3.Distance(playerEntity._entityLastLocalDir, direction) > 0.001f;
 			
 			if(posHasChanged || dirHasChanged)
 			{
-				_entityLastLocalPos = position;
-				_entityLastLocalDir = direction;
-				
-				Bundle bundle = new Bundle();
+				playerEntity._entityLastLocalPos = position;
+				playerEntity._entityLastLocalDir = direction;
+
+				Bundle bundle = Bundle.createObject();
 				bundle.newMessage(Message.messages["Baseapp_onUpdateDataFromClient"]);
 				bundle.writeFloat(position.x);
 				bundle.writeFloat(position.y);
@@ -1851,6 +1897,37 @@
 				bundle.writeUint8((Byte)(playerEntity.isOnGround == true ? 1 : 0));
 				bundle.writeUint32(spaceID);
 				bundle.send(_networkInterface);
+			}
+
+			// 开始同步所有被控制了的entity的位置
+			for (int i = 0; i < _controlledEntities.Count; ++i)
+			{
+				var entity = _controlledEntities[i];
+				position = entity.position;
+				direction = entity.direction;
+
+				posHasChanged = Vector3.Distance(entity._entityLastLocalPos, position) > 0.001f;
+				dirHasChanged = Vector3.Distance(entity._entityLastLocalDir, direction) > 0.001f;
+
+				if (posHasChanged || dirHasChanged)
+				{
+					entity._entityLastLocalPos = position;
+					entity._entityLastLocalDir = direction;
+
+					Bundle bundle = Bundle.createObject();
+					bundle.newMessage(Message.messages["Baseapp_onUpdateDataFromClientForControlledEntity"]);
+					bundle.writeInt32(entity.id);
+					bundle.writeFloat(position.x);
+					bundle.writeFloat(position.y);
+					bundle.writeFloat(position.z);
+
+					bundle.writeFloat((float)((double)direction.x / 360 * 6.283185307179586));
+					bundle.writeFloat((float)((double)direction.y / 360 * 6.283185307179586));
+					bundle.writeFloat((float)((double)direction.z / 360 * 6.283185307179586));
+					bundle.writeUint8((Byte)(entity.isOnGround == true ? 1 : 0));
+					bundle.writeUint32(spaceID);
+					bundle.send(_networkInterface);
+				}
 			}
 		}
 
@@ -1879,7 +1956,8 @@
 		
 		public void clearEntities(bool isall)
 		{
-			if(!isall)
+			_controlledEntities.Clear();
+			if (!isall)
 			{
 				Entity entity = player();
 				
@@ -1987,7 +2065,8 @@
 				
 				entity.leaveWorld();
 			}
-			
+
+			_controlledEntities.Remove(entity);
 			entities.Remove(eid);
 			entity.onDestroy();
 		}
@@ -2000,14 +2079,44 @@
 			_entityServerPos.x = x;
 			_entityServerPos.y = y;
 			_entityServerPos.z = z;
+
+			var entity = player();
+			if (entity != null && entity.isControlled)
+			{
+				entity.position.Set(_entityServerPos.x, _entityServerPos.y, _entityServerPos.z);
+				entity.onUpdateVolatileData();
+			}
 		}
 		
 		public void Client_onUpdateBasePosXZ(float x, float z)
 		{
 			_entityServerPos.x = x;
 			_entityServerPos.z = z;
+
+			var entity = player();
+			if (entity != null && entity.isControlled)
+			{
+				entity.position.x = _entityServerPos.x;
+				entity.position.z = _entityServerPos.z;
+				entity.onUpdateVolatileData();
+			}
 		}
-		
+
+		public void Client_onUpdateBaseDir(MemoryStream stream)
+		{
+			float yaw, pitch, roll;
+			yaw = stream.readFloat() * 360 / ((float)System.Math.PI * 2);
+			pitch = stream.readFloat() * 360 / ((float)System.Math.PI * 2);
+			roll = stream.readFloat() * 360 / ((float)System.Math.PI * 2);
+
+			var entity = player();
+			if (entity != null && entity.isControlled)
+			{
+				entity.direction.Set(roll, pitch, yaw);
+				entity.onUpdateVolatileData();
+			}
+		}
+
 		public void Client_onUpdateData(MemoryStream stream)
 		{
 			Int32 eid = getAoiEntityIDFromStream(stream);
@@ -2059,8 +2168,8 @@
 			entity.setDefinedProperty("position", position);
 			entity.setDefinedProperty("direction", direction);
 			
-			_entityLastLocalPos = entity.position;
-			_entityLastLocalDir = entity.direction;
+			entity._entityLastLocalPos = entity.position;
+			entity._entityLastLocalDir = entity.direction;
 			
 			entity.set_direction(old_direction);
 			entity.set_position(old_position);
