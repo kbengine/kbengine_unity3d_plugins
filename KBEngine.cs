@@ -259,7 +259,9 @@
 			spaceResPath = "";
 			isLoadedGeometry = false;
 			
-			_networkInterface.reset();
+			if (_networkInterface != null)
+				_networkInterface.reset();
+
 			_networkInterface = new NetworkInterface();
 			
 			_spacedatas.Clear();
@@ -277,7 +279,8 @@
 		public virtual void process()
 		{
 			// 处理网络
-			_networkInterface.process();
+			if (_networkInterface != null)
+				_networkInterface.process();
 			
 			// 处理外层抛入的事件
 			Event.processInEvents();
@@ -1862,17 +1865,18 @@
 			{
 				return;
 			}
-			
-			TimeSpan span = DateTime.Now - _lastUpdateToServerTime; 
-			
-			if(span.Milliseconds < 50)
+
+			var now = DateTime.Now;
+			TimeSpan span = now - _lastUpdateToServerTime;
+
+			if (span.Ticks < 1000000)
 				return;
 			
 			Entity playerEntity = player();
-			if(playerEntity == null || playerEntity.inWorld == false || playerEntity.isControlled)
+			if (playerEntity == null || playerEntity.inWorld == false || playerEntity.isControlled)
 				return;
-			
-			_lastUpdateToServerTime = System.DateTime.Now;
+
+			_lastUpdateToServerTime = now - (span - TimeSpan.FromTicks(1000000));
 			
 			Vector3 position = playerEntity.position;
 			Vector3 direction = playerEntity.direction;
