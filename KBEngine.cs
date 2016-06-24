@@ -1858,7 +1858,6 @@
 			{
 				Dbg.ERROR_MSG(string.Format("KBEngine::Client_onControlEntity: entity id = '{0}', is controlled = '{1}', error = '{1}'", eid, isCont, e));
 			}
-
 		}
 
 		/*
@@ -1966,6 +1965,7 @@
 		public void clearEntities(bool isall)
 		{
 			_controlledEntities.Clear();
+
 			if (!isall)
 			{
 				Entity entity = player();
