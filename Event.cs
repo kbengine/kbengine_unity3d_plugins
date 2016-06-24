@@ -218,17 +218,17 @@
 		{
 			monitor_Enter(events);
 			
-			foreach(KeyValuePair<string, List<Pair>> e in events)
+			var iter = events.GetEnumerator();
+			while (iter.MoveNext())
 			{
-				List<Pair> lst = e.Value;
-__RESTART_REMOVE:
-				for(int i=0; i<lst.Count; i++)
+				List<Pair> lst = iter.Current.Value;
+				// 从后往前遍历，以避免中途删除的问题
+				for (int i = lst.Count - 1; i >= 0; i--)
 				{
-					if(obj == lst[i].obj)
+					if (obj == lst[i].obj)
 					{
 						//Dbg.DEBUG_MSG("Event::deregister: event(" + e.Key + ":" + lst[i].funcname + ")!");
 						lst.RemoveAt(i);
-						goto __RESTART_REMOVE;
 					}
 				}
 			}
@@ -298,9 +298,10 @@ __RESTART_REMOVE:
 
 			if(firedEvents_out.Count > 0)
 			{
-				foreach(EventObj evt in firedEvents_out)
+				var iter = firedEvents_out.GetEnumerator();
+				while (iter.MoveNext())
 				{
-					doingEvents_out.AddLast(evt);
+					doingEvents_out.AddLast(iter.Current);
 				}
 
 				firedEvents_out.Clear();
@@ -338,9 +339,10 @@ __RESTART_REMOVE:
 
 			if(firedEvents_in.Count > 0)
 			{
-				foreach(EventObj evt in firedEvents_in)
+				var iter = firedEvents_in.GetEnumerator();
+				while (iter.MoveNext())
 				{
-					doingEvents_in.AddLast(evt);
+					doingEvents_in.AddLast(iter.Current);
 				}
 
 				firedEvents_in.Clear();
