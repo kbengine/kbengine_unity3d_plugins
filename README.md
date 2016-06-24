@@ -92,6 +92,21 @@ KBE-Plugin fire-out events(KBE => Unity):
 				bytes: datas
 					If you use third-party account system, the system may fill some of the third-party additional datas.
 
+		onControlled
+			Description: 
+				Triggered when the entity is controlled or out of control.
+
+			Event-datas: 
+				Enity
+				bool: isControlled
+
+		onLoseControlledEntity
+			Description: 
+				Lose controlled entity.
+
+			Event-datas: 
+				Enity
+
 		set_position
 			Description: 
 				Sets the current position of the entity.
