@@ -1869,7 +1869,7 @@
 				return;
 			
 			Entity playerEntity = player();
-			if(playerEntity == null || playerEntity.inWorld == false)
+			if(playerEntity == null || playerEntity.inWorld == false || playerEntity.isControlled)
 				return;
 			
 			_lastUpdateToServerTime = System.DateTime.Now;
