@@ -1748,8 +1748,9 @@
 			}
 			else
 			{
-				_controlledEntities.Remove(entity);
-				Event.fireOut("onLoseControlledEntity", new object[]{entity});
+				if(_controlledEntities.Remove(entity))
+					Event.fireOut("onLoseControlledEntity", new object[]{entity});
+
 				entities.Remove(eid);
 				entity.onDestroy();
 				_entityIDAliasIDList.Remove(eid);
@@ -2074,8 +2075,8 @@
 				entity.leaveWorld();
 			}
 
-			_controlledEntities.Remove(entity);
-			Event.fireOut("onLoseControlledEntity", new object[]{entity});
+			if(_controlledEntities.Remove(entity))
+				Event.fireOut("onLoseControlledEntity", new object[]{entity});
 
 			entities.Remove(eid);
 			entity.onDestroy();
