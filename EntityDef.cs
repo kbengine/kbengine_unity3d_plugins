@@ -12,7 +12,7 @@
     public class EntityDef
     {
 		// 所有的数据类型
-		public static Dictionary<string, Int32> datatype2id = new Dictionary<string, Int32>();
+		public static Dictionary<string, UInt16> datatype2id = new Dictionary<string, UInt16>();
 		public static Dictionary<string, KBEDATATYPE_BASE> datatypes = new Dictionary<string, KBEDATATYPE_BASE>();
 		public static Dictionary<UInt16, KBEDATATYPE_BASE> id2datatypes = new Dictionary<UInt16, KBEDATATYPE_BASE>();
 		
