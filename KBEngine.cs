@@ -1899,9 +1899,9 @@
 				bundle.writeFloat(position.y);
 				bundle.writeFloat(position.z);
 
-				bundle.writeFloat((float)((double)direction.x / 360 * 6.283185307179586));
-				bundle.writeFloat((float)((double)direction.y / 360 * 6.283185307179586));
-				bundle.writeFloat((float)((double)direction.z / 360 * 6.283185307179586));
+				bundle.writeFloat((float)((double)direction.x / 360 * (System.Math.PI * 2) - System.Math.PI));
+				bundle.writeFloat((float)((double)direction.y / 360 * (System.Math.PI * 2) - System.Math.PI));
+				bundle.writeFloat((float)((double)direction.z / 360 * (System.Math.PI * 2) - System.Math.PI));
 				bundle.writeUint8((Byte)(playerEntity.isOnGround == true ? 1 : 0));
 				bundle.writeUint32(spaceID);
 				bundle.send(_networkInterface);
@@ -1929,9 +1929,9 @@
 					bundle.writeFloat(position.y);
 					bundle.writeFloat(position.z);
 
-					bundle.writeFloat((float)((double)direction.x / 360 * 6.283185307179586));
-					bundle.writeFloat((float)((double)direction.y / 360 * 6.283185307179586));
-					bundle.writeFloat((float)((double)direction.z / 360 * 6.283185307179586));
+					bundle.writeFloat((float)((double)direction.x / 360 * (System.Math.PI * 2) - System.Math.PI));
+					bundle.writeFloat((float)((double)direction.y / 360 * (System.Math.PI * 2) - System.Math.PI));
+					bundle.writeFloat((float)((double)direction.z / 360 * (System.Math.PI * 2) - System.Math.PI));
 					bundle.writeUint8((Byte)(entity.isOnGround == true ? 1 : 0));
 					bundle.writeUint32(spaceID);
 					bundle.send(_networkInterface);
@@ -2118,9 +2118,9 @@
 		public void Client_onUpdateBaseDir(MemoryStream stream)
 		{
 			float yaw, pitch, roll;
-			yaw = stream.readFloat() * 360 / ((float)System.Math.PI * 2);
-			pitch = stream.readFloat() * 360 / ((float)System.Math.PI * 2);
-			roll = stream.readFloat() * 360 / ((float)System.Math.PI * 2);
+			yaw = (stream.readFloat() + (float)System.Math.PI) * 360 / ((float)System.Math.PI * 2);
+			pitch = (stream.readFloat() + (float)System.Math.PI) * 360 / ((float)System.Math.PI * 2);
+			roll = (stream.readFloat() + (float)System.Math.PI) * 360 / ((float)System.Math.PI * 2);
 
 			var entity = player();
 			if (entity != null && entity.isControlled)
@@ -2467,19 +2467,19 @@
 			if(roll != KBEDATATYPE_BASE.KBE_FLT_MAX)
 			{
 				changeDirection = true;
-				entity.direction.x = KBEMath.int82angle((SByte)roll, false) * 360 / ((float)System.Math.PI * 2);
+				entity.direction.x = (KBEMath.int82angle((SByte)roll, false) + (float)System.Math.PI) * 360 / ((float)System.Math.PI * 2);
 			}
 
 			if(pitch != KBEDATATYPE_BASE.KBE_FLT_MAX)
 			{
 				changeDirection = true;
-				entity.direction.y = KBEMath.int82angle((SByte)pitch, false) * 360 / ((float)System.Math.PI * 2);
+				entity.direction.y = (KBEMath.int82angle((SByte)pitch, false) + (float)System.Math.PI) * 360 / ((float)System.Math.PI * 2);
 			}
 			
 			if(yaw != KBEDATATYPE_BASE.KBE_FLT_MAX)
 			{
 				changeDirection = true;
-				entity.direction.z = KBEMath.int82angle((SByte)yaw, false) * 360 / ((float)System.Math.PI * 2);
+				entity.direction.z = (KBEMath.int82angle((SByte)yaw, false) + (float)System.Math.PI) * 360 / ((float)System.Math.PI * 2);
 			}
 			
 			bool done = false;
