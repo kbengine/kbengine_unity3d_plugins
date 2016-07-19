@@ -63,6 +63,22 @@
 							state = READ_STATE.READ_STATE_MSGLEN;
 							expectSize = 2;
 						}
+						else if(msg.msglen == 0)
+						{
+							// 如果是0个参数的消息，那么没有后续内容可读了，处理本条消息并且直接跳到下一条消息
+							#if UNITY_EDITOR
+							Dbg.profileStart(msg.name);
+							#endif
+
+							msg.handleMessage(stream);
+
+							#if UNITY_EDITOR
+							Dbg.profileEnd(msg.name);
+							#endif
+
+							state = READ_STATE.READ_STATE_MSGID;
+							expectSize = 2;
+						}
 						else
 						{
 							expectSize = (MessageLengthEx)msg.msglen;

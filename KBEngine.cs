@@ -129,7 +129,8 @@
 		// 所有服务端错误码对应的错误描述
 		public static Dictionary<UInt16, ServerErr> serverErrs = new Dictionary<UInt16, ServerErr>(); 
 		
-		private System.DateTime _lastticktime = System.DateTime.Now;
+		private System.DateTime _lastTickTime = System.DateTime.Now;
+		private System.DateTime _lastTickCBTime = System.DateTime.Now;
 		private System.DateTime _lastUpdateToServerTime = System.DateTime.Now;
 		
 		// 玩家当前所在空间的id， 以及空间对应的资源
@@ -252,7 +253,8 @@
 			_entityIDAliasIDList.Clear();
 			_bufferedCreateEntityMessage.Clear();
 			
-			_lastticktime = System.DateTime.Now;
+			_lastTickTime = System.DateTime.Now;
+			_lastTickCBTime = System.DateTime.Now;
 			_lastUpdateToServerTime = System.DateTime.Now;
 			
 			spaceID = 0;
@@ -317,13 +319,24 @@
 			if(!loginappMessageImported_ && !baseappMessageImported_)
 				return;
 			
-			TimeSpan span = DateTime.Now - _lastticktime; 
+			TimeSpan span = DateTime.Now - _lastTickTime;
 			
 			// 更新玩家的位置与朝向到服务端
 			updatePlayerToServer();
 			
 			if(span.Seconds > 15)
 			{
+				span = _lastTickCBTime - _lastTickTime;
+				
+				// 如果心跳回调接收时间小于心跳发送时间，说明没有收到回调
+				// 此时应该通知客户端掉线了
+				if(span.Seconds < 0)
+				{
+					Dbg.ERROR_MSG("sendTick: Receive appTick timeout!");
+					_networkInterface.close();
+					return;
+				}
+
 				Message Loginapp_onClientActiveTickMsg = null;
 				Message Baseapp_onClientActiveTickMsg = null;
 				
@@ -349,10 +362,18 @@
 					}
 				}
 				
-				_lastticktime = System.DateTime.Now;
+				_lastTickTime = System.DateTime.Now;
 			}
 		}
-		
+
+		/*
+			服务器心跳回调
+		*/
+		public void Client_onAppActiveTickCB()
+		{
+			_lastTickCBTime = System.DateTime.Now;
+		}
+
 		/*
 			与服务端握手，与任何一个进程连接之后应该第一时间进行握手
 		*/
