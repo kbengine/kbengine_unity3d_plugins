@@ -60,6 +60,7 @@
 				newp.name = e.name;
 				newp.utype = e.utype;
 				newp.properUtype = e.properUtype;
+				newp.properFlags = e.properFlags;
 				newp.aliasID = e.aliasID;
 				newp.defaultValStr = e.defaultValStr;
 				newp.setmethod = e.setmethod;
@@ -149,7 +150,9 @@
 					{
 						if(inWorld)
 						{
-							//Dbg.DEBUG_MSG(className + "::callPropertysSetMethods(" + prop.name + ")"); 
+							if(prop.isOwnerOnly() && id != KBEngineApp.app.entity_id)
+								continue;
+
 							setmethod.Invoke(this, new object[]{oldval});
 						}
 					}

@@ -43,6 +43,18 @@
 			return properFlags == (UInt32)EntityDataFlags.ED_FLAG_BASE_AND_CLIENT ||
 				properFlags == (UInt32)EntityDataFlags.ED_FLAG_BASE;
 		}
+		
+		public bool isOwnerOnly()
+		{
+			return properFlags == (UInt32)EntityDataFlags.ED_FLAG_CELL_PUBLIC_AND_OWN ||
+				properFlags == (UInt32)EntityDataFlags.ED_FLAG_OWN_CLIENT;
+		}
+		
+		public bool isOtherOnly()
+		{
+			return properFlags == (UInt32)EntityDataFlags.ED_FLAG_OTHER_CLIENTS ||
+				properFlags == (UInt32)EntityDataFlags.ED_FLAG_OTHER_CLIENTS;
+		}
     }
     
 } 
