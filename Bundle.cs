@@ -83,7 +83,7 @@
 				for(int i=0; i<streamList.Count; i++)
 				{
 					stream = streamList[i];
-					networkInterface.send(stream.getbuffer());
+					networkInterface.send(stream);
 				}
 			}
 			else

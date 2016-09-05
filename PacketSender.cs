@@ -8,7 +8,8 @@
 	using System.Text;
 	using System.Text.RegularExpressions;
 	using System.Threading;
-	
+	using System.Runtime.Remoting.Messaging;
+
 	using MessageID = System.UInt16;
 	using MessageLength = System.UInt16;
 	
@@ -18,6 +19,8 @@
 	*/
     public class PacketSender 
     {
+    		public delegate void AsyncSendMethod();
+
 		private byte[] _buffer;
 
 		int _wpos = 0;				// 写入的数据位置
@@ -26,6 +29,7 @@
 		
 		private NetworkInterface _networkInterface = null;
 		AsyncCallback _asyncCallback = null;
+		AsyncSendMethod _asyncSendMethod;
 		
         public PacketSender(NetworkInterface networkInterface)
         {
@@ -42,6 +46,7 @@
 			_networkInterface = networkInterface;
 			
 			_buffer = new byte[KBEngineApp.app.getInitArgs().SEND_BUFFER_MAX];
+			_asyncSendMethod = new AsyncSendMethod(this._asyncSend);
 			_asyncCallback = new AsyncCallback(_onSent);
 			
 			_wpos = 0; 
@@ -53,17 +58,16 @@
 		{
 			return _networkInterface;
 		}
-		
-		public bool send(byte[] datas)
+
+		public bool send(MemoryStream stream)
 		{
-			if(datas.Length <= 0)
+			int dataLength = (int)stream.length();
+			if (dataLength <= 0)
 				return true;
 
-			bool startSend = false;
-			if(Interlocked.CompareExchange(ref _sending, 1, 0) == 0)
+			if (0 == Interlocked.Add(ref _sending, 0))
 			{
-				startSend = true;
-				if(_wpos == _spos)
+				if (_wpos == _spos)
 				{
 					_wpos = 0;
 					_spos = 0;
@@ -80,94 +84,91 @@
 			else
 				space = tt_spos - tt_wpos - 1;
 
-			if (datas.Length > space)
+			if (dataLength > space)
 			{
-				Dbg.ERROR_MSG("PacketSender::send(): no space, Please adjust 'SEND_BUFFER_MAX'! data(" + datas.Length 
+				Dbg.ERROR_MSG("PacketSender::send(): no space, Please adjust 'SEND_BUFFER_MAX'! data(" + dataLength 
 					+ ") > space(" + space + "), wpos=" + _wpos + ", spos=" + t_spos);
 				
 				return false;
 			}
 
-			int expect_total = tt_wpos + datas.Length;
+			int expect_total = tt_wpos + dataLength;
 			if(expect_total <= _buffer.Length)
 			{
-				Array.Copy(datas, 0, _buffer, tt_wpos, datas.Length);
+				Array.Copy(stream.data(), stream.rpos, _buffer, tt_wpos, dataLength);
 			}
 			else
 			{
 				int remain = _buffer.Length - tt_wpos;
-				Array.Copy(datas, 0, _buffer, tt_wpos, remain);
-				Array.Copy(datas, remain, _buffer, 0, expect_total - _buffer.Length);
+				Array.Copy(stream.data(), stream.rpos, _buffer, tt_wpos, remain);
+				Array.Copy(stream.data(), stream.rpos + remain, _buffer, 0, expect_total - _buffer.Length);
 			}
 
-			Interlocked.Add(ref _wpos, datas.Length);
+			Interlocked.Add(ref _wpos, dataLength);
 
-			if(startSend)
+			if (Interlocked.CompareExchange(ref _sending, 1, 0) == 0)
 			{
 				_startSend();
 			}
 
 			return true;
 		}
-		
+
 		void _startSend()
 		{
-			int sendSize = Interlocked.Add(ref _wpos, 0) - _spos;
-			int t_spos = _spos % _buffer.Length;
-			if(t_spos == 0)
-				t_spos = sendSize;
-		
-			if(sendSize > _buffer.Length - t_spos)
-				sendSize = _buffer.Length - t_spos;
+			// 由于socket用的是非阻塞式，因此在这里不能直接使用socket.send()方法
+			// 必须放到另一个线程中去做
+			_asyncSendMethod.BeginInvoke(_asyncCallback, null);
+		}
 
-			try
+		void _asyncSend()
+		{
+			if (_networkInterface == null || !_networkInterface.valid())
 			{
-				_networkInterface.sock().BeginSend(_buffer, _spos % _buffer.Length, sendSize, 0,
-         		   _asyncCallback, this);
+				Dbg.WARNING_MSG("PacketSender::_asyncSend(): network interface invalid!");
+				return;
 			}
-			catch (Exception e) 
+
+			var socket = _networkInterface.sock();
+
+			while (true)
 			{
-				Dbg.ERROR_MSG("PacketSender::startSend(): is err: " + e.ToString());
-				Event.fireIn("_closeNetwork", new object[]{_networkInterface});
+				int sendSize = Interlocked.Add(ref _wpos, 0) - _spos;
+				int t_spos = _spos % _buffer.Length;
+				if (t_spos == 0)
+					t_spos = sendSize;
+
+				if (sendSize > _buffer.Length - t_spos)
+					sendSize = _buffer.Length - t_spos;
+
+				int bytesSent = 0;
+				try
+				{
+					bytesSent = socket.Send(_buffer, _spos % _buffer.Length, sendSize, 0);
+				}
+				catch (SocketException se)
+				{
+					Dbg.ERROR_MSG(string.Format("PacketSender::_asyncSend(): send data error, disconnect from '{0}'! error = '{1}'", socket.RemoteEndPoint, se));
+					Event.fireIn("_closeNetwork", new object[] { _networkInterface });
+					return;
+				}
+
+				int spos = Interlocked.Add(ref _spos, bytesSent);
+
+				// 所有数据发送完毕了
+				if (spos == Interlocked.Add(ref _wpos, 0))
+				{
+					Interlocked.Exchange(ref _sending, 0);
+					return;
+				}
 			}
 		}
 		
 		private static void _onSent(IAsyncResult ar)
 		{
-			// Retrieve the socket from the state object.
-			PacketSender state = (PacketSender) ar.AsyncState;
-
-			try 
-			{
-				// 由于多线程问题，networkInterface可能已被丢弃了
-				// 例如：在连接loginapp之后自动开始连接到baseapp之前会先关闭并丢弃networkInterface
-				if(!state.networkInterface().valid())
-					return;
-
-				Socket client = state.networkInterface().sock();
-				
-				// Complete sending the data to the remote device.
-				int bytesSent = client.EndSend(ar);
-				
-				int spos = Interlocked.Add(ref state._spos, bytesSent);
-
-				// 如果数据没有发送完毕需要继续投递发送
-				if(spos != Interlocked.Add(ref state._wpos, 0))
-				{
-					state._startSend();
-				}
-				else
-				{
-					// 所有数据发送完毕了
-					Interlocked.Exchange(ref state._sending, 0);
-				}
-			} 
-			catch (Exception e) 
-			{
-				Dbg.ERROR_MSG(string.Format("PacketSender::_processSent(): is error({0})!", e.ToString()));
-				Event.fireIn("_closeNetwork", new object[]{state.networkInterface()});
-				Interlocked.Exchange(ref state._sending, 0);
-			}
+			AsyncResult result = (AsyncResult)ar;
+			AsyncSendMethod caller = (AsyncSendMethod)result.AsyncDelegate;
+			caller.EndInvoke(ar);
 		}
 	}
 } 
