@@ -94,7 +94,7 @@
 		
 		// 持久化插件信息， 例如：从服务端导入的协议可以持久化到本地，下次登录版本不发生改变
 		// 可以直接从本地加载来提供登录速度
-		private PersistentInofs _persistentInofs = null;
+		private PersistentInfos _persistentInfos = null;
 		
 		// 当前玩家的实体id与实体类别
 		public UInt64 entity_uuid = 0;
@@ -165,7 +165,7 @@
             
             // 允许持久化KBE(例如:协议，entitydef等)
             if(args.persistentDataPath != "")
-         	   _persistentInofs = new PersistentInofs(args.persistentDataPath);
+         	   _persistentInfos = new PersistentInfos(args.persistentDataPath);
          	
          	return true;
 		}
@@ -428,8 +428,8 @@
 			Dbg.ERROR_MSG("Client_onVersionNotMatch: verInfo=" + clientVersion + "(server: " + serverVersion + ")");
 			Event.fireAll("onVersionNotMatch", new object[]{clientVersion, serverVersion});
 			
-			if(_persistentInofs != null)
-				_persistentInofs.onVersionNotMatch(clientVersion, serverVersion);
+			if(_persistentInfos != null)
+				_persistentInfos.onVersionNotMatch(clientVersion, serverVersion);
 		}
 
 		/*
@@ -442,8 +442,8 @@
 			Dbg.ERROR_MSG("Client_onScriptVersionNotMatch: verInfo=" + clientScriptVersion + "(server: " + serverScriptVersion + ")");
 			Event.fireAll("onScriptVersionNotMatch", new object[]{clientScriptVersion, serverScriptVersion});
 			
-			if(_persistentInofs != null)
-				_persistentInofs.onScriptVersionNotMatch(clientScriptVersion, serverScriptVersion);
+			if(_persistentInfos != null)
+				_persistentInfos.onScriptVersionNotMatch(clientScriptVersion, serverScriptVersion);
 		}
 		
 		/*
@@ -465,8 +465,8 @@
 			
 			onImportServerErrorsDescr (stream);
 			
-			if(_persistentInofs != null)
-				_persistentInofs.onImportServerErrorsDescr(datas);
+			if(_persistentInfos != null)
+				_persistentInfos.onImportServerErrorsDescr(datas);
 		}
 
 		/*
@@ -837,8 +837,8 @@
 
 			onImportClientEntityDef (stream);
 			
-			if(_persistentInofs != null)
-				_persistentInofs.onImportClientEntityDef(datas);
+			if(_persistentInfos != null)
+				_persistentInfos.onImportClientEntityDef(datas);
 		}
 
 		public void onImportClientEntityDef(MemoryStream stream)
@@ -1076,8 +1076,8 @@
 
 			onImportClientMessages (stream);
 			
-			if(_persistentInofs != null)
-				_persistentInofs.onImportClientMessages(currserver, datas);
+			if(_persistentInfos != null)
+				_persistentInfos.onImportClientMessages(currserver, datas);
 		}
 
 		public void onImportClientMessages(MemoryStream stream)
@@ -1351,8 +1351,8 @@
 		*/
 		public void onServerDigest()
 		{
-			if(_persistentInofs != null)
-				_persistentInofs.onServerDigest(currserver, serverProtocolMD5, serverEntitydefMD5);
+			if(_persistentInfos != null)
+				_persistentInfos.onServerDigest(currserver, serverProtocolMD5, serverEntitydefMD5);
 		}
 
 		/*
