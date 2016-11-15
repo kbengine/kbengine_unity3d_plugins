@@ -848,19 +848,19 @@
 			
 			while(stream.length() > 0)
 			{
-				string scriptmethod_name = stream.readString();
+				string scriptmodule_name = stream.readString();
 				UInt16 scriptUtype = stream.readUint16();
 				UInt16 propertysize = stream.readUint16();
 				UInt16 methodsize = stream.readUint16();
 				UInt16 base_methodsize = stream.readUint16();
 				UInt16 cell_methodsize = stream.readUint16();
 				
-				Dbg.DEBUG_MSG("KBEngine::Client_onImportClientEntityDef: import(" + scriptmethod_name + "), propertys(" + propertysize + "), " +
+				Dbg.DEBUG_MSG("KBEngine::Client_onImportClientEntityDef: import(" + scriptmodule_name + "), propertys(" + propertysize + "), " +
 						"clientMethods(" + methodsize + "), baseMethods(" + base_methodsize + "), cellMethods(" + cell_methodsize + ")!");
 				
 				
-				ScriptModule module = new ScriptModule(scriptmethod_name);
-				EntityDef.moduledefs[scriptmethod_name] = module;
+				ScriptModule module = new ScriptModule(scriptmodule_name);
+				EntityDef.moduledefs[scriptmodule_name] = module;
 				EntityDef.idmoduledefs[scriptUtype] = module;
 
 				Type Class = module.script;
@@ -886,7 +886,7 @@
 						catch (Exception e)
 						{
 							string err = "KBEngine::Client_onImportClientEntityDef: " + 
-								scriptmethod_name + ".set_" + name + ", error=" + e.ToString();
+								scriptmodule_name + ".set_" + name + ", error=" + e.ToString();
 							
 							throw new Exception(err);
 						}
@@ -915,7 +915,7 @@
 						module.idpropertys[properUtype] = savedata;
 					}
 
-					//Dbg.DEBUG_MSG("KBEngine::Client_onImportClientEntityDef: add(" + scriptmethod_name + "), property(" + name + "/" + properUtype + ").");
+					//Dbg.DEBUG_MSG("KBEngine::Client_onImportClientEntityDef: add(" + scriptmodule_name + "), property(" + name + "/" + properUtype + ").");
 				};
 				
 				while(methodsize > 0)
@@ -947,7 +947,7 @@
 						}
 						catch (Exception e)
 						{
-							string err = "KBEngine::Client_onImportClientEntityDef: " + scriptmethod_name + "." + name + ", error=" + e.ToString();
+							string err = "KBEngine::Client_onImportClientEntityDef: " + scriptmodule_name + "." + name + ", error=" + e.ToString();
 							throw new Exception(err);
 						}
 					}
@@ -965,7 +965,7 @@
 						module.idmethods[methodUtype] = savedata;
 					}
 					
-					//Dbg.DEBUG_MSG("KBEngine::Client_onImportClientEntityDef: add(" + scriptmethod_name + "), method(" + name + ").");
+					//Dbg.DEBUG_MSG("KBEngine::Client_onImportClientEntityDef: add(" + scriptmodule_name + "), method(" + name + ").");
 				};
 	
 				while(base_methodsize > 0)
@@ -993,7 +993,7 @@
 					module.base_methods[name] = savedata;
 					module.idbase_methods[methodUtype] = savedata;
 					
-					//Dbg.DEBUG_MSG("KBEngine::Client_onImportClientEntityDef: add(" + scriptmethod_name + "), base_method(" + name + ").");
+					//Dbg.DEBUG_MSG("KBEngine::Client_onImportClientEntityDef: add(" + scriptmodule_name + "), base_method(" + name + ").");
 				};
 				
 				while(cell_methodsize > 0)
@@ -1020,12 +1020,12 @@
 				
 					module.cell_methods[name] = savedata;
 					module.idcell_methods[methodUtype] = savedata;
-					//Dbg.DEBUG_MSG("KBEngine::Client_onImportClientEntityDef: add(" + scriptmethod_name + "), cell_method(" + name + ").");
+					//Dbg.DEBUG_MSG("KBEngine::Client_onImportClientEntityDef: add(" + scriptmodule_name + "), cell_method(" + name + ").");
 				};
 				
 				if(module.script == null)
 				{
-					Dbg.ERROR_MSG("KBEngine::Client_onImportClientEntityDef: module(" + scriptmethod_name + ") not found!");
+					Dbg.ERROR_MSG("KBEngine::Client_onImportClientEntityDef: module(" + scriptmodule_name + ") not found!");
 				}
 
 				foreach(string name in module.methods.Keys)
@@ -1034,7 +1034,7 @@
 
 					if(module.script != null && module.script.GetMethod(name) == null)
 					{
-						Dbg.WARNING_MSG(scriptmethod_name + "(" + module.script + "):: method(" + name + ") no implement!");
+						Dbg.WARNING_MSG(scriptmodule_name + "(" + module.script + "):: method(" + name + ") no implement!");
 					}
 				};
 			}
