@@ -1423,9 +1423,6 @@
 				// Dbg.WARNING_MSG("KBEngine::Client_onCreatedProxies: eid(" + eid + ") has exist!");
 				Client_onEntityDestroyed(eid);
 			}
-
-			MemoryStream entityMessage = null;
-			_bufferedCreateEntityMessage.TryGetValue(eid, out entityMessage);
 				
 			entity_uuid = rndUUID;
 			entity_id = eid;
@@ -1452,6 +1449,9 @@
 			entity.baseMailbox.type = Mailbox.MAILBOX_TYPE.MAILBOX_TYPE_BASE;
 
 			entities[eid] = entity;
+			
+			MemoryStream entityMessage = null;
+			_bufferedCreateEntityMessage.TryGetValue(eid, out entityMessage);
 			
 			if(entityMessage != null)
 			{
