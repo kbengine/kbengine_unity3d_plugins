@@ -1435,6 +1435,7 @@
 			if(!EntityDef.moduledefs.TryGetValue(entityType, out module))
 			{
 				Dbg.ERROR_MSG("KBEngine::Client_onCreatedProxies: not found module(" + entityType + ")!");
+				return;
 			}
 			
 			Type runclass = module.script;
