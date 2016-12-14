@@ -17,7 +17,7 @@ Usage
 			<Gate hasClient="true"></Gate>
 			<Space/>
 
-			public class Account : KBEngine.GameObject 
+			public class Account : KBEngine.Entity 
 			{
 				// entity initialization
 				public override void __init__()
