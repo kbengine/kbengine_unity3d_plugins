@@ -30,21 +30,23 @@ Usage
 			entity.cellCall("cell_func", 1, "arg2", "argN")
 
 	3: Monitor KBE-plugins event
-		public class UI : MonoBehaviour
-		{
-			void Start () 
+		For example:
+			public class UI : MonoBehaviour
 			{
-				KBEngine.Event.registerOut("onConnectStatus", this, "onConnectStatus");
-			}
+				void Start () 
+				{
+					KBEngine.Event.registerOut("onConnectStatus", this, "onConnectStatus");
+				}
 
-			public void onConnectStatus(bool success)
-			{
-				// KBE-plugins event fired
+				public void onConnectStatus(bool success)
+				{
+					// KBE-plugins event fired
+				}
 			}
-		}
 
 	4: Fire events to the KBE-plugins
-		KBEngine.Event.fireIn("login", "stringAccount", "stringPasswd", System.Text.Encoding.UTF8.GetBytes("kbengine_unity3d_demo"));
+		For example:
+			KBEngine.Event.fireIn("login", "stringAccount", "stringPasswd", System.Text.Encoding.UTF8.GetBytes("kbengine_unity3d_demo"));
 
 
 
