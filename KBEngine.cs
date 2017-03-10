@@ -1418,53 +1418,62 @@
 		{
 			Dbg.DEBUG_MSG("KBEngine::Client_onCreatedProxies: eid(" + eid + "), entityType(" + entityType + ")!");
 			
-			if(this.entities.ContainsKey(eid))
-			{
-				// Dbg.WARNING_MSG("KBEngine::Client_onCreatedProxies: eid(" + eid + ") has exist!");
-				Client_onEntityDestroyed(eid);
-			}
-				
 			entity_uuid = rndUUID;
 			entity_id = eid;
 			entity_type = entityType;
 			
-			ScriptModule module = null;
-			if(!EntityDef.moduledefs.TryGetValue(entityType, out module))
+			if(!this.entities.ContainsKey(eid))
 			{
-				Dbg.ERROR_MSG("KBEngine::Client_onCreatedProxies: not found module(" + entityType + ")!");
-				return;
-			}
-			
-			Type runclass = module.script;
-			if(runclass == null)
-				return;
-			
-			Entity entity = (Entity)Activator.CreateInstance(runclass);
-			entity.id = eid;
-			entity.className = entityType;
-			
-			entity.baseMailbox = new Mailbox();
-			entity.baseMailbox.id = eid;
-			entity.baseMailbox.className = entityType;
-			entity.baseMailbox.type = Mailbox.MAILBOX_TYPE.MAILBOX_TYPE_BASE;
+				ScriptModule module = null;
+				if(!EntityDef.moduledefs.TryGetValue(entityType, out module))
+				{
+					Dbg.ERROR_MSG("KBEngine::Client_onCreatedProxies: not found module(" + entityType + ")!");
+					return;
+				}
+				
+				Type runclass = module.script;
+				if(runclass == null)
+					return;
+				
+				Entity entity = (Entity)Activator.CreateInstance(runclass);
+				entity.id = eid;
+				entity.className = entityType;
+				
+				entity.baseMailbox = new Mailbox();
+				entity.baseMailbox.id = eid;
+				entity.baseMailbox.className = entityType;
+				entity.baseMailbox.type = Mailbox.MAILBOX_TYPE.MAILBOX_TYPE_BASE;
 
-			entities[eid] = entity;
-			
-			MemoryStream entityMessage = null;
-			_bufferedCreateEntityMessage.TryGetValue(eid, out entityMessage);
-			
-			if(entityMessage != null)
-			{
-				Client_onUpdatePropertys(entityMessage);
-				_bufferedCreateEntityMessage.Remove(eid);
-				entityMessage.reclaimObject();
+				entities[eid] = entity;
+				
+				MemoryStream entityMessage = null;
+				_bufferedCreateEntityMessage.TryGetValue(eid, out entityMessage);
+				
+				if(entityMessage != null)
+				{
+					Client_onUpdatePropertys(entityMessage);
+					_bufferedCreateEntityMessage.Remove(eid);
+					entityMessage.reclaimObject();
+				}
+				
+				entity.__init__();
+				entity.inited = true;
+				
+				if(_args.isOnInitCallPropertysSetMethods)
+					entity.callPropertysSetMethods();
 			}
-			
-			entity.__init__();
-			entity.inited = true;
-			
-			if(_args.isOnInitCallPropertysSetMethods)
-				entity.callPropertysSetMethods();
+			else
+			{
+				MemoryStream entityMessage = null;
+				_bufferedCreateEntityMessage.TryGetValue(eid, out entityMessage);
+				
+				if(entityMessage != null)
+				{
+					Client_onUpdatePropertys(entityMessage);
+					_bufferedCreateEntityMessage.Remove(eid);
+					entityMessage.reclaimObject();
+				}
+			}
 		}
 		
 		public Entity findEntity(Int32 entityID)
