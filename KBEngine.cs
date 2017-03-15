@@ -86,7 +86,7 @@
 		
 		// 服务端与客户端的版本号以及协议MD5
 		public string serverVersion = "";
-		public string clientVersion = "0.9.0";
+		public string clientVersion = "0.9.12";
 		public string serverScriptVersion = "";
 		public string clientScriptVersion = "0.1.0";
 		public string serverProtocolMD5 = "";
@@ -180,7 +180,7 @@
 		{
 			Event.registerIn("createAccount", this, "createAccount");
 			Event.registerIn("login", this, "login");
-			Event.registerIn("reLoginBaseapp", this, "reLoginBaseapp");
+			Event.registerIn("reloginBaseapp", this, "reloginBaseapp");
 			Event.registerIn("resetPassword", this, "resetPassword");
 			Event.registerIn("bindAccountEmail", this, "bindAccountEmail");
 			Event.registerIn("newPassword", this, "newPassword");
@@ -624,9 +624,9 @@
 			重登录到网关(baseapp)
 			一些移动类应用容易掉线，可以使用该功能快速的重新与服务端建立通信
 		*/
-		public void reLoginBaseapp()
+		public void reloginBaseapp()
 		{  
-			Event.fireAll("onReLoginBaseapp", new object[]{});
+			Event.fireAll("onReloginBaseapp", new object[]{});
 			_networkInterface.connectTo(baseappIP, baseappPort, onReConnectTo_baseapp_callback, null);
 		}
 
@@ -634,7 +634,7 @@
 		{
 			if(!success)
 			{
-				Dbg.ERROR_MSG(string.Format("KBEngine::reLoginBaseapp(): connect {0}:{1} is error!", ip, port));
+				Dbg.ERROR_MSG(string.Format("KBEngine::reloginBaseapp(): connect {0}:{1} is error!", ip, port));
 				return;
 			}
 			
@@ -642,7 +642,7 @@
 			Dbg.DEBUG_MSG(string.Format("KBEngine::relogin_baseapp(): connect {0}:{1} is successfully!", ip, port));
 
 			Bundle bundle = Bundle.createObject();
-			bundle.newMessage(Message.messages["Baseapp_reLoginBaseapp"]);
+			bundle.newMessage(Message.messages["Baseapp_reloginBaseapp"]);
 			bundle.writeString(username);
 			bundle.writeString(password);
 			bundle.writeUint64(entity_uuid);
@@ -1395,20 +1395,20 @@
 		/*
 			重登录baseapp失败了
 		*/
-		public void Client_onReLoginBaseappFailed(UInt16 failedcode)
+		public void Client_onReloginBaseappFailed(UInt16 failedcode)
 		{
-			Dbg.ERROR_MSG("KBEngine::Client_onReLoginBaseappFailed: failedcode(" + failedcode + ")!");
-			Event.fireAll("onReLoginBaseappFailed", new object[]{failedcode});
+			Dbg.ERROR_MSG("KBEngine::Client_onReloginBaseappFailed: failedcode(" + failedcode + ")!");
+			Event.fireAll("onReloginBaseappFailed", new object[]{failedcode});
 		}
 		
 		/*
 			登录baseapp成功了
 		*/
-		public void Client_onReLoginBaseappSuccessfully(MemoryStream stream)
+		public void Client_onReloginBaseappSuccessfully(MemoryStream stream)
 		{
 			entity_uuid = stream.readUint64();
-			Dbg.DEBUG_MSG("KBEngine::Client_onReLoginBaseappSuccessfully: name(" + username + ")!");
-			Event.fireAll("onReLoginBaseappSuccessfully", new object[]{});
+			Dbg.DEBUG_MSG("KBEngine::Client_onReloginBaseappSuccessfully: name(" + username + ")!");
+			Event.fireAll("onReloginBaseappSuccessfully", new object[]{});
 		}
 
 		/*

@@ -75,7 +75,7 @@
 			{
 				_socket.Close(0);
 				_socket = null;
-				Event.fireAll("onDisableConnect", new object[]{});
+				Event.fireAll("onDisconnected", new object[]{});
             }
 
             _socket = null;
@@ -91,23 +91,23 @@
 			return ((_socket != null) && (_socket.Connected == true));
 		}
 		
-		public void _onConnectStatus(ConnectState state)
+		public void _onConnectionState(ConnectState state)
 		{
 			KBEngine.Event.deregisterIn(this);
 
 			bool success = (state.error == "" && valid());
 			if (success)
 			{
-				Dbg.DEBUG_MSG(string.Format("NetworkInterface::_onConnectStatus(), connect to {0} is success!", state.socket.RemoteEndPoint.ToString()));
+				Dbg.DEBUG_MSG(string.Format("NetworkInterface::_onConnectionState(), connect to {0} is success!", state.socket.RemoteEndPoint.ToString()));
 				_packetReceiver = new PacketReceiver(this);
 				_packetReceiver.startRecv();
 			}
 			else
 			{
-				Dbg.ERROR_MSG(string.Format("NetworkInterface::_onConnectStatus(), connect is error! ip: {0}:{1}, err: {2}", state.connectIP, state.connectPort, state.error));
+				Dbg.ERROR_MSG(string.Format("NetworkInterface::_onConnectionState(), connect is error! ip: {0}:{1}, err: {2}", state.connectIP, state.connectPort, state.error));
 			}
 
-			Event.fireAll("onConnectStatus", new object[] { success });
+			Event.fireAll("onConnectionState", new object[] { success });
 
 			if (state.connectCB != null)
 				state.connectCB(state.connectIP, state.connectPort, success, state.userData);
@@ -125,12 +125,12 @@
 				// Complete the connection.
 				state.socket.EndConnect(ar);
 
-				Event.fireIn("_onConnectStatus", new object[] { state });
+				Event.fireIn("_onConnectionState", new object[] { state });
 			} 
 			catch (Exception e) 
 			{
 				state.error = e.ToString();
-				Event.fireIn("_onConnectStatus", new object[] { state });
+				Event.fireIn("_onConnectionState", new object[] { state });
 			}
 		}
 
@@ -164,7 +164,7 @@
 
 			// Call EndInvoke to retrieve the results.
 			caller.EndInvoke(ar);
-			Event.fireIn("_onConnectStatus", new object[] { state });
+			Event.fireIn("_onConnectionState", new object[] { state });
 		}
 
 		public void connectTo(string ip, int port, ConnectCallback callback, object userData)
@@ -196,7 +196,7 @@
 			Dbg.DEBUG_MSG("connect to " + ip + ":" + port + " ...");
 
 			// 先注册一个事件回调，该事件在当前线程触发
-			Event.registerIn("_onConnectStatus", this, "_onConnectStatus");
+			Event.registerIn("_onConnectionState", this, "_onConnectionState");
 
 			var v = new AsyncConnectMethod(this._asyncConnect);
 			v.BeginInvoke(state, new AsyncCallback(this._asyncConnectCB), state);
