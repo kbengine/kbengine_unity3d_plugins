@@ -175,7 +175,7 @@
 			ScriptModule module = null;
 			if(!EntityDef.moduledefs.TryGetValue(className, out module))
 			{
-				Dbg.ERROR_MSG("entity::baseCall:  entity-module(" + className + ") error!");
+				Dbg.ERROR_MSG("entity::baseCall:  entity-module(" + className + ") error, can not find from EntityDef.moduledefs");
 				return;
 			}
 				
@@ -232,7 +232,7 @@
 			ScriptModule module = null;
 			if(!EntityDef.moduledefs.TryGetValue(className, out module))
 			{
-				Dbg.ERROR_MSG("entity::cellCall:  entity-module(" + className + ") error!");
+				Dbg.ERROR_MSG("entity::cellCall:  entity-module(" + className + ") error, can not find from EntityDef.moduledefs!");
 				return;
 			}
 			
