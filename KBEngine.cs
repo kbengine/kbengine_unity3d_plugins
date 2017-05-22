@@ -626,6 +626,9 @@
 		*/
 		public void reloginBaseapp()
 		{  
+			if(_networkInterface.valid())
+				return;
+
 			Event.fireAll("onReloginBaseapp", new object[]{});
 			_networkInterface.connectTo(baseappIP, baseappPort, onReConnectTo_baseapp_callback, null);
 		}
