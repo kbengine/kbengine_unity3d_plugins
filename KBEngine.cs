@@ -313,7 +313,7 @@
 		*/
 		public void sendTick()
 		{
-			if(_networkInterface == null || !_networkInterface.valid())
+			if(_networkInterface == null || _networkInterface.connected == false)
 				return;
 
 			if(!loginappMessageImported_ && !baseappMessageImported_)

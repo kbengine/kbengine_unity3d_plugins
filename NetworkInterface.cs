@@ -76,7 +76,6 @@
         {
            if(_socket != null)
 			{
-				Dbg.ERROR_MSG(string.Format("Ne"));
 				_socket.Close(0);
 				_socket = null;
 				Event.fireAll("onDisconnected", new object[]{});
@@ -93,7 +92,7 @@
 		
 		public virtual bool valid()
 		{
-			return ((_socket != null) && (connected == true));
+			return ((_socket != null) && (_socket.Connected == true));
 		}
 		
 		public void _onConnectionState(ConnectState state)
@@ -111,7 +110,7 @@
 			else
 			{
 				reset();
-				Dbg.ERROR_MSG(string.Format("NetworkInterface::_onConnectionState(), connect is error! ip: {0}:{1}, err: {2}", state.connectIP, state.connectPort, state.error));
+				Dbg.ERROR_MSG(string.Format("NetworkInterface::_onConnectionState(), connect error! ip: {0}:{1}, err: {2}", state.connectIP, state.connectPort, state.error));
 			}
 
 			Event.fireAll("onConnectionState", new object[] { success });
