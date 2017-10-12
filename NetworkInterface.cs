@@ -28,6 +28,8 @@
 		PacketReceiver _packetReceiver = null;
 		PacketSender _packetSender = null;
 
+		public bool connected = false;
+		
 		public class ConnectState
 		{
 			// for connect
@@ -66,6 +68,7 @@
 			_socket = null;
 			_packetReceiver = null;
 			_packetSender = null;
+			connected = false;
 		}
 		
 
@@ -73,12 +76,14 @@
         {
            if(_socket != null)
 			{
+				Dbg.ERROR_MSG(string.Format("Ne"));
 				_socket.Close(0);
 				_socket = null;
 				Event.fireAll("onDisconnected", new object[]{});
             }
 
             _socket = null;
+            connected = false;
         }
 
 		public virtual PacketReceiver packetReceiver()
@@ -88,7 +93,7 @@
 		
 		public virtual bool valid()
 		{
-			return ((_socket != null) && (_socket.Connected == true));
+			return ((_socket != null) && (connected == true));
 		}
 		
 		public void _onConnectionState(ConnectState state)
@@ -101,9 +106,11 @@
 				Dbg.DEBUG_MSG(string.Format("NetworkInterface::_onConnectionState(), connect to {0} is success!", state.socket.RemoteEndPoint.ToString()));
 				_packetReceiver = new PacketReceiver(this);
 				_packetReceiver.startRecv();
+				connected = true;
 			}
 			else
 			{
+				reset();
 				Dbg.ERROR_MSG(string.Format("NetworkInterface::_onConnectionState(), connect is error! ip: {0}:{1}, err: {2}", state.connectIP, state.connectPort, state.error));
 			}
 
@@ -194,7 +201,8 @@
 			state.networkInterface = this;
 
 			Dbg.DEBUG_MSG("connect to " + ip + ":" + port + " ...");
-
+			connected = false;
+			
 			// 先注册一个事件回调，该事件在当前线程触发
 			Event.registerIn("_onConnectionState", this, "_onConnectionState");
 
