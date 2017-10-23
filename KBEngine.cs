@@ -29,6 +29,10 @@
         
         KBEngineArgs _args = null;
         
+		//上传服务器玩家位置信息间隔，单位毫秒
+        private float updatePlayerToServerPeroid = 100.0f;
+
+        private const int ONE_MS_TO_100_NS = 10000;
     	// 客户端的类别
     	// http://www.kbengine.org/docs/programming/clientsdkprogramming.html
     	// http://www.kbengine.org/cn/docs/programming/clientsdkprogramming.html
@@ -158,6 +162,8 @@
 		{
 			_args = args;
 			
+			updatePlayerToServerPeroid = 1000f / args.threadUpdateHZ;
+
         	initNetwork();
 
             // 注册事件
@@ -1923,14 +1929,15 @@
 			var now = DateTime.Now;
 			TimeSpan span = now - _lastUpdateToServerTime;
 
-			if (span.Ticks < 1000000)
-				return;
-			
-			Entity playerEntity = player();
-			if (playerEntity == null || playerEntity.inWorld == false || playerEntity.isControlled)
-				return;
+  			if (span.Ticks < updatePlayerToServerPeroid * ONE_MS_TO_100_NS)
+                return;
 
-			_lastUpdateToServerTime = now - (span - TimeSpan.FromTicks(1000000));
+            Entity playerEntity = player();
+            if (playerEntity == null || playerEntity.inWorld == false || playerEntity.isControlled)
+                return;
+
+            _lastUpdateToServerTime = now - (span - TimeSpan.FromTicks(Convert.ToInt64(updatePlayerToServerPeroid * ONE_MS_TO_100_NS)));
+
 			
 			Vector3 position = playerEntity.position;
 			Vector3 direction = playerEntity.direction;
