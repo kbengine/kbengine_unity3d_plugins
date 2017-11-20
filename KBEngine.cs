@@ -907,7 +907,7 @@
 					
 					module.propertys[name] = savedata;
 					
-					if(ialiasID >= 0)
+					if(ialiasID != -1)
 					{
 						module.usePropertyDescrAlias = true;
 						module.idpropertys[(UInt16)ialiasID] = savedata;
@@ -957,7 +957,7 @@
 							
 					module.methods[name] = savedata;
 					
-					if(ialiasID >= 0)
+					if(ialiasID != -1)
 					{
 						module.useMethodDescrAlias = true;
 						module.idmethods[(UInt16)ialiasID] = savedata;
