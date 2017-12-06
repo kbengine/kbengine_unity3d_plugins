@@ -360,7 +360,6 @@
 				ii += 1;
 				if(ii >= 200)
 				{
-					// MyDebug.Dbg.Log(s);
 					s = "";
 					ii = 0;
 				}
@@ -369,7 +368,6 @@
 				s += " ";
 			}
 			
-			// MyDebug.Dbg.Log(s);
 			return s;
 		}
     }
