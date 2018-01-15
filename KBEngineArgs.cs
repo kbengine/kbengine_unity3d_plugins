@@ -46,6 +46,9 @@
 		// 线程主循环处理频率
 		public int threadUpdateHZ = 10;
 
+		// 心跳频率（tick数）
+		public int serverHeartbeatTick = 15;
+
 		public int getRecvBufferSize()
 		{
 			return (int)RECV_BUFFER_MAX;

@@ -21,6 +21,7 @@ public class KBEMain : MonoBehaviour
 	public string persistentDataPath = "Application.persistentDataPath";
 	public bool syncPlayer = true;
 	public int threadUpdateHZ = 10;
+	public int serverHeartbeatTick = 15;
 	public int SEND_BUFFER_MAX = (int)KBEngine.NetworkInterface.TCP_PACKET_MAX;
 	public int RECV_BUFFER_MAX = (int)KBEngine.NetworkInterface.TCP_PACKET_MAX;
 	public bool useAliasEntityID = true;
@@ -62,6 +63,7 @@ public class KBEMain : MonoBehaviour
 		
 		args.syncPlayer = syncPlayer;
 		args.threadUpdateHZ = threadUpdateHZ;
+		args.serverHeartbeatTick = serverHeartbeatTick;
 		args.useAliasEntityID = useAliasEntityID;
 		args.isOnInitCallPropertysSetMethods = isOnInitCallPropertysSetMethods;
 
