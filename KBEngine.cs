@@ -114,7 +114,7 @@
 		// https://github.com/kbengine/kbengine/tree/master/docs/api
 		public Dictionary<Int32, Entity> entities = new Dictionary<Int32, Entity>();
 		
-		// 在玩家AOI范围小于256个实体时我们可以通过一字节索引来找到entity
+		// 在玩家View范围小于256个实体时我们可以通过一字节索引来找到entity
 		private List<Int32> _entityIDAliasIDList = new List<Int32>();
 		private Dictionary<Int32, MemoryStream> _bufferedCreateEntityMessage = new Dictionary<Int32, MemoryStream>(); 
 		
@@ -1492,9 +1492,9 @@
 		}
 
 		/*
-			通过流数据获得AOI实体的ID
+			通过流数据获得View实体的ID
 		*/
-		public Int32 getAoiEntityIDFromStream(MemoryStream stream)
+		public Int32 getViewEntityIDFromStream(MemoryStream stream)
 		{
 			if (!_args.useAliasEntityID)
 				return stream.readInt32();
@@ -1525,7 +1525,7 @@
 		*/
 		public void Client_onUpdatePropertysOptimized(MemoryStream stream)
 		{
-			Int32 eid = getAoiEntityIDFromStream(stream);
+			Int32 eid = getViewEntityIDFromStream(stream);
 			onUpdatePropertys_(eid, stream);
 		}
 		
@@ -1607,7 +1607,7 @@
 		*/
 		public void Client_onRemoteMethodCallOptimized(MemoryStream stream)
 		{
-			Int32 eid = getAoiEntityIDFromStream(stream);
+			Int32 eid = getViewEntityIDFromStream(stream);
 			onRemoteMethodCall_(eid, stream);
 		}
 		
@@ -1666,7 +1666,7 @@
 		}
 
 		/*
-			服务端通知一个实体进入了世界(如果实体是当前玩家则玩家第一次在一个space中创建了， 如果是其他实体则是其他实体进入了玩家的AOI)
+			服务端通知一个实体进入了世界(如果实体是当前玩家则玩家第一次在一个space中创建了， 如果是其他实体则是其他实体进入了玩家的View)
 		*/
 		public void Client_onEntityEnterWorld(MemoryStream stream)
 		{
@@ -1767,16 +1767,16 @@
 		}
 
 		/*
-			服务端使用优化的方式通知一个实体离开了世界(如果实体是当前玩家则玩家离开了space， 如果是其他实体则是其他实体离开了玩家的AOI)
+			服务端使用优化的方式通知一个实体离开了世界(如果实体是当前玩家则玩家离开了space， 如果是其他实体则是其他实体离开了玩家的View)
 		*/
 		public void Client_onEntityLeaveWorldOptimized(MemoryStream stream)
 		{
-			Int32 eid = getAoiEntityIDFromStream(stream);
+			Int32 eid = getViewEntityIDFromStream(stream);
 			KBEngineApp.app.Client_onEntityLeaveWorld(eid);
 		}
 
 		/*
-			服务端通知一个实体离开了世界(如果实体是当前玩家则玩家离开了space， 如果是其他实体则是其他实体离开了玩家的AOI)
+			服务端通知一个实体离开了世界(如果实体是当前玩家则玩家离开了space， 如果是其他实体则是其他实体离开了玩家的View)
 		*/
 		public void Client_onEntityLeaveWorld(Int32 eid)
 		{
@@ -2213,7 +2213,7 @@
 
 		public void Client_onUpdateData(MemoryStream stream)
 		{
-			Int32 eid = getAoiEntityIDFromStream(stream);
+			Int32 eid = getViewEntityIDFromStream(stream);
 			Entity entity = null;
 			
 			if(!entities.TryGetValue(eid, out entity))
@@ -2271,7 +2271,7 @@
 		
 		public void Client_onUpdateData_ypr(MemoryStream stream)
 		{
-			Int32 eid = getAoiEntityIDFromStream(stream);
+			Int32 eid = getViewEntityIDFromStream(stream);
 			
 			SByte y = stream.readInt8();
 			SByte p = stream.readInt8();
@@ -2282,7 +2282,7 @@
 		
 		public void Client_onUpdateData_yp(MemoryStream stream)
 		{
-			Int32 eid = getAoiEntityIDFromStream(stream);
+			Int32 eid = getViewEntityIDFromStream(stream);
 			
 			SByte y = stream.readInt8();
 			SByte p = stream.readInt8();
@@ -2292,7 +2292,7 @@
 		
 		public void Client_onUpdateData_yr(MemoryStream stream)
 		{
-			Int32 eid = getAoiEntityIDFromStream(stream);
+			Int32 eid = getViewEntityIDFromStream(stream);
 			
 			SByte y = stream.readInt8();
 			SByte r = stream.readInt8();
@@ -2302,7 +2302,7 @@
 		
 		public void Client_onUpdateData_pr(MemoryStream stream)
 		{
-			Int32 eid = getAoiEntityIDFromStream(stream);
+			Int32 eid = getViewEntityIDFromStream(stream);
 			
 			SByte p = stream.readInt8();
 			SByte r = stream.readInt8();
@@ -2312,7 +2312,7 @@
 		
 		public void Client_onUpdateData_y(MemoryStream stream)
 		{
-			Int32 eid = getAoiEntityIDFromStream(stream);
+			Int32 eid = getViewEntityIDFromStream(stream);
 			
 			SByte y = stream.readInt8();
 			
@@ -2321,7 +2321,7 @@
 		
 		public void Client_onUpdateData_p(MemoryStream stream)
 		{
-			Int32 eid = getAoiEntityIDFromStream(stream);
+			Int32 eid = getViewEntityIDFromStream(stream);
 			
 			SByte p = stream.readInt8();
 			
@@ -2330,7 +2330,7 @@
 		
 		public void Client_onUpdateData_r(MemoryStream stream)
 		{
-			Int32 eid = getAoiEntityIDFromStream(stream);
+			Int32 eid = getViewEntityIDFromStream(stream);
 			
 			SByte r = stream.readInt8();
 			
@@ -2339,7 +2339,7 @@
 		
 		public void Client_onUpdateData_xz(MemoryStream stream)
 		{
-			Int32 eid = getAoiEntityIDFromStream(stream);
+			Int32 eid = getViewEntityIDFromStream(stream);
 			
 			Vector2 xz = stream.readPackXZ();
 			
@@ -2348,7 +2348,7 @@
 		
 		public void Client_onUpdateData_xz_ypr(MemoryStream stream)
 		{
-			Int32 eid = getAoiEntityIDFromStream(stream);
+			Int32 eid = getViewEntityIDFromStream(stream);
 			
 			Vector2 xz = stream.readPackXZ();
 	
@@ -2361,7 +2361,7 @@
 		
 		public void Client_onUpdateData_xz_yp(MemoryStream stream)
 		{
-			Int32 eid = getAoiEntityIDFromStream(stream);
+			Int32 eid = getViewEntityIDFromStream(stream);
 			
 			Vector2 xz = stream.readPackXZ();
 	
@@ -2373,7 +2373,7 @@
 		
 		public void Client_onUpdateData_xz_yr(MemoryStream stream)
 		{
-			Int32 eid = getAoiEntityIDFromStream(stream);
+			Int32 eid = getViewEntityIDFromStream(stream);
 			
 			Vector2 xz = stream.readPackXZ();
 	
@@ -2385,7 +2385,7 @@
 		
 		public void Client_onUpdateData_xz_pr(MemoryStream stream)
 		{
-			Int32 eid = getAoiEntityIDFromStream(stream);
+			Int32 eid = getViewEntityIDFromStream(stream);
 			
 			Vector2 xz = stream.readPackXZ();
 	
@@ -2397,7 +2397,7 @@
 		
 		public void Client_onUpdateData_xz_y(MemoryStream stream)
 		{
-			Int32 eid = getAoiEntityIDFromStream(stream);
+			Int32 eid = getViewEntityIDFromStream(stream);
 			Vector2 xz = stream.readPackXZ();
 			SByte yaw = stream.readInt8();
 			_updateVolatileData(eid, xz[0], KBEDATATYPE_BASE.KBE_FLT_MAX, xz[1], yaw, KBEDATATYPE_BASE.KBE_FLT_MAX, KBEDATATYPE_BASE.KBE_FLT_MAX, 1);
@@ -2405,7 +2405,7 @@
 		
 		public void Client_onUpdateData_xz_p(MemoryStream stream)
 		{
-			Int32 eid = getAoiEntityIDFromStream(stream);
+			Int32 eid = getViewEntityIDFromStream(stream);
 			
 			Vector2 xz = stream.readPackXZ();
 	
@@ -2416,7 +2416,7 @@
 		
 		public void Client_onUpdateData_xz_r(MemoryStream stream)
 		{
-			Int32 eid = getAoiEntityIDFromStream(stream);
+			Int32 eid = getViewEntityIDFromStream(stream);
 			
 			Vector2 xz = stream.readPackXZ();
 	
@@ -2427,7 +2427,7 @@
 		
 		public void Client_onUpdateData_xyz(MemoryStream stream)
 		{
-			Int32 eid = getAoiEntityIDFromStream(stream);
+			Int32 eid = getViewEntityIDFromStream(stream);
 			
 			Vector2 xz = stream.readPackXZ();
 			float y = stream.readPackY();
@@ -2437,7 +2437,7 @@
 		
 		public void Client_onUpdateData_xyz_ypr(MemoryStream stream)
 		{
-			Int32 eid = getAoiEntityIDFromStream(stream);
+			Int32 eid = getViewEntityIDFromStream(stream);
 			
 			Vector2 xz = stream.readPackXZ();
 			float y = stream.readPackY();
@@ -2451,7 +2451,7 @@
 		
 		public void Client_onUpdateData_xyz_yp(MemoryStream stream)
 		{
-			Int32 eid = getAoiEntityIDFromStream(stream);
+			Int32 eid = getViewEntityIDFromStream(stream);
 			
 			Vector2 xz = stream.readPackXZ();
 			float y = stream.readPackY();
@@ -2464,7 +2464,7 @@
 		
 		public void Client_onUpdateData_xyz_yr(MemoryStream stream)
 		{
-			Int32 eid = getAoiEntityIDFromStream(stream);
+			Int32 eid = getViewEntityIDFromStream(stream);
 			
 			Vector2 xz = stream.readPackXZ();
 			float y = stream.readPackY();
@@ -2477,7 +2477,7 @@
 		
 		public void Client_onUpdateData_xyz_pr(MemoryStream stream)
 		{
-			Int32 eid = getAoiEntityIDFromStream(stream);
+			Int32 eid = getViewEntityIDFromStream(stream);
 			
 			Vector2 xz = stream.readPackXZ();
 			float y = stream.readPackY();
@@ -2490,7 +2490,7 @@
 		
 		public void Client_onUpdateData_xyz_y(MemoryStream stream)
 		{
-			Int32 eid = getAoiEntityIDFromStream(stream);
+			Int32 eid = getViewEntityIDFromStream(stream);
 			
 			Vector2 xz = stream.readPackXZ();
 			float y = stream.readPackY();
@@ -2501,7 +2501,7 @@
 		
 		public void Client_onUpdateData_xyz_p(MemoryStream stream)
 		{
-			Int32 eid = getAoiEntityIDFromStream(stream);
+			Int32 eid = getViewEntityIDFromStream(stream);
 			
 			Vector2 xz = stream.readPackXZ();
 			float y = stream.readPackY();
@@ -2513,7 +2513,7 @@
 		
 		public void Client_onUpdateData_xyz_r(MemoryStream stream)
 		{
-			Int32 eid = getAoiEntityIDFromStream(stream);
+			Int32 eid = getViewEntityIDFromStream(stream);
 			
 			Vector2 xz = stream.readPackXZ();
 			float y = stream.readPackY();
