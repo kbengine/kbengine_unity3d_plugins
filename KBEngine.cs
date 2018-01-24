@@ -1442,10 +1442,10 @@
 				entity.id = eid;
 				entity.className = entityType;
 				
-				entity.baseMailbox = new Mailbox();
-				entity.baseMailbox.id = eid;
-				entity.baseMailbox.className = entityType;
-				entity.baseMailbox.type = Mailbox.MAILBOX_TYPE.MAILBOX_TYPE_BASE;
+				entity.baseEntityCall = new EntityCall();
+				entity.baseEntityCall.id = eid;
+				entity.baseEntityCall.className = entityType;
+				entity.baseEntityCall.type = EntityCall.ENTITYCALL_TYPE.ENTITYCALL_TYPE_BASE;
 
 				entities[eid] = entity;
 				
@@ -1713,10 +1713,10 @@
 				entity.id = eid;
 				entity.className = entityType;
 				
-				entity.cellMailbox = new Mailbox();
-				entity.cellMailbox.id = eid;
-				entity.cellMailbox.className = entityType;
-				entity.cellMailbox.type = Mailbox.MAILBOX_TYPE.MAILBOX_TYPE_CELL;
+				entity.cellEntityCall = new EntityCall();
+				entity.cellEntityCall.id = eid;
+				entity.cellEntityCall.className = entityType;
+				entity.cellEntityCall.type = EntityCall.ENTITYCALL_TYPE.ENTITYCALL_TYPE_CELL;
 				
 				entities[eid] = entity;
 				
@@ -1747,10 +1747,10 @@
 					clearEntities(false);
 					entities[entity.id] = entity;
 				
-					entity.cellMailbox = new Mailbox();
-					entity.cellMailbox.id = eid;
-					entity.cellMailbox.className = entityType;
-					entity.cellMailbox.type = Mailbox.MAILBOX_TYPE.MAILBOX_TYPE_CELL;
+					entity.cellEntityCall = new EntityCall();
+					entity.cellEntityCall.id = eid;
+					entity.cellEntityCall.className = entityType;
+					entity.cellEntityCall.type = EntityCall.ENTITYCALL_TYPE.ENTITYCALL_TYPE_CELL;
 					
 					entity.set_direction(entity.getDefinedProperty("direction"));
 					entity.set_position(entity.getDefinedProperty("position"));					
@@ -1794,7 +1794,7 @@
 			if(entity_id == eid)
 			{
 				clearSpace(false);
-				entity.cellMailbox = null;
+				entity.cellEntityCall = null;
 			}
 			else
 			{

@@ -487,7 +487,7 @@
 		}
 	}
 	
-	public class KBEDATATYPE_MAILBOX : KBEDATATYPE_BASE
+	public class KBEDATATYPE_ENTITYCALL : KBEDATATYPE_BASE
 	{
 		public override object createFromStream(MemoryStream stream)
 		{

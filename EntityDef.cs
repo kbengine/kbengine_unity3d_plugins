@@ -61,7 +61,7 @@
 			datatypes["VECTOR4"] = new KBEDATATYPE_VECTOR4();
 			datatypes["PYTHON"] = new KBEDATATYPE_PYTHON();
 			datatypes["UNICODE"] = new KBEDATATYPE_UNICODE();
-			datatypes["MAILBOX"] = new KBEDATATYPE_MAILBOX();
+			datatypes["ENTITYCALL"] = new KBEDATATYPE_ENTITYCALL();
 			datatypes["BLOB"] = new KBEDATATYPE_BLOB();
 		}
 		
@@ -80,7 +80,7 @@
 			datatype2id["DATATYPE"] = 2;
 			datatype2id["CHAR"] = 2;
 			datatype2id["DETAIL_TYPE"] = 2;
-			datatype2id["MAIL_TYPE"] = 2;
+			datatype2id["ENTITYCALL_TYPE"] = 2;
 
 			id2datatypes[2] = datatypes["UINT8"];
 			
@@ -137,7 +137,7 @@
 			datatype2id["PY_DICT"] = 10;
 			datatype2id["PY_TUPLE"] = 10;
 			datatype2id["PY_LIST"] = 10;
-			datatype2id["MAILBOX"] = 10;
+			datatype2id["ENTITYCALL"] = 10;
 
 			id2datatypes[10] = datatypes["PYTHON"];
 			
