@@ -57,7 +57,7 @@
 			if(type == EntityCall.ENTITYCALL_TYPE.ENTITYCALL_TYPE_CELL)
 				bundle.newMessage(Message.messages["Baseapp_onRemoteCallCellMethodFromClient"]);
 			else
-				bundle.newMessage(Message.messages["Base_onRemoteMethodCall"]);
+				bundle.newMessage(Message.messages["Entity_onRemoteMethodCall"]);
 	
 			bundle.writeInt32(this.id);
 			

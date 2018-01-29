@@ -2593,16 +2593,19 @@
 		*/
 		public void Client_onStreamDataStarted(Int16 id, UInt32 datasize, string descr)
 		{
+			Event.fireOut("onStreamDataStarted", new object[]{id, datasize, descr});
 		}
 		
 		public void Client_onStreamDataRecv(MemoryStream stream)
 		{
-			// Int16 resID = stream.readInt16();
-			// byte[] datas = stream.readBlob();
+			Int16 resID = stream.readInt16();
+			byte[] datas = stream.readBlob();
+			Event.fireOut("onStreamDataRecv", new object[]{resID, datas});
 		}
 		
 		public void Client_onStreamDataCompleted(Int16 id)
 		{
+			Event.fireOut("onStreamDataCompleted", new object[]{id});
 		}
 	}
 	
