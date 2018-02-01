@@ -127,6 +127,17 @@
 			return register(events_out, eventname, obj, funcname);
 		}
 
+        /*
+            注册监听由kbe插件抛出的事件。(out = kbe->render)
+            通常由渲染表现层来注册, 例如：监听角色血量属性的变化， 如果UI层注册这个事件，
+            事件触发后就可以根据事件所附带的当前血量值来改变角色头顶的血条值。
+            直接通过Method注册，obj和methodName作为这个事件的唯一标识，如果这个方法为匿名方法，则obj为null
+        */
+        public static bool registerOut(string eventName,object obj,string methodName,System.Reflection.MethodInfo method)
+        {
+            return register(events_out, eventName, obj, methodName, method);
+        }
+
 		/*
 			注册监听由渲染表现层抛出的事件(in = render->kbe)
 			通常由kbe插件层来注册， 例如：UI层点击登录， 此时需要触发一个事件给kbe插件层进行与服务端交互的处理。
@@ -135,8 +146,18 @@
 		{
 			return register(events_in, eventname, obj, funcname);
 		}
-		
-		private static bool register(Dictionary<string, List<Pair>> events, string eventname, object obj, string funcname)
+
+        /*
+            注册监听由渲染表现层抛出的事件(in = render->kbe)
+			通常由kbe插件层来注册， 例如：UI层点击登录， 此时需要触发一个事件给kbe插件层进行与服务端交互的处理。
+            直接通过Method注册，obj和methodName作为这个事件的唯一标识，如果这个方法为匿名方法，则obj为null
+        */
+        public static bool registerIn(string eventname, object obj, string methodName,System.Reflection.MethodInfo method)
+        {
+            return register(events_in, eventname, obj, methodName,method);
+        }
+
+        private static bool register(Dictionary<string, List<Pair>> events, string eventname, object obj, string funcname, System.Reflection.MethodInfo method = null)
 		{
 			deregister(events, eventname, obj, funcname);
 			List<Pair> lst = null;
@@ -144,7 +165,7 @@
 			Pair pair = new Pair();
 			pair.obj = obj;
 			pair.funcname = funcname;
-			pair.method = obj.GetType().GetMethod(funcname);
+			pair.method = method==null?obj.GetType().GetMethod(funcname):method;
 			if(pair.method == null)
 			{
 				Dbg.ERROR_MSG("Event::register: " + obj + "not found method[" + funcname + "]");
