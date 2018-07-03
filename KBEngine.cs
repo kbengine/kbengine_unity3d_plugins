@@ -1378,7 +1378,7 @@
 			username = accountName;
 			baseappIP = stream.readString();
 			baseappPort = stream.readUint16();
-			
+			UInt16 baseappUDPPort = stream.readUint16();
 			Dbg.DEBUG_MSG("KBEngine::Client_onLoginSuccessfully: accountName(" + accountName + "), addr(" + 
 					baseappIP + ":" + baseappPort + "), datas(" + _serverdatas.Length + ")!");
 			
