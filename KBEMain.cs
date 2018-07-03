@@ -19,7 +19,7 @@ public class KBEMain : MonoBehaviour
 	public int port = 20013;
 	public KBEngineApp.CLIENT_TYPE clientType = KBEngineApp.CLIENT_TYPE.CLIENT_TYPE_MINI;
 	public string persistentDataPath = "Application.persistentDataPath";
-	public bool syncPlayer = true;
+	public int syncPlayerMS = 100;
 	public int threadUpdateHZ = 10;
 	public int serverHeartbeatTick = 15;
 	public int SEND_BUFFER_MAX = (int)KBEngine.NetworkInterface.TCP_PACKET_MAX;
@@ -61,7 +61,7 @@ public class KBEMain : MonoBehaviour
 		else
 			args.persistentDataPath = persistentDataPath;
 		
-		args.syncPlayer = syncPlayer;
+		args.syncPlayerMS = syncPlayerMS;
 		args.threadUpdateHZ = threadUpdateHZ;
 		args.serverHeartbeatTick = serverHeartbeatTick;
 		args.useAliasEntityID = useAliasEntityID;
