@@ -626,6 +626,7 @@
 		*/
 		public void reloginBaseapp()
 		{
+			_lastTickTime = System.DateTime.Now;
 			_lastTickCBTime = System.DateTime.Now;
 
 			if(_networkInterface.valid())
