@@ -62,9 +62,12 @@
 		{
 			if(valid())
 			{
-				Dbg.DEBUG_MSG(string.Format("NetworkInterface::reset(), close socket from '{0}'", _socket.RemoteEndPoint.ToString()));
+				if(_socket.RemoteEndPoint != null)
+					Dbg.DEBUG_MSG(string.Format("NetworkInterface::reset(), close socket from '{0}'", _socket.RemoteEndPoint.ToString()));
+
          	   _socket.Close(0);
 			}
+
 			_socket = null;
 			_packetReceiver = null;
 			_packetSender = null;
