@@ -137,7 +137,6 @@
 			datatype2id["PY_DICT"] = 10;
 			datatype2id["PY_TUPLE"] = 10;
 			datatype2id["PY_LIST"] = 10;
-			datatype2id["ENTITYCALL"] = 10;
 
 			id2datatypes[10] = datatypes["PYTHON"];
 			
@@ -176,6 +175,8 @@
 			datatype2id["ARRAY"] = 19;
 			// 这里不需要绑定，ARRAY需要根据不同类型实例化动态得到id
 			//id2datatypes[19] = datatypes["ARRAY"];
+
+			datatype2id["ENTITYCALL"] = 20;
 		}
     }
     
