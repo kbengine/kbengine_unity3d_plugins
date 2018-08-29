@@ -491,12 +491,25 @@
 	{
 		public override object createFromStream(MemoryStream stream)
 		{
-			return stream.readBlob();
+			UInt64 cid = stream.readUint64();
+			Int32 id = stream.readInt32();
+			UInt16 type = stream.readUint16();
+			UInt16 utype = stream.readUint16();
+
+			return new byte[0];
 		}
 		
 		public override void addToStream(Bundle stream, object v)
 		{
-			stream.writeBlob((byte[])v);
+			UInt64 cid = 0;
+			Int32 id = 0;
+			UInt16 type = 0;
+			UInt16 utype = 0;
+
+			stream.writeUint64(cid);
+			stream.writeInt32(id);
+			stream.writeUint16(type);
+			stream.writeUint16(utype);
 		}
 		
 		public override object parseDefaultValStr(string v)
