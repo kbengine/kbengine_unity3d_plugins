@@ -1397,10 +1397,11 @@
 			baseappIP = stream.readString();
 			baseappPort = stream.readUint16();
 			UInt16 baseappUDPPort = stream.readUint16();
+			_serverdatas = stream.readBlob();
+
 			Dbg.DEBUG_MSG("KBEngine::Client_onLoginSuccessfully: accountName(" + accountName + "), addr(" + 
 					baseappIP + ":" + baseappPort + "), datas(" + _serverdatas.Length + ")!");
 			
-			_serverdatas = stream.readBlob();
 			login_baseapp(true);
 		}
 		
