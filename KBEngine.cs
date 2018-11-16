@@ -1248,7 +1248,7 @@
 		{
 			if(failcode != 0)
 			{
-				Dbg.ERROR_MSG("KBEngine::Client_onReqAccountResetPasswordCB: " + username + " is failed! code=" + failcode + "!");
+				Dbg.ERROR_MSG("KBEngine::Client_onReqAccountResetPasswordCB: " + username + " is failed! code=" + failcode + "(" + serverErr(failcode) +")!");
 				return;
 			}
 	
@@ -1272,7 +1272,7 @@
 		{
 			if(failcode != 0)
 			{
-				Dbg.ERROR_MSG("KBEngine::Client_onReqAccountBindEmailCB: " + username + " is failed! code=" + failcode + "!");
+				Dbg.ERROR_MSG("KBEngine::Client_onReqAccountBindEmailCB: " + username + " is failed! code=" + failcode + "(" + serverErr(failcode) +")!");
 				return;
 			}
 
@@ -1296,7 +1296,7 @@
 		{
 			if(failcode != 0)
 			{
-				Dbg.ERROR_MSG("KBEngine::Client_onReqAccountNewPasswordCB: " + username + " is failed! code=" + failcode + "!");
+				Dbg.ERROR_MSG("KBEngine::Client_onReqAccountNewPasswordCB: " + username + " is failed! code=" + failcode + "(" + serverErr(failcode) +")!");
 				return;
 			}
 	
@@ -1881,7 +1881,7 @@
 			
 			if(retcode != 0)
 			{
-				Dbg.WARNING_MSG("KBEngine::Client_onCreateAccountResult: " + username + " create is failed! code=" + retcode + "!");
+				Dbg.WARNING_MSG("KBEngine::Client_onCreateAccountResult: " + username + " create is failed! code=" + retcode + "(" + serverErr(retcode) +")!");
 				return;
 			}
 	
