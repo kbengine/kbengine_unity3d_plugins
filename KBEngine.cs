@@ -505,6 +505,23 @@
 			}
 		}
 		
+		public void Client_onImportClientSDK(MemoryStream stream)
+		{
+			int remainingFiles = 0;
+			remainingFiles = stream.readInt32();
+
+			string fileName;
+			fileName = stream.readString();
+
+			int fileSize = 0;
+			fileSize = stream.readInt32();
+
+			byte[] fileDatas = new byte[0];
+			fileDatas = stream.readBlob();
+
+			Event.fireIn("onImportClientSDK", remainingFiles, fileName, fileSize, fileDatas);
+		}
+		
 		/*
 			登录到服务端，必须登录完成loginapp与网关(baseapp)，登录流程才算完毕
 		*/
