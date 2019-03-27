@@ -19,7 +19,7 @@
 	*/
 	public class PacketSender 
 	{
-			public delegate void AsyncSendMethod();
+		public delegate void AsyncSendMethod();
 
 		private byte[] _buffer;
 
