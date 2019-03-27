@@ -17,9 +17,9 @@
 		包发送模块(与服务端网络部分的名称对应)
 		处理网络数据的发送
 	*/
-    public class PacketSender 
-    {
-    		public delegate void AsyncSendMethod();
+	public class PacketSender 
+	{
+			public delegate void AsyncSendMethod();
 
 		private byte[] _buffer;
 
@@ -31,10 +31,10 @@
 		AsyncCallback _asyncCallback = null;
 		AsyncSendMethod _asyncSendMethod;
 		
-        public PacketSender(NetworkInterface networkInterface)
-        {
-        	_init(networkInterface);
-        }
+		public PacketSender(NetworkInterface networkInterface)
+		{
+			_init(networkInterface);
+		}
 
 		~PacketSender()
 		{
@@ -66,7 +66,7 @@
 				return true;
 
 			Monitor.Enter(_sending);
-            if (!_sending)
+			if (!_sending)
 			{
 				if (_wpos == _spos)
 				{
@@ -108,16 +108,16 @@
 			Interlocked.Add(ref _wpos, dataLength);
 
 			if (!_sending)
-            {
-                _sending = true;
-                Monitor.Exit(_sending);
+			{
+				_sending = true;
+				Monitor.Exit(_sending);
 
-                _startSend();
-            }
-            else
-            {
-                Monitor.Exit(_sending);
-            }
+				_startSend();
+			}
+			else
+			{
+				Monitor.Exit(_sending);
+			}
 
 			return true;
 		}
@@ -170,12 +170,12 @@
 				// 所有数据发送完毕了
 				if (_spos == _wpos)
 				{
-                    _sending = false;
-                    Monitor.Exit(_sending);
-                    return;
+					_sending = false;
+					Monitor.Exit(_sending);
+					return;
 				}
 
-                Monitor.Exit(_sending);
+				Monitor.Exit(_sending);
 			}
 		}
 		
