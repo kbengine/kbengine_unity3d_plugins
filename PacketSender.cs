@@ -77,7 +77,7 @@
 				}
 			}
 
-			int t_spos = Interlocked.Add(ref _spos, 0);
+			int t_spos = _spos;
 			int space = 0;
 			int tt_wpos = _wpos % _buffer.Length;
 			int tt_spos = t_spos % _buffer.Length;
@@ -107,7 +107,7 @@
 				Array.Copy(stream.data(), stream.rpos + remain, _buffer, 0, expect_total - _buffer.Length);
 			}
 
-			Interlocked.Add(ref _wpos, dataLength);
+			_wpos += dataLength;
 
 			if (!_sending)
 			{
