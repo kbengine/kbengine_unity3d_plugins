@@ -1384,7 +1384,7 @@
 			UInt16 failedcode = stream.readUint16();
 			_serverdatas = stream.readBlob();
 			Dbg.ERROR_MSG("KBEngine::Client_onLoginFailed: failedcode(" + failedcode + "), datas(" + _serverdatas.Length + ")!");
-			Event.fireAll("onLoginFailed", new object[]{failedcode});
+			Event.fireAll("onLoginFailed", new object[]{failedcode, _serverdatas});
 		}
 		
 		/*

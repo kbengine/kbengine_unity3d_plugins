@@ -197,6 +197,7 @@ KBE-Plugin fire-out events(KBE => Unity):
 
 			Event-datas: 
 				uint16: retcode
+				bytes: serverdatas
 					http://kbengine.org/docs/configuration/server_errors.html
 
 		onLoginBaseappFailed
