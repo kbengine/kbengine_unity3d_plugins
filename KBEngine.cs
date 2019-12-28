@@ -86,7 +86,7 @@
 		
 		// 服务端与客户端的版本号以及协议MD5
 		public string serverVersion = "";
-		public string clientVersion = "1.1.6";
+		public string clientVersion = "1.3.13";
 		public string serverScriptVersion = "";
 		public string clientScriptVersion = "0.1.0";
 		public string serverProtocolMD5 = "";
@@ -2333,8 +2333,8 @@
 			float y = stream.readFloat();
 			float r = stream.readFloat();
 			
-			_updateVolatileData(eid, KBEDATATYPE_BASE.KBE_FLT_MAX, KBEDATATYPE_BASE.KBE_FLT_MAX, KBEDATATYPE_BASE.KBE_FLT_MAX, y, KBEDATATYPE_BASE.KBE_FLT_MAX, r, -1);
-		}
+            _updateVolatileData(eid, KBEDATATYPE_BASE.KBE_FLT_MAX, KBEDATATYPE_BASE.KBE_FLT_MAX, KBEDATATYPE_BASE.KBE_FLT_MAX, y, KBEDATATYPE_BASE.KBE_FLT_MAX, r, -1, false);
+        }
 		
 		public void Client_onUpdateData_pr(MemoryStream stream)
 		{
