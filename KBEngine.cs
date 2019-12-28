@@ -2332,8 +2332,8 @@
 			float y = stream.readFloat();
 			float r = stream.readFloat();
 			
-			_updateVolatileData(eid, KBEDATATYPE_BASE.KBE_FLT_MAX, KBEDATATYPE_BASE.KBE_FLT_MAX, KBEDATATYPE_BASE.KBE_FLT_MAX, y, KBEDATATYPE_BASE.KBE_FLT_MAX, r, -1);
-		}
+			_updateVolatileData(eid, KBEDATATYPE_BASE.KBE_FLT_MAX, KBEDATATYPE_BASE.KBE_FLT_MAX, KBEDATATYPE_BASE.KBE_FLT_MAX, y, KBEDATATYPE_BASE.KBE_FLT_MAX, r, -1, false);
+        }
 		
 		public void Client_onUpdateData_pr(MemoryStream stream)
 		{
